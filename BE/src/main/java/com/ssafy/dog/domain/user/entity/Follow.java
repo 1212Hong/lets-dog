@@ -1,7 +1,16 @@
 package com.ssafy.dog.domain.user.entity;
 
-import javax.persistence.*;
 import java.time.LocalDateTime;
+
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -11,14 +20,14 @@ import lombok.RequiredArgsConstructor;
 @Table(name = "Follow")
 public class Follow {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long followId;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "userId", referencedColumnName = "userId")
-  private User user;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "id", referencedColumnName = "id")
+	private User user;
 
-  private Long followTargetId;
-  private LocalDateTime followCreatedAt;
+	private Long targetId;
+	private LocalDateTime createdAt;
 }

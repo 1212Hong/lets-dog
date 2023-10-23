@@ -1,11 +1,13 @@
 package com.ssafy.dog.domain.user.entity;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
-import javax.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
-
 
 @Entity
 @Getter
@@ -13,10 +15,10 @@ import lombok.RequiredArgsConstructor;
 @Table(name = "DogDispositionSample")
 public class DogDispositionSample {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-  private String sampleId;
-  private String sampleDisposition;
+	private String sampleId;
+	private String sampleDisposition;
 }
