@@ -1,11 +1,13 @@
 package com.ssafy.dog.domain.user.entity;
 
-import lombok.Data;
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-@Data
 @Entity
+@Getter
+@RequiredArgsConstructor
 @Table(name = "Follow")
 public class Follow {
 

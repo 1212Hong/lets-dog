@@ -1,13 +1,15 @@
 package com.ssafy.dog.domain.user.entity;
 
 import com.ssafy.dog.domain.board.entity.Board;
-import lombok.Data;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-@Data
 @Entity
+@Getter
+@RequiredArgsConstructor
 @Table(name = "User")
 public class User {
 

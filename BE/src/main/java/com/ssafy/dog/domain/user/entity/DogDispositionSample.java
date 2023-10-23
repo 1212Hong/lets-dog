@@ -1,11 +1,15 @@
 package com.ssafy.dog.domain.user.entity;
 
 
-import lombok.Data;
 import javax.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
-@Data
+
 @Entity
+@Getter
+@NoArgsConstructor
 @Table(name = "DogDispositionSample")
 public class DogDispositionSample {
 
