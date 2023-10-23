@@ -1,7 +1,6 @@
 package com.ssafy.dog.domain.user.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.ssafy.dog.domain.user.entity.User;
@@ -14,8 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 public class UserServiceImpl implements UserService {
 	@Autowired
 	private UserRepository userRepository;
+
 	@Autowired
-	private BCryptPasswordEncoder bCryptPasswordEncoder;
+	// private BCryptPasswordEncoder bCryptPasswordEncoder;
 
 	@Override
 	public User findByUserLoginId(String loginId) {
