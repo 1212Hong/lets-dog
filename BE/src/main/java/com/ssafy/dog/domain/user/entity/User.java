@@ -14,8 +14,6 @@ import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import com.ssafy.dog.domain.board.entity.Board;
-
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
@@ -54,8 +52,8 @@ public class User {
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<Dog> dogs;
 
-	@OneToMany(mappedBy = "user")
-	private List<Board> boards;
+	// @OneToMany(mappedBy = "user")
+	// private List<Board> boards;
 
 	@Builder
 	public User(
