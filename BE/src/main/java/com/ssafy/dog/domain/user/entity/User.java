@@ -1,17 +1,13 @@
 package com.ssafy.dog.domain.user.entity;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import lombok.Builder;
@@ -46,15 +42,6 @@ public class User {
 	private String userGender;
 	@NonNull
 	private Boolean userTermsAgreed;
-
-	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	private List<Follow> follows;
-
-	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	private List<Dog> dogs;
-
-	// @OneToMany(mappedBy = "user")
-	// private List<Board> boards;
 
 	@Builder
 	public User(
