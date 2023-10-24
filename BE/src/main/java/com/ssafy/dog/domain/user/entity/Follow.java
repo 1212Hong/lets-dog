@@ -25,7 +25,7 @@ public class Follow {
 	private Long followId;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id", referencedColumnName = "userId")
+	@JoinColumn(name = "user_id", referencedColumnName = "user_id")
 	private User user;
 
 	private Long targetId;
