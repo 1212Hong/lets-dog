@@ -27,24 +27,24 @@ public class User {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private Long userId;
 	@Column(unique = true)
 	@NonNull
-	private String loginId;
+	private String userLoginId;
 	@NonNull
-	private String pw;
+	private String userPw;
 	@NonNull
-	private String nickname;
+	private String userNickname;
 	@Lob
-	private String picture;
+	private String userPicture;
 	@NonNull
-	private LocalDateTime createdAt;
+	private LocalDateTime userCreatedAt;
 	@NonNull
-	private LocalDateTime updatedAt;
-	private String aboutMe;
-	private String gender;
+	private LocalDateTime userUpdatedAt;
+	private String userAboutMe;
+	private String userGender;
 	@NonNull
-	private Boolean termsAgreed;
+	private Boolean userTermsAgreed;
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<Follow> follows;
@@ -57,16 +57,16 @@ public class User {
 
 	@Builder
 	public User(
-		String loginId, String pw, String nickname, String picture, LocalDateTime createdAt,
-		LocalDateTime updatedAt, String aboutMe, String gender, Boolean termsAgreed) {
-		this.loginId = loginId;
-		this.pw = pw;
-		this.nickname = nickname;
-		this.picture = picture;
-		this.createdAt = createdAt;
-		this.updatedAt = updatedAt;
-		this.aboutMe = aboutMe;
-		this.gender = gender;
-		this.termsAgreed = termsAgreed;
+		String userLoginId, String userPw, String userNickname, String userPicture, LocalDateTime userCreatedAt,
+		LocalDateTime userUpdatedAt, String userAboutMe, String userGender, Boolean userTermsAgreed) {
+		this.userLoginId = userLoginId;
+		this.userPw = userPw;
+		this.userNickname = userNickname;
+		this.userPicture = userPicture;
+		this.userCreatedAt = userCreatedAt;
+		this.userUpdatedAt = userUpdatedAt;
+		this.userAboutMe = userAboutMe;
+		this.userGender = userGender;
+		this.userTermsAgreed = userTermsAgreed;
 	}
 }

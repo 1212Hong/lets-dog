@@ -25,7 +25,7 @@ public class Dog {
 	private Long dogId;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "userId", referencedColumnName = "userId")
+	@JoinColumn(name = "user_id", referencedColumnName = "userId")
 	private User user;
 	private String dogName;
 	private String dogPicture;
