@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 @Entity
 @Getter
 @RequiredArgsConstructor
-@Table(name = "User")
+@Table(name = "user")
 public class User {
 
 	@Id
