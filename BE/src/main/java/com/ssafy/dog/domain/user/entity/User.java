@@ -10,18 +10,20 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @Entity
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "user")
 public class User {
 
 	@Id
+	@Column(name = "user_id")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long userId;
 	@Column(unique = true)
@@ -42,18 +44,18 @@ public class User {
 	@NonNull
 	private Boolean userTermsAgreed;
 
-	@Builder
-	public User(
-		String userLoginId, String userPw, String userNickname, String userPicture, LocalDateTime userCreatedAt,
-		LocalDateTime userUpdatedAt, String userAboutMe, String userGender, Boolean userTermsAgreed) {
-		this.userLoginId = userLoginId;
-		this.userPw = userPw;
-		this.userNickname = userNickname;
-		this.userPicture = userPicture;
-		this.userCreatedAt = userCreatedAt;
-		this.userUpdatedAt = userUpdatedAt;
-		this.userAboutMe = userAboutMe;
-		this.userGender = userGender;
-		this.userTermsAgreed = userTermsAgreed;
-	}
+	// @Builder
+	// public User(
+	// 	String userLoginId, String userPw, String userNickname, String userPicture, LocalDateTime userCreatedAt,
+	// 	LocalDateTime userUpdatedAt, String userAboutMe, String userGender, Boolean userTermsAgreed) {
+	// 	this.userLoginId = userLoginId;
+	// 	this.userPw = userPw;
+	// 	this.userNickname = userNickname;
+	// 	this.userPicture = userPicture;
+	// 	this.userCreatedAt = userCreatedAt;
+	// 	this.userUpdatedAt = userUpdatedAt;
+	// 	this.userAboutMe = userAboutMe;
+	// 	this.userGender = userGender;
+	// 	this.userTermsAgreed = userTermsAgreed;
+	// }
 }
