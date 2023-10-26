@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">dog</string>
+    <string name="chatting">chatting</string>
+    <string name="mypage">chatting</string>
+    <string name="walking">chatting</string>
+    <string name="walkinglog">chatting</string>
+    <string name="type_message">type_message</string>
+    <string name="online">online</string>
+
 </resources>
