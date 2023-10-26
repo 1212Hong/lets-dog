@@ -1,5 +1,11 @@
 <resources>
     <string name="app_name">dog</string>
+    <string name="drawer_opened">Opened Drawer</string>
+    <string name="drawer_closed">Closed Drawer</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="hello">Hi there</string>
+    <string name="signin">Login page</string>
+    <string name="signup">Signup!!</string>
     <string name="chatting">chatting</string>
     <string name="mypage">chatting</string>
     <string name="walking">chatting</string>
