@@ -191,3 +191,6 @@ out/
 ./database/mongodb/data/
 ./database/mysql/data/
 ./kafka/
+
+# querdls 생성되는폴더
+/src/main/generated/

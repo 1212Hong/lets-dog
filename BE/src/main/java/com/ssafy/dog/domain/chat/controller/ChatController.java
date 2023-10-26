@@ -5,6 +5,8 @@ import javax.validation.Valid;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ssafy.dog.common.api.Api;
 import com.ssafy.dog.domain.chat.dto.ChatMessage;
 import com.ssafy.dog.domain.chat.dto.MessageDto;
+import com.ssafy.dog.domain.chat.dto.req.ChatRoomReqDto;
 import com.ssafy.dog.domain.chat.service.ChatService;
 
 import lombok.RequiredArgsConstructor;
@@ -26,6 +29,21 @@ public class ChatController {
 
 	private final SimpMessageSendingOperations messagingTemplate;
 	// private final JwtUtil jwtUtil;
+
+	@PostMapping("/chatroom")
+	public Api<?> createChatRoom(@RequestBody ChatRoomReqDto chatRoomReqDto) {
+		return chatService.createChatRoom(chatRoomReqDto);
+	}
+
+	@GetMapping("/chatroom")
+	public Api<?> getChatRoomList() {
+		return chatService.getChatList();
+	}
+
+	@GetMapping("/chatroom/{roomId}")
+	public Api<?> getChatHistory(@PathVariable Long roomId) {
+		return chatService.getChatHistory(roomId);
+	}
 
 	@CrossOrigin
 	@MessageMapping("/chat/message") //websocket "/pub/chat/message"로 들어오는 메시지 처리
