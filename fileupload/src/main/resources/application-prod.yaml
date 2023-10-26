@@ -1,0 +1,39 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+  sql:
+    init:
+      schema-locations: classpath*:mysql/schema.sql
+
+  r2dbc:
+    url: r2dbc:pool:mysql://mysql:3306/${MYSQL_DATABASE}?serverTimezone=Asia/Seoul
+    username: ${MYSQL_USER}
+    password: ${MYSQL_PASSWORD}
+
+
+  webflux:
+    multipart:
+      max-in-memory-size: 512KB
+      max-parts: 3
+      max-disk-usage-per-part: 1024KB
+      max-headers-size: 5KB
+
+
+logging:
+  level:
+    io.r2dbc: DEBUG
+    org.springframework.r2dbc: DEBUG
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "prometheus"
+
+
+
+
+
+
