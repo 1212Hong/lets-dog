@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -117,6 +118,9 @@ fun UserNameRow(
                     )
                 )
             }
+        }
+        Button(onClick ={}) {
+
         }
         IconComponentImageVector(icon = Icons.Default.MoreVert, size = 24.dp, tint = Color.Black)
     }

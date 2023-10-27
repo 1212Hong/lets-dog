@@ -59,6 +59,7 @@ buildscript {
     }
 }
 
+
 dependencies {
     //레드토핏
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
@@ -68,6 +69,12 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.0")
 
+    // websocket통신용
+    implementation("androidx.recyclerview:recyclerview:1.1.0")
+    implementation("com.squareup.okhttp3:okhttp:4.9.3")
+    implementation("com.github.NaikSoftware:stompprotocolandroid:1.6.6")
+    implementation("io.reactivex.rxjava2:rxjava:2.2.5")
+    implementation("io.reactivex.rxjava2:rxandroid:2.1.0")
     implementation("androidx.navigation:navigation-compose:2.7.0")
     //----------------------커스텀ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
     implementation("androidx.core:core-ktx:1.9.0")
@@ -86,8 +93,6 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))
-    androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
