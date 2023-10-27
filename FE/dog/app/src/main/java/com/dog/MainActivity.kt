@@ -10,7 +10,6 @@ import androidx.compose.ui.Modifier
 import com.dog.ui.navigation.BottomNavigationBar
 import com.dog.ui.theme.DogTheme
 
-
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,4 +25,5 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
 
