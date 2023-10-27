@@ -8,8 +8,10 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.recyclerview.widget.RecyclerView
@@ -17,10 +19,13 @@ import com.dog.ui.navigation.BottomNavigationBar
 import com.dog.ui.theme.DogTheme
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import io.reactivex.Completable
+import io.reactivex.CompletableTransformer
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import org.json.JSONObject
 import ua.naiksoftware.stomp.Stomp
 import ua.naiksoftware.stomp.StompClient
 import ua.naiksoftware.stomp.dto.LifecycleEvent
@@ -42,7 +47,7 @@ class MainActivity : ComponentActivity() {
     private var mRecyclerView: RecyclerView? = null
     private val mGson: Gson = GsonBuilder().create()
 
-    private var compositeDisposable: CompositeDisposable? = null
+    private var compositeDisposable: CompositeDisposable = CompositeDisposable()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -53,6 +58,10 @@ class MainActivity : ComponentActivity() {
                 ) {
                     connectStomp()
                     BottomNavigationBar()
+
+                }
+                Button(onClick = { sendStomp() }) {
+                    Text(text = "테스트")
                 }
             }
         }
@@ -75,8 +84,8 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun connectStomp() {
         val headers: MutableList<StompHeader> = ArrayList()
-        headers.add(StompHeader(LOGIN, "guest"))
-        headers.add(StompHeader(PASSCODE, "guest"))
+        headers.add(StompHeader("Authorization", "test"))
+//        headers.add(StompHeader(PASSCODE, "guest"))
         val dispLifecycle: Disposable? = mStompClient?.lifecycle()
             ?.subscribeOn(Schedulers.io())
             ?.observeOn(AndroidSchedulers.mainThread())
@@ -96,14 +105,13 @@ class MainActivity : ComponentActivity() {
                     LifecycleEvent.Type.FAILED_SERVER_HEARTBEAT -> toast("Stomp failed server heartbeat")
                 }
             }
+
         if (dispLifecycle != null) {
             compositeDisposable?.add(dispLifecycle)
         }
 
         // Receive greetings
-
-        // Receive greetings
-        val dispTopic = mStompClient!!.topic("/topic/greetings")
+        val dispTopic = mStompClient!!.topic("/sub/chatroom/1")
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ topicMessage: StompMessage ->
@@ -121,6 +129,45 @@ class MainActivity : ComponentActivity() {
         compositeDisposable?.add(dispTopic)
 
         mStompClient?.connect(headers)
+    }
+
+    fun sendStomp() {
+        Log.d("compositeDisposable", compositeDisposable.toString())
+        if (mStompClient?.isConnected == true && compositeDisposable != null) {
+            val jsonObject = JSONObject()
+            jsonObject.put("room_id", "1");
+            jsonObject.put("sender_id", "2");
+            jsonObject.put("sender_name", "머홍");
+            jsonObject.put("content_type", "글");
+            jsonObject.put("content", "안녕하세요");
+            Log.d("jsonTest", jsonObject.toString())
+
+//            mStompClient!!.send("/pub/message", jsonObject.toString())
+//                .compose(applySchedulers())
+//                .subscribe()
+
+            compositeDisposable!!.add(
+                mStompClient!!.send(
+                    "/pub/message",
+                    jsonObject.toString()
+                )
+                    .compose(applySchedulers())
+                    .subscribe(
+                        { Log.d(TAG, "STOMP echo send successfully") }
+                    ) { throwable: Throwable ->
+                        Log.e(TAG, "Error send STOMP echo", throwable)
+                        toast(throwable.message!!)
+                    })
+        }
+    }
+
+    protected fun applySchedulers(): CompletableTransformer? {
+        return CompletableTransformer { upstream: Completable ->
+            upstream
+                .unsubscribeOn(Schedulers.newThread())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+        }
     }
 
 //    private fun addItem(echoModel: EchoModel) {
