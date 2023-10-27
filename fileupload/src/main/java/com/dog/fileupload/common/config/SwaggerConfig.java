@@ -1,53 +1,63 @@
 package com.dog.fileupload.common.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.v3.core.jackson.ModelResolver;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.models.Components;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.media.StringSchema;
-import io.swagger.v3.oas.models.parameters.Parameter;
-import io.swagger.v3.oas.models.security.SecurityRequirement;
-import io.swagger.v3.oas.models.security.SecurityScheme;
-import org.springdoc.core.customizers.OperationCustomizer;
+
+import java.util.Collections;
+import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import springfox.documentation.builders.PathSelectors;
+import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.oas.annotations.EnableOpenApi;
+import springfox.documentation.service.ApiKey;
+import springfox.documentation.service.AuthorizationScope;
+import springfox.documentation.service.SecurityReference;
+import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spi.service.contexts.SecurityContext;
+import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger.web.SecurityConfiguration;
+import springfox.documentation.swagger.web.SecurityConfigurationBuilder;
 
 @Configuration
+@EnableOpenApi
 public class SwaggerConfig {
-	@Bean
-	public ModelResolver modelResolver(ObjectMapper objectMapper) {
-		return new ModelResolver(objectMapper);
-	}
 
-	private static final String SECURITY_SCHEME_NAME = "authorization";
+    @Bean
+    public Docket api() {
+        return new Docket(DocumentationType.OAS_30)
+                .select()
+                .apis(RequestHandlerSelectors.any())
+                .paths(PathSelectors.any())
+                .build()
+                .securityContexts(Collections.singletonList(securityContext()))
+                .securitySchemes(Collections.singletonList(apiKeyScheme()));
+    }
 
-	@Bean
-	public OpenAPI swaggerApi() {
-		return new OpenAPI()
-			.components(new Components()
-				.addSecuritySchemes(SECURITY_SCHEME_NAME, new SecurityScheme()
-					.name(SECURITY_SCHEME_NAME)
-					.type(SecurityScheme.Type.HTTP)
-					.scheme("bearer")
-					.bearerFormat("JWT")))
-			.addSecurityItem(new SecurityRequirement().addList(SECURITY_SCHEME_NAME))
-			.info(new Info()
-				.title("Springdoc 테스트")
-				.description("Springdoc을 사용한 Swagger UI 테스트")
-				.version("1.0.0"));
-	}
+    private ApiKey apiKeyScheme() {
+        return new ApiKey("Authorization", "Authorization", "header");
+    }
 
-	@Bean
-	public OperationCustomizer globalHeader() {
-		return (operation, handlerMethod) -> {
-			operation.addParametersItem(new Parameter()
-				.in(ParameterIn.HEADER.toString())
-				.schema(new StringSchema().name("Refresh-Token"))
-				.name("Refresh-Token"));
-			return operation;
-		};
-	}
+    private SecurityContext securityContext() {
+        return SecurityContext.builder()
+                .securityReferences(defaultAuth())
+                .build();
+    }
+
+    private List<SecurityReference> defaultAuth() {
+        AuthorizationScope authorizationScope
+                = new AuthorizationScope("global", "accessEverything");
+        AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
+        authorizationScopes[0] = authorizationScope;
+        return Collections.singletonList(
+                new SecurityReference("Authorization", authorizationScopes));
+    }
+
+    @Bean
+    public SecurityConfiguration security() {
+        return SecurityConfigurationBuilder.builder()
+                .scopeSeparator(",")
+                .additionalQueryStringParams(null)
+                .useBasicAuthenticationWithAccessCodeGrant(false)
+                .build();
+    }
 }
 

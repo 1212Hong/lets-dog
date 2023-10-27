@@ -35,6 +35,7 @@ management:
 
 file:
   uploadUrl: "http://k9c205.p.ssafy.io:9000/uploads/"
+  downloadApi: "http://k9c205.p.ssafy.io:9000/file/"
 
 
 

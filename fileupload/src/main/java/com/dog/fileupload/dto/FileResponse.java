@@ -8,6 +8,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString
 public class FileResponse {
+
     private String url;
 
 	public FileResponse(String url) {

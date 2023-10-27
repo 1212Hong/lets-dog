@@ -24,7 +24,7 @@ public class FileInfo {
     private Long userId;
     private Long articleId;
     private String originalName;
-    private String uuidName;
+    private String encodedName;
     private FileType fileType;
     private FileStatus fileStatus;
     private String url;
@@ -36,13 +36,13 @@ public class FileInfo {
     private LocalDateTime updatedAt;
 
     @Builder
-    public FileInfo(Long userId, Long articleId, String originalName, String uuidName, FileType fileType,
+    public FileInfo(Long userId, Long articleId, String originalName, String encodedName, FileType fileType,
                     FileStatus fileStatus,
                     String url) {
         this.userId = userId;
         this.articleId = articleId;
         this.originalName = originalName;
-        this.uuidName = uuidName;
+        this.encodedName = encodedName;
         this.fileType = fileType;
         this.fileStatus = fileStatus;
         this.url = url;

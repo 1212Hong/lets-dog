@@ -22,8 +22,10 @@ spring:
 
 logging:
   level:
+    reactor: DEBUG
     io.r2dbc: DEBUG
     org.springframework.r2dbc: DEBUG
+    org.bytedeco.ffmpeg: DEBUG
 
 
 management:
@@ -35,7 +37,6 @@ management:
 
 file:
   uploadUrl: "http://localhost:9000/uploads/"
-
-
+  downloadApi: "http://localhost:9000/file/"
 
 

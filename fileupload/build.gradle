@@ -37,11 +37,11 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
 	runtimeOnly 'io.asyncer:r2dbc-mysql:0.9.5'
 //	implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
-//	implementation 'org.springframework.kafka:spring-kafka'
-//	testImplementation 'io.projectreactor:reactor-test'
-	testImplementation 'org.springframework.kafka:spring-kafka-test'
-	implementation 'io.springfox:springfox-boot-starter:3.0.0'
-	implementation "org.springdoc:springdoc-openapi-ui:1.6.11"
+
+
+	implementation "io.springfox:springfox-boot-starter:3.0.0"
+	implementation "io.springfox:springfox-swagger-ui:3.0.0"
+
 	implementation group: 'org.bytedeco', name: 'javacv-platform', version: '1.5.9'
 
 }

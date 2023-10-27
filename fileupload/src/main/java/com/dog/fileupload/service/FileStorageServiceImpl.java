@@ -5,7 +5,7 @@ import com.dog.fileupload.common.exception.ApiException;
 import com.dog.fileupload.entity.FileInfo;
 import com.dog.fileupload.repository.FileInfoRepository;
 import com.dog.fileupload.utils.EncodeFile;
-import com.dog.fileupload.utils.FileNameConverter;
+import com.dog.fileupload.utils.FileNameUtils;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -22,6 +22,7 @@ import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.server.ServerRequest;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -33,6 +34,8 @@ public class FileStorageServiceImpl implements FileStorageService {
 
     @Value("${file.uploadUrl}")
     private String uploadUrl;
+    @Value("${file.downloadApi}")
+    private String downloadApi;
     private final FileInfoRepository fileInfoRepository;
     private final EncodeFile encodeFile;
     private final Path root = Paths.get("uploads");
@@ -54,7 +57,7 @@ public class FileStorageServiceImpl implements FileStorageService {
     }
 
     private Mono<String> saveAndEncodeFile(FilePart filePart) {
-        String filename = FileNameConverter.convert(filePart.filename());
+        String filename = FileNameUtils.convert(filePart.filename());
         Path originalFilePath = root.resolve(filename);
         String mimeType = filePart.headers().getContentType().toString();
         return transferFile(filePart, originalFilePath)
@@ -68,18 +71,18 @@ public class FileStorageServiceImpl implements FileStorageService {
 
     private Mono<String> encodeAndDeleteOriginal(Path originalFilePath, String mimeType) {
         return Mono.fromCallable(() -> {
-            String encodedFilePath;
+            String encodedFileName;
             if (mimeType.startsWith("video/")) {
-                encodedFilePath = encodeFile.encodeVideo(originalFilePath.toString());
+                encodedFileName = encodeFile.encodeVideo(originalFilePath.toString());
             } else if (mimeType.startsWith("image/")) {
-                encodedFilePath = encodeFile.encodeImage(originalFilePath.toString());
+                encodedFileName = encodeFile.encodeImage(originalFilePath.toString());
             } else {
                 throw new ApiException(ErrorCode.BAD_REQUEST, "Unsupported file type");
             }
 
             deleteOriginalFile(originalFilePath);
 
-            return uploadUrl + encodedFilePath;
+            return downloadApi + encodedFileName;
         }).subscribeOn(Schedulers.boundedElastic());
     }
 
@@ -97,14 +100,13 @@ public class FileStorageServiceImpl implements FileStorageService {
         try {
             Path file = root.resolve(filename);
             Resource resource = new UrlResource(file.toUri());
-
             if (resource.exists() || resource.isReadable()) {
                 return DataBufferUtils.read(resource, new DefaultDataBufferFactory(), 4096);
             } else {
-                throw new RuntimeException("파일을 읽을 수 없습니다.");
+                throw new ApiException(ErrorCode.SERVER_ERROR,"파일을 읽을 수 없습니다.");
             }
         } catch (MalformedURLException e) {
-            throw new RuntimeException("Error: " + e.getMessage());
+            throw new ApiException(ErrorCode.SERVER_ERROR,"Error: " + e.getMessage());
         }
     }
 
@@ -115,9 +117,10 @@ public class FileStorageServiceImpl implements FileStorageService {
                     .filter(path -> !path.equals(this.root))
                     .map(this.root::relativize);
         } catch (IOException e) {
-            throw new RuntimeException("피을을 읽을 수 없습니다.");
+            throw new ApiException(ErrorCode.BAD_REQUEST, "파일을 찾을 수 없습니다.");
         }
     }
+
 
     @Override
     public Mono<FileInfo> saveFileInfo(FileInfo fileInfo) {
@@ -126,6 +129,7 @@ public class FileStorageServiceImpl implements FileStorageService {
                 .doOnError(e -> log.error("저장 실패", e))
                 .doOnTerminate(() -> log.info("저장 작업 종료"));
     }
+
 }
 
 

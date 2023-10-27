@@ -14,17 +14,18 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Order(value = Integer.MIN_VALUE) //최우선처리
 public class CustomExceptionHandler {
 
-	@ExceptionHandler(value = ApiException.class)
-	public ResponseEntity<Api<Object>> apiException(ApiException apiException) {
+    @ExceptionHandler(value = ApiException.class)
+    public ResponseEntity<Api<Object>> apiException(ApiException apiException) {
 
-		log.error("", apiException);
+        log.error("", apiException);
 
-		var errorCode = apiException.getErrorCodeIfs();
+        var errorCode = apiException.getErrorCodeIfs();
 
-		return ResponseEntity
-			.status(errorCode.getHttpStatusCode())
-			.body(
-				Api.error(errorCode, apiException.getErrorDescription())
-			);
-	}
+        return ResponseEntity
+                .status(errorCode.getHttpStatusCode())
+                .body(
+                        Api.error(errorCode, apiException.getErrorDescription())
+                );
+    }
+
 }
