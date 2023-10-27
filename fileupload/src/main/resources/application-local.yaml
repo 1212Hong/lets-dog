@@ -16,7 +16,7 @@ spring:
     multipart:
       max-in-memory-size: 512KB
       max-parts: 3
-      max-disk-usage-per-part: 1024KB
+      max-disk-usage-per-part: 300MB
       max-headers-size: 5KB
 
 
@@ -33,6 +33,8 @@ management:
         include: "prometheus"
 
 
+file:
+  uploadUrl: "http://localhost:9000/uploads/"
 
 
 

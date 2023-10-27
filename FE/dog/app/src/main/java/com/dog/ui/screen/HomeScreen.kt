@@ -45,9 +45,9 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.dog.R
-import com.dog.data.Chat
-import com.dog.data.Person
-import com.dog.data.chatList
+import com.dog.data.local.chatList
+import com.dog.data.model.Chat
+import com.dog.data.model.Person
 import com.dog.ui.components.IconComponentDrawable
 import com.dog.ui.components.IconComponentImageVector
 import com.dog.ui.theme.DogTheme
@@ -246,7 +246,6 @@ fun CommonIconButtonDrawable(
             modifier = Modifier.size(15.dp)
         )
     }
-
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

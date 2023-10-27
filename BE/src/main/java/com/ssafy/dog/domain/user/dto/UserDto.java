@@ -34,6 +34,10 @@ public class UserDto {
 	@Size(min = 2, max = 15)
 	private String userNickname;
 
+	@NotNull
+	@Size(min = 10, max = 11)
+	private String userPhone;
+
 	private String userPicture;
 
 	private LocalDateTime userCreatedAt;
@@ -53,12 +57,14 @@ public class UserDto {
 			.userLoginId(userLoginId)
 			.userPw(userPw)
 			.userNickname(userNickname)
+			.userPhone(userPhone)
 			.userPicture(userPicture)
 			.userCreatedAt(LocalDateTime.now())
 			.userUpdatedAt(LocalDateTime.now())
 			.userAboutMe(userAboutMe)
 			.userGender(userGender)
 			.userTermsAgreed(userTermsAgreed)
+			.userIsRemoved(false)
 			.build();
 	}
 }

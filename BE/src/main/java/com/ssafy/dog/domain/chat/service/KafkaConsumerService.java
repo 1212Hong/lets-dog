@@ -21,6 +21,7 @@ public class KafkaConsumerService {
 
 	@KafkaListener(topics = KafkaConstants.KAFKA_TOPIC, groupId = KafkaConstants.GROUP_ID)
 	public void receive(MessageDto message) throws IOException {
+		
 		// log.info("Consumed Message : " + message.getMessage());
 		// HashMap<String, String> msg = new HashMap<>();
 		// msg.put("roomId", String.valueOf(message.getRoomId()));

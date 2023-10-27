@@ -7,7 +7,7 @@ import java.time.ZoneId;
 
 import javax.validation.constraints.NotNull;
 
-import com.ssafy.dog.domain.chat.entity.Chatting;
+import com.ssafy.dog.domain.chat.entity.ChatHistory;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -55,8 +55,8 @@ public class MessageDto implements Serializable {
 		this.id = id;
 	}
 
-	public Chatting convertEntity() {
-		return Chatting.builder()
+	public ChatHistory convertEntity() {
+		return ChatHistory.builder()
 			.senderName(senderName)
 			.senderId(senderId)
 			.roomId(roomId)

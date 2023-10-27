@@ -1,15 +1,15 @@
-package com.dog.data
+package com.dog.util.common
 
 data class ErrorResponse(val msg: String? = null)
 sealed class Result<out T> {
 
-    data class Success<T>(val data: T) : com.dog.data.Result<T>()
+    data class Success<T>(val data: T) : Result<T>()
 
     data class Loading(val loadingMessage: String? = null) :
-        com.dog.data.Result<Nothing>()
+        Result<Nothing>()
 
     data class GenericError(val code: Int? = null, val error: ErrorResponse? = null) :
-        com.dog.data.Result<Nothing>()
+        Result<Nothing>()
 
-    object NetworkError : com.dog.data.Result<Nothing>()
+    object NetworkError : Result<Nothing>()
 }

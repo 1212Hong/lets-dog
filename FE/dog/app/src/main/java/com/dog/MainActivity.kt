@@ -34,7 +34,6 @@ import ua.naiksoftware.stomp.dto.StompMessage
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-
 class MainActivity : ComponentActivity() {
 
     private val TAG = "MainActivity"
@@ -193,4 +192,5 @@ class MainActivity : ComponentActivity() {
         super.onDestroy()
     }
 }
+
 

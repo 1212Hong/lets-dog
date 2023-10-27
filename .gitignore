@@ -192,3 +192,5 @@ BE/database/mongodb/data/
 BE/database/mysql/data/
 BE/kafka/
 
+#uploads
+fileupload/uploads/

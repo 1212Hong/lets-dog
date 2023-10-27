@@ -12,5 +12,6 @@
     <string name="walkinglog">chatting</string>
     <string name="type_message">type_message</string>
     <string name="online">online</string>
+    <string name="title_activity_rest_api">RestApiActivity</string>
 
 </resources>

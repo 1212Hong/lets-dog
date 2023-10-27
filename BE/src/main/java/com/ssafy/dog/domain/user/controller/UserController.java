@@ -3,14 +3,14 @@ package com.ssafy.dog.domain.user.controller;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ssafy.dog.common.api.Api;
 import com.ssafy.dog.domain.user.dto.UserDto;
+import com.ssafy.dog.domain.user.dto.UserSignupDto;
 import com.ssafy.dog.domain.user.repository.UserRepository;
 import com.ssafy.dog.domain.user.service.UserService;
 
@@ -26,9 +26,15 @@ public class UserController {
 		this.userRepository = userRepository;
 	}
 
-	@PostMapping("/sign-up")
-	@ResponseStatus(HttpStatus.OK)
-	public Long signUp(@Valid @RequestBody UserDto form) throws Exception {
-		return userService.signUp(form);
+	@PostMapping("/signup")
+	public Api<?> signUp(@Valid @RequestBody UserSignupDto userSignupDto) {
+		UserDto userDto = new UserDto();
+		userDto.setUserLoginId(userSignupDto.getUserLoginId());
+		userDto.setUserPhone(userSignupDto.getUserPhone());
+		userDto.setUserPw(userSignupDto.getUserPw1());
+		userDto.setUserNickname(userSignupDto.getUserNickname());
+		userDto.setUserTermsAgreed(userSignupDto.getUserTermsAgreed());
+
+		return userService.create(userDto);
 	}
 }
