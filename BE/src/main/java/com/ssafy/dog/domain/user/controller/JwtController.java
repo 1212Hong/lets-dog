@@ -11,6 +11,6 @@ import com.ssafy.dog.common.api.Api;
 public class JwtController {
 	@GetMapping("/valid")
 	public Api<Object> valid(String jwt) {
-		return Api.ok("JWT Valid 완료");
+		return Api.ok(1);
 	}
 }
