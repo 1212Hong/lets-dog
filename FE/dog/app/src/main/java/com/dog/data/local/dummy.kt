@@ -1,10 +1,61 @@
-package com.dog.data
+package com.dog.data.local
 
-data class Chat(
-    val id: Int,
-    val message: String,
-    val time: String,
-    val direction: Boolean
+import com.dog.R
+import com.dog.data.model.Chat
+import com.dog.data.model.Person
+
+
+val personList = listOf(
+    Person(
+        1,
+        "Pranav",
+        R.drawable.ic_launcher
+    ),
+    Person(
+        2,
+        "Ayesha",
+        R.drawable.ic_launcher
+    ),
+    Person(
+        3,
+        "Roshini",
+        R.drawable.ic_launcher
+    ),
+    Person(
+        4,
+        "Kaushik",
+        R.drawable.ic_launcher
+    ),
+    Person(
+        5,
+        "Dad",
+        R.drawable.ic_launcher
+    ),
+    Person(
+        6,
+        "Pranav",
+        R.drawable.ic_launcher
+    ),
+    Person(
+        7,
+        "Ayesha",
+        R.drawable.ic_launcher
+    ),
+    Person(
+        8,
+        "Roshini",
+        R.drawable.ic_launcher
+    ),
+    Person(
+        9,
+        "Kaushik",
+        R.drawable.ic_launcher
+    ),
+    Person(
+        10,
+        "Dad",
+        R.drawable.ic_launcher
+    ),
 )
 
 val chatList = listOf(
