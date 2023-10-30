@@ -1,5 +1,7 @@
 package com.ssafy.dog.domain.user.dto;
 
+import java.time.LocalDateTime;
+
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -9,6 +11,7 @@ import javax.validation.constraints.Size;
 import com.ssafy.dog.domain.user.entity.User;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -37,6 +40,10 @@ public class UserDto {
 
 	private String userPicture;
 
+	private LocalDateTime userCreatedAt;
+
+	private LocalDateTime userUpdatedAt;
+
 	private String userAboutMe;
 
 	private String userGender;
@@ -44,6 +51,7 @@ public class UserDto {
 	@NotNull(message = "약관 동의 여부를 입력해주세요.")
 	private Boolean userTermsAgreed;
 
+	@Builder // 얘는 사라져야 하나?
 	public User toEntity() {
 		return User.builder()
 			.userLoginId(userLoginId)
@@ -51,6 +59,8 @@ public class UserDto {
 			.userNickname(userNickname)
 			.userPhone(userPhone)
 			.userPicture(userPicture)
+			.userCreatedAt(LocalDateTime.now())
+			.userUpdatedAt(LocalDateTime.now())
 			.userAboutMe(userAboutMe)
 			.userGender(userGender)
 			.userTermsAgreed(userTermsAgreed)
