@@ -3,6 +3,7 @@ package com.dog.fileupload.controller;
 import com.dog.fileupload.common.api.Api;
 import com.dog.fileupload.common.error.ErrorCode;
 import com.dog.fileupload.dto.FileResponse;
+import com.dog.fileupload.dto.UpdateRequest;
 import com.dog.fileupload.entity.FileInfo;
 import com.dog.fileupload.service.FileStorageService;
 import com.dog.fileupload.utils.FileNameUtils;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -70,5 +72,10 @@ public class FileController {
     @DeleteMapping("/file/{filePk}")
     public Mono<?> deleteFile(@PathVariable Long filePk) {
         return fileStorageService.deleteFile(filePk);
+    }
+
+    @PutMapping("/files")
+    public Mono<Api<FileResponse>> updateArticlePk(@RequestBody UpdateRequest request) {
+        return fileStorageService.updateArticlePk(request);
     }
 }

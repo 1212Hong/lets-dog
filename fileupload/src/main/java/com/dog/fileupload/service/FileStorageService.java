@@ -1,6 +1,8 @@
 package com.dog.fileupload.service;
 
+import com.dog.fileupload.common.api.Api;
 import com.dog.fileupload.dto.FileResponse;
+import com.dog.fileupload.dto.UpdateRequest;
 import com.dog.fileupload.entity.FileInfo;
 import java.nio.file.Path;
 import java.util.stream.Stream;
@@ -22,5 +24,7 @@ public interface FileStorageService {
     Mono<FileInfo> saveFileInfo(FileInfo info);
 
     Mono<?> deleteFile(Long filePk);
+
+    Mono<Api<FileResponse>> updateArticlePk(UpdateRequest request);
 
 }

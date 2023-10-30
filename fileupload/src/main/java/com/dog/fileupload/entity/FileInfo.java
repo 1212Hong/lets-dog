@@ -53,4 +53,8 @@ public class FileInfo {
     public void deleteFile(FileStatus fileStatus) {
         this.fileStatus = fileStatus;
     }
+
+    public void changeArticlePk(Long articleId) {
+        this.articleId = articleId;
+    }
 }
