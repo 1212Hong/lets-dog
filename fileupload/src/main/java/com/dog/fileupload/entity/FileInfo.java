@@ -4,7 +4,6 @@ package com.dog.fileupload.entity;
 import com.dog.fileupload.enums.FileStatus;
 import com.dog.fileupload.enums.FileType;
 import java.time.LocalDateTime;
-import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +11,6 @@ import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.relational.core.mapping.Table;
 
 
 @Getter
@@ -36,9 +34,9 @@ public class FileInfo {
     private LocalDateTime updatedAt;
 
     @Builder
-    public FileInfo(Long userId, Long articleId, String originalName, String encodedName, FileType fileType,
-                    FileStatus fileStatus,
-                    String url) {
+    private FileInfo(Long userId, Long articleId, String originalName, String encodedName, FileType fileType,
+                     FileStatus fileStatus,
+                     String url) {
         this.userId = userId;
         this.articleId = articleId;
         this.originalName = originalName;
@@ -46,5 +44,9 @@ public class FileInfo {
         this.fileType = fileType;
         this.fileStatus = fileStatus;
         this.url = url;
+    }
+
+    public void changeEncodedFileName(String encodedName) {
+        this.encodedName = encodedName;
     }
 }

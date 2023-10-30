@@ -1,10 +1,7 @@
 package com.dog.fileupload.utils;
 
-import static java.awt.color.ColorSpace.TYPE_XYZ;
-
 import com.dog.fileupload.common.error.ErrorCode;
 import com.dog.fileupload.common.exception.ApiException;
-import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -51,7 +48,6 @@ public class EncodeFile {
         // 설정
 
         BufferedImage convertedImage = java2DFrameConverter.getBufferedImage(matConverter.convert(src), 1.0);
-
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(convertedImage, "jpg", baos);

@@ -38,7 +38,7 @@ public class JwtValidationFilter implements WebFilter {
         if (pathMatcher.match("/swagger-ui/**", requestPath) ||
                 pathMatcher.match("/v3/api-docs", requestPath) ||
                 pathMatcher.match("/swagger-resources/**", requestPath)) {
-            log.info("스웨커 필터 통과");
+            log.info("스웨거 필터 통과");
             return chain.filter(exchange);
         }
 
