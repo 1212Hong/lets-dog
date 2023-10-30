@@ -3,6 +3,7 @@ package com.dog.ui.screen
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,6 +30,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,9 +60,30 @@ import com.dog.ui.components.IconComponentDrawable
 import com.dog.ui.components.IconComponentImageVector
 import com.dog.ui.theme.DogTheme
 import com.dog.ui.theme.Pink400
+import com.dog.util.common.StompManager
+
+private val stompManager: StompManager by lazy { StompManager() }
 
 @Composable
 fun ChattingScreen(navController: NavController) {
+
+//    val stompManager = remember { StompManager() }
+
+//    val viewModel: YourViewModel = viewModel()
+//    val chatMessages by rememberUpdatedState(viewModel.chatMessages)
+
+
+    // Use LaunchedEffect to initialize and connect StompManager
+    DisposableEffect(Unit) {
+        stompManager.initializeStompClient()
+        stompManager.connectStomp()
+
+        onDispose {
+            // Composable 함수가 사라질 때, 여기에서 Stomp 연결을 해제합니다.
+            stompManager.onDestroy()
+        }
+    }
+
     DogTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
@@ -237,13 +261,18 @@ fun CommonIconButton(
 
 @Composable
 fun CommonIconButtonDrawable(
-    @DrawableRes icon: Int
+    @DrawableRes icon: Int,
+    stompManager: StompManager
 ) {
     Box(
         modifier = Modifier
             .background(Color.Yellow, CircleShape)
-            .size(33.dp), contentAlignment = Alignment.Center
+            .size(33.dp)
+            .clickable { stompManager.sendStomp() }, // 클릭 가능한 영역을 정의하고 onClick 함수 호출,
+        contentAlignment = Alignment.Center
+
     ) {
+
         Icon(
             painter = painterResource(id = icon), contentDescription = "",
             tint = Color.Black,
@@ -251,6 +280,7 @@ fun CommonIconButtonDrawable(
         )
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -277,7 +307,13 @@ fun CustomTextField(
             focusedIndicatorColor = Color.Transparent
         ),
         leadingIcon = { CommonIconButton(imageVector = Icons.Default.Add) },
-        trailingIcon = { CommonIconButtonDrawable(icon = R.drawable.ic_launcher) },
+        trailingIcon = {
+            CommonIconButtonDrawable(
+                icon = R.drawable.ic_launcher,
+                stompManager = stompManager
+            )
+        },
+
         modifier = modifier.fillMaxWidth(),
         shape = CircleShape
     )
