@@ -1,8 +1,10 @@
 package com.dog.fileupload.service;
 
+import com.dog.fileupload.common.api.Api;
 import com.dog.fileupload.common.error.ErrorCode;
 import com.dog.fileupload.common.exception.ApiException;
 import com.dog.fileupload.dto.FileResponse;
+import com.dog.fileupload.dto.UpdateRequest;
 import com.dog.fileupload.entity.FileInfo;
 import com.dog.fileupload.enums.FileStatus;
 import com.dog.fileupload.enums.FileType;
@@ -124,18 +126,27 @@ public class FileStorageServiceImpl implements FileStorageService {
 
     @Override
     public Flux<DataBuffer> load(String filename) {
-        try {
-            Path file = root.resolve(filename);
-            Resource resource = new UrlResource(file.toUri());
-            if (resource.exists() || resource.isReadable()) {
-                return DataBufferUtils.read(resource, new DefaultDataBufferFactory(), 4096);
-            } else {
-                throw new ApiException(ErrorCode.SERVER_ERROR, "파일을 읽을 수 없습니다.");
-            }
-        } catch (MalformedURLException e) {
-            throw new ApiException(ErrorCode.SERVER_ERROR, "Error: " + e.getMessage());
-        }
+        return fileInfoRepository.findByEncodedName(filename)
+                .flatMap(info -> {
+                    if (info.getFileStatus() == FileStatus.DELETED) {
+                        return Mono.error(new ApiException(ErrorCode.BAD_REQUEST, "삭제된 파일입니다."));
+                    }
+                    try {
+                        Path file = root.resolve(filename);
+                        Resource resource = new UrlResource(file.toUri());
+                        if (resource.exists() || resource.isReadable()) {
+                            return Mono.just(resource);
+                        } else {
+                            return Mono.error(new ApiException(ErrorCode.SERVER_ERROR, "파일을 읽을 수 없습니다."));
+                        }
+                    } catch (MalformedURLException e) {
+                        return Mono.error(new ApiException(ErrorCode.SERVER_ERROR, "Error: " + e.getMessage()));
+                    }
+                })
+                .flatMapMany(resource -> DataBufferUtils.read(resource, new DefaultDataBufferFactory(), 4096))
+                .switchIfEmpty(Flux.error(new ApiException(ErrorCode.BAD_REQUEST, "존재하지 않는 파일입니다.")));
     }
+
 
     @Override
     public Stream<Path> loadAll() {
@@ -157,6 +168,34 @@ public class FileStorageServiceImpl implements FileStorageService {
                 .doOnTerminate(() -> log.info("저장 작업 종료"));
     }
 
+    @Override
+    public Mono<Api<FileResponse>> deleteFile(Long filePk) {
+        // TODO : 일정 기간이 지나면 deleted 상태의 파일 물리적 삭제
+        return fileInfoRepository.findById(filePk)
+                .switchIfEmpty(Mono.error(new ApiException(ErrorCode.BAD_REQUEST, "존재하지 않는 파일입니다.")))
+                .flatMap(existingFileInfo -> {
+                    if (existingFileInfo.getFileStatus() == FileStatus.DELETED) {
+                        return Mono.error(new ApiException(ErrorCode.BAD_REQUEST, "파일은 이미 삭제된 상태입니다."));
+                    }
+                    existingFileInfo.deleteFile(FileStatus.DELETED);
+                    return fileInfoRepository.save(existingFileInfo);
+                }).map(FileResponse::toResponse)
+                .map(Api::ok)
+                .doOnSuccess(info -> log.info("FilePk : {} 삭제", filePk))
+                .doOnError(e -> log.error("{} 파일 삭제시 {} 에러 발생", filePk, e.getMessage()));
+    }
+
+    @Override
+    public Mono<Api<FileResponse>> updateArticlePk(UpdateRequest request) {
+        return fileInfoRepository.findById(request.getFilePk())
+                .switchIfEmpty(Mono.error(new ApiException(ErrorCode.BAD_REQUEST, "존재하지 않는 파일입니다.")))
+                .flatMap(it -> {
+                    it.changeArticlePk(request.getArticlePk());
+                    return fileInfoRepository.save(it);
+                })
+                .map(FileResponse::toResponse)
+                .map(Api::ok);
+    }
 }
 
 

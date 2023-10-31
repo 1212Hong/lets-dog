@@ -1,6 +1,8 @@
 package com.dog.fileupload.service;
 
+import com.dog.fileupload.common.api.Api;
 import com.dog.fileupload.dto.FileResponse;
+import com.dog.fileupload.dto.UpdateRequest;
 import com.dog.fileupload.entity.FileInfo;
 import java.nio.file.Path;
 import java.util.stream.Stream;
@@ -11,15 +13,18 @@ import reactor.core.publisher.Mono;
 
 public interface FileStorageService {
 
-    public void init();
+    void init();
 
-    public Mono<FileResponse> save(Mono<FilePart> filePartMono, Long userPk);
+    Mono<FileResponse> save(Mono<FilePart> filePartMono, Long userPk);
 
-    public Flux<DataBuffer> load(String filename);
+    Flux<DataBuffer> load(String filename);
 
-    public Stream<Path> loadAll();
+    Stream<Path> loadAll();
 
-    public Mono<FileInfo> saveFileInfo(FileInfo info);
+    Mono<FileInfo> saveFileInfo(FileInfo info);
 
+    Mono<?> deleteFile(Long filePk);
+
+    Mono<Api<FileResponse>> updateArticlePk(UpdateRequest request);
 
 }

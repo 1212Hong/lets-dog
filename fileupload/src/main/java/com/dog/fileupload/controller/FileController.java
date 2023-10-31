@@ -1,7 +1,9 @@
 package com.dog.fileupload.controller;
 
 import com.dog.fileupload.common.api.Api;
+import com.dog.fileupload.common.error.ErrorCode;
 import com.dog.fileupload.dto.FileResponse;
+import com.dog.fileupload.dto.UpdateRequest;
 import com.dog.fileupload.entity.FileInfo;
 import com.dog.fileupload.service.FileStorageService;
 import com.dog.fileupload.utils.FileNameUtils;
@@ -14,9 +16,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.FilePart;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -52,21 +56,6 @@ public class FileController {
                 .map(Api::ok);
     }
 
-    @GetMapping("/files")
-    public ResponseEntity<Flux<FileInfo>> getListFiles() {
-        Stream<FileInfo> fileInfoStream = fileStorageService.loadAll().map(path -> {
-            String fileName = path.getFileName().toString();
-            String url = UriComponentsBuilder.newInstance().path("/files/{filename}").buildAndExpand(fileName)
-                    .toUriString();
-            return null;
-        });
-
-        Flux<FileInfo> fileInfoFlux = Flux.fromStream(fileInfoStream);
-
-        return ResponseEntity.status(HttpStatus.OK).body(fileInfoFlux);
-    }
-
-    //
     @GetMapping("/file/{fileName:.+}")
     public ResponseEntity<Flux<DataBuffer>> getFile(@PathVariable String fileName) {
         Flux<DataBuffer> file = fileStorageService.load(fileName);
@@ -80,11 +69,13 @@ public class FileController {
                 .body(file);
     }
 
-
-    @PostMapping("/test")
-    public Mono<Api<FileInfo>> testPostFileInfo(@RequestBody FileInfo fileInfo) {
-        return fileStorageService.saveFileInfo(fileInfo)
-                .map(Api::ok);
+    @DeleteMapping("/file/{filePk}")
+    public Mono<?> deleteFile(@PathVariable Long filePk) {
+        return fileStorageService.deleteFile(filePk);
     }
 
+    @PutMapping("/files")
+    public Mono<Api<FileResponse>> updateArticlePk(@RequestBody UpdateRequest request) {
+        return fileStorageService.updateArticlePk(request);
+    }
 }
