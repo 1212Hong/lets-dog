@@ -28,6 +28,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.dog.data.local.person
+import com.dog.data.model.Person
 import com.dog.ui.components.MainButton
 import com.dog.ui.theme.DogTheme
 import com.dog.ui.theme.Pink400
@@ -37,7 +39,7 @@ import com.dog.ui.theme.Purple500
 @Composable
 fun MypageScreen(navController: NavController) {
     var selectedTabIndex by remember { mutableIntStateOf(0) }
-
+    var user = person
     var images = listOf(
         // List of image URLs or resource IDs
         "test1",
@@ -69,7 +71,7 @@ fun MypageScreen(navController: NavController) {
                     text = "#귀여움 #소형견",
                     style = MaterialTheme.typography.bodySmall
                 )
-                UserInfo()
+                UserInfo(user)
                 EditProfileButton(navController) // 본인이면 내정보를 편집할 페이지로
                 FriendButtons()
 
@@ -154,9 +156,9 @@ fun ProfileImage() {
 }
 
 @Composable
-fun UserInfo() {
+fun UserInfo(user: Person) {
     Text(
-        text = "소영섭",
+        text = user.name,
         style = MaterialTheme.typography.headlineMedium,
         modifier = Modifier.padding(vertical = 8.dp)
     )
