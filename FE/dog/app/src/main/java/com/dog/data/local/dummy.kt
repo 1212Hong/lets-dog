@@ -120,3 +120,9 @@ val chatList = listOf(
         true
     ),
 )
+
+val person = Person(
+    99,
+    "소영섭",
+    icon = R.drawable.zerosub
+)
