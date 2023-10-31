@@ -1,6 +1,8 @@
 package com.ssafy.dog.domain.user.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -8,9 +10,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Size;
+
+import com.ssafy.dog.domain.board.entity.Board;
+import com.ssafy.dog.domain.board.entity.Comment;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -83,4 +89,11 @@ public class User {
 		this.userTermsAgreed = userTermsAgreed;
 		this.userIsRemoved = userIsRemoved;
 	}
+
+	// === 연결 === //
+	@OneToMany(mappedBy = "user")
+	private List<Board> boardList = new ArrayList<>();
+
+	@OneToMany(mappedBy = "user")
+	private List<Comment> commentListForUser = new ArrayList<>();
 }
