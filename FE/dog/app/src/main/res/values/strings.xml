@@ -10,7 +10,7 @@
     <string name="mypage">chatting</string>
     <string name="walking">chatting</string>
     <string name="walkinglog">chatting</string>
-    <string name="type_message">type_message</string>
+    <string name="type_message">메시지 입력..</string>
     <string name="online">online</string>
     <string name="title_activity_rest_api">RestApiActivity</string>
 

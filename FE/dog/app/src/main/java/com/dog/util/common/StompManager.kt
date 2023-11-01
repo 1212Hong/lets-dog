@@ -104,7 +104,7 @@ class StompManager() {
         mStompClient?.connect(headers)
     }
 
-    fun sendStomp() {
+    fun sendStomp(message: String) {
         Log.d("compositeDisposable", compositeDisposable.toString())
         if (mStompClient?.isConnected == true && compositeDisposable != null) {
             val jsonObject = JSONObject()
@@ -112,12 +112,9 @@ class StompManager() {
             jsonObject.put("sender_id", "2");
             jsonObject.put("sender_name", "머홍");
             jsonObject.put("content_type", "글");
-            jsonObject.put("content", "안녕하세요");
+            jsonObject.put("content", message);
             Log.d("jsonTest", jsonObject.toString())
 
-//            mStompClient!!.send("/pub/message", jsonObject.toString())
-//                .compose(applySchedulers())
-//                .subscribe()
 
             compositeDisposable!!.add(
                 mStompClient!!.send(
