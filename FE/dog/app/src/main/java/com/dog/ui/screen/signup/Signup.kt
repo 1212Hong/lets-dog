@@ -21,7 +21,7 @@ import com.dog.ui.theme.White
 
 @Preview
 @Composable
-fun SignIn() {
+fun SignUp() {
     DogTheme {
         Surface(
             modifier = Modifier
