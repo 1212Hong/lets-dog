@@ -40,10 +40,9 @@ management:
       exposure:
         include: "prometheus"
 
-jwt: # 로컬 개발용 jwt secret
+jwt:
   header: Authorization
-  secret: c2lsdmVybmluZS10ZWNoLXNwcmluZy1ib290LWp3dC10dXRvcmlhbC1zZWNyZXQtc2lsdmVybmluZS10ZWNoLXNwcmluZy1ib290LWp3dC10dXRvcmlhbC1zZWNyZXQK
-  token-validity-in-seconds: 86400
+  secret: ${JWT_SECRET_KEY}
 
 my:
   kafkabroker: localhost:19092,localhost:29092,localhost:39092
