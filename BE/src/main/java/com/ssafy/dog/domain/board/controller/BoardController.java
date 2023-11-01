@@ -1,8 +1,12 @@
 package com.ssafy.dog.domain.board.controller;
 
+import java.util.List;
+
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ssafy.dog.common.api.Api;
@@ -18,7 +22,12 @@ public class BoardController {
 	private final BoardService boardService;
 
 	@PostMapping("/board")
-	public Api<?> createBoard(@RequestBody BoardDto boardDto) {
+	public Api<String> createBoard(@RequestBody BoardDto boardDto) {
 		return boardService.createBoard(boardDto);
+	}
+
+	@GetMapping("board")
+	public Api<List<BoardDto>> getBoardList(@RequestParam String userLoginId) {
+		return boardService.findBoardbyNickname(userLoginId);
 	}
 }
