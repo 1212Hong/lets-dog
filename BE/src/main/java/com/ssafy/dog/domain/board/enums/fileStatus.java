@@ -1,5 +1,5 @@
 package com.ssafy.dog.domain.board.enums;
 
-public enum gender {
-	Male, Female
+public enum fileStatus {
+	DELETE, USE
 }
