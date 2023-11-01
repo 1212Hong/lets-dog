@@ -41,3 +41,5 @@ management:
       exposure:
         include: "prometheus"
 
+my:
+  kafkabroker: kafka1:19092,kafka2:29092,kafka3:39092

@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
@@ -23,6 +24,9 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 public class KafkaConsumerConfig {
 
+	@Value("${my.kafkabroker}")
+	private String kafkaBroker;
+
 	// KafkaListener 컨테이너 팩토리를 생성하는 Bean 메서드
 	@Bean
 	ConcurrentKafkaListenerContainerFactory<String, MessageDto> kafkaListenerContainerFactory() {
@@ -41,7 +45,8 @@ public class KafkaConsumerConfig {
 		// Kafka Consumer 구성을 위한 설정값들을 설정 -> 변하지 않는 값이므로 ImmutableMap을 이용하여 설정
 		Map<String, Object> consumerConfigurations =
 			ImmutableMap.<String, Object>builder()
-				.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaConstants.KAFKA_BROKER)    // 브로커 주소를 설정
+				// .put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaConstants.KAFKA_BROKER)    // 브로커 주소를 설정
+				.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBroker)    // 브로커 주소를 설정
 				.put(ConsumerConfig.GROUP_ID_CONFIG, KafkaConstants.GROUP_ID)
 				.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class)
 				.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, deserializer)
