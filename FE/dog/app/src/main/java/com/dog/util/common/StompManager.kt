@@ -52,7 +52,7 @@ class StompManager() {
         }
 
         val headers: MutableList<StompHeader> = ArrayList()
-        headers.add(StompHeader("Authorization", "test"))
+        headers.add(StompHeader("Authorization", "1"))
 
         val dispLifecycle: Disposable? = mStompClient?.lifecycle()
             ?.subscribeOn(Schedulers.io())
@@ -139,12 +139,6 @@ class StompManager() {
                 .observeOn(AndroidSchedulers.mainThread())
         }
     }
-
-//    private fun addItem(echoModel: EchoModel) {
-////        mDataSet.add(echoModel.getEcho() + " - " + mTimeFormat.format(Date()))
-//        mAdapter!!.notifyDataSetChanged()
-//        mRecyclerView!!.smoothScrollToPosition(mDataSet.size - 1)
-//    }
 
 //    private fun toast(text: String) {
 //        Log.i(TAG, text)

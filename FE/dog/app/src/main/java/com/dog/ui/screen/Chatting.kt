@@ -14,8 +14,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
@@ -31,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
@@ -47,7 +51,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.dog.R
-import com.dog.data.local.chatList
 import com.dog.data.model.Chat
 import com.dog.data.model.Person
 import com.dog.data.viewmodel.chat.ChatViewModel
@@ -60,13 +63,16 @@ import com.dog.ui.theme.Purple300
 import com.dog.ui.theme.White
 import com.dog.ui.theme.Yellow300
 import com.dog.util.common.StompManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 private val stompManager: StompManager by lazy { StompManager() }
 
 @Composable
 fun ChattingScreen(navController: NavController, chatViewModel: ChatViewModel = viewModel()) {
 
-    val chatStates by chatViewModel.chatStates.collectAsState()
+    val chatState by chatViewModel.chatState.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
 
     // Use LaunchedEffect to initialize and connect StompManager
     DisposableEffect(Unit) {
@@ -84,7 +90,7 @@ fun ChattingScreen(navController: NavController, chatViewModel: ChatViewModel = 
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            ChatScreen(chatViewModel)
+            ChatScreen(chatViewModel, chatState, coroutineScope)
         }
     }
 
@@ -176,11 +182,22 @@ fun ChatRow(
 
 @Composable
 fun ChatScreen(
-    chatViewModel: ChatViewModel
+    chatViewModel: ChatViewModel,
+    chatState: List<Chat>,
+    coroutineScope: CoroutineScope
 ) {
     var data =
         rememberNavController().previousBackStackEntry?.savedStateHandle?.get<Person>("data")
             ?: Person()
+    val listState = rememberLazyListState()
+
+    // 스크롤 위치를 최하단으로 이동
+    DisposableEffect(listState, chatState) {
+        coroutineScope.launch {
+            listState.scrollToItem(chatState.size - 1) // 리스트 아이템의 가장 아래로 이동
+        }
+        onDispose { /* 생명주기가 종료될 때 정리 작업을 수행하거나 해제할 수 있음 */ }
+    }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -212,9 +229,10 @@ fun ChatScreen(
                         top = 25.dp,
                         end = 15.dp,
                         bottom = 75.dp
-                    )
+                    ),
+                    state = listState, // LazyListState를 사용
                 ) {
-                    items(chatList, key = { it.id }) {
+                    items(chatState, key = { it.id }) {
                         ChatRow(chat = it, person = data)
                     }
                 }
@@ -224,7 +242,8 @@ fun ChatScreen(
             text = chatViewModel.curMessage, onValueChange = { chatViewModel.curMessage = it },
             modifier = Modifier
                 .padding(horizontal = 20.dp, vertical = 20.dp)
-                .align(Alignment.BottomCenter)
+                .align(Alignment.BottomCenter),
+            chatViewModel = chatViewModel,
         )
     }
 }
@@ -245,13 +264,18 @@ fun CommonIconButton(
 @Composable
 fun CommonIconButtonDrawable(
     @DrawableRes icon: Int,
-    message: String
+    message: String,
+    chatViewModel: ChatViewModel
 ) {
+    val combinedClickActions = {
+        chatViewModel.sendMessage(1, 1, "test")
+        stompManager.sendStomp(message)
+    }
     Box(
         modifier = Modifier
             .background(Purple300, CircleShape)
             .size(33.dp)
-            .clickable { stompManager.sendStomp(message) }, // 클릭 가능한 영역을 정의하고 onClick 함수 호출,
+            .clickable { combinedClickActions() }, // 클릭 가능한 영역을 정의하고 onClick 함수 호출,
         contentAlignment = Alignment.Center
 
     ) {
@@ -270,10 +294,12 @@ fun CommonIconButtonDrawable(
 fun CustomTextField(
     text: String,
     modifier: Modifier = Modifier,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit,
+    chatViewModel: ChatViewModel
 ) {
     TextField(
         value = text, onValueChange = { onValueChange(it) },
+        singleLine = true,
         placeholder = {
             Text(
                 text = stringResource(id = R.string.type_message),
@@ -293,9 +319,20 @@ fun CustomTextField(
         trailingIcon = {
             CommonIconButtonDrawable(
                 icon = R.drawable.ic_launcher,
-                message = text
+                message = text,
+                chatViewModel = chatViewModel
             )
         },
+        keyboardOptions = KeyboardOptions.Default.copy(
+            imeAction = androidx.compose.ui.text.input.ImeAction.Done // Done 액션을 사용하면 엔터 키를 Done으로 변경
+        ),
+        keyboardActions = KeyboardActions(
+            onDone = {
+                // 엔터 키를 눌렀을 때 수행할 작업을 여기에 추가
+                chatViewModel.sendMessage(1, 1, "test")
+                stompManager.sendStomp(text)
+            }
+        ),
 
         modifier = modifier.fillMaxWidth(),
         shape = CircleShape
