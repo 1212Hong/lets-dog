@@ -21,4 +21,5 @@ public class ChatMembersRepositoryImpl implements ChatMembersRepositoryCustom {
 			.where(chatMembers.user.userId.eq(userId))
 			.fetch();
 	}
+
 }
