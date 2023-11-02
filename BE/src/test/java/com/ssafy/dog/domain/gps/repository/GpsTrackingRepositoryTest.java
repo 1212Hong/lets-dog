@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Import;
 
 import com.ssafy.dog.domain.gps.entity.GpsPoints;
 import com.ssafy.dog.domain.gps.entity.GpsTracking;
-import com.ssafy.dog.domain.gps.util.GpsTrackingModelListener;
+import com.ssafy.dog.domain.gps.listener.GpsTrackingModelListener;
 
 @DataMongoTest // test 실행시 application enable JPA auditing 주석 필요
 @Import(GpsTrackingModelListener.class)

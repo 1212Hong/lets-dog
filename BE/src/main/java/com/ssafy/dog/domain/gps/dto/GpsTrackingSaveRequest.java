@@ -1,7 +1,5 @@
 package com.ssafy.dog.domain.gps.dto;
 
-import java.time.LocalDateTime;
-
 import com.ssafy.dog.domain.gps.entity.GpsPoints;
 
 import lombok.AccessLevel;
@@ -13,12 +11,10 @@ import lombok.NoArgsConstructor;
 @Getter
 public class GpsTrackingSaveRequest {
 
-	private LocalDateTime trackingDate;
 	private GpsPoints gpsPoints;
 
 	@Builder
-	public GpsTrackingSaveRequest(LocalDateTime trackingDate, GpsPoints gpsPoints) {
-		this.trackingDate = trackingDate;
+	public GpsTrackingSaveRequest(GpsPoints gpsPoints) {
 		this.gpsPoints = gpsPoints;
 	}
 }

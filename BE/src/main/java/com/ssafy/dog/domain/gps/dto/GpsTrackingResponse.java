@@ -14,14 +14,17 @@ import lombok.NoArgsConstructor;
 @Getter
 public class GpsTrackingResponse {
 
+	private String id;
 	private LocalDateTime trackingDate;
 	private LocalDateTime createdDate;
 	private LocalDateTime modifiedDate;
 	private GpsPoints gpsPoints;
 
 	@Builder
-	public GpsTrackingResponse(LocalDateTime trackingDate, LocalDateTime createdDate, LocalDateTime modifiedDate,
+	public GpsTrackingResponse(String id, LocalDateTime trackingDate, LocalDateTime createdDate,
+		LocalDateTime modifiedDate,
 		GpsPoints gpsPoints) {
+		this.id = id;
 		this.trackingDate = trackingDate;
 		this.gpsPoints = gpsPoints;
 		this.createdDate = createdDate;
@@ -30,6 +33,7 @@ public class GpsTrackingResponse {
 
 	public static GpsTrackingResponse toResponse(GpsTracking gpsTracking) {
 		return GpsTrackingResponse.builder()
+			.id(gpsTracking.getId())
 			.gpsPoints(gpsTracking.getGpsPoints())
 			.trackingDate(gpsTracking.getTrackingDate())
 			.createdDate(gpsTracking.getCreatedDate())

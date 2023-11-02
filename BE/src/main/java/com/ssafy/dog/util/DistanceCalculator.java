@@ -1,4 +1,4 @@
-package com.ssafy.dog.domain.gps.util;
+package com.ssafy.dog.util;
 
 public class DistanceCalculator {
 

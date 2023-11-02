@@ -3,7 +3,6 @@ package com.ssafy.dog.domain.gps.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -46,7 +45,6 @@ class GpsTrackingServiceImpTest {
 		GpsPoints gpsPoints = new GpsPoints(gpsList);
 		GpsTrackingSaveRequest request = GpsTrackingSaveRequest.builder()
 			.gpsPoints(gpsPoints)
-			.trackingDate(LocalDateTime.now().minusDays(1))
 			.build();
 		GpsTracking gpsTracking = GpsTracking.toEntity(request);
 		GpsTrackingResponse expectedResponse = GpsTrackingResponse.toResponse(gpsTracking);

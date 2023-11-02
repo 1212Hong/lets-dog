@@ -1,11 +1,13 @@
 package com.ssafy.dog.domain.gps.entity;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.ssafy.dog.domain.gps.dto.GpsTrackingSaveRequest;
+import com.ssafy.dog.domain.gps.entity.enums.Status;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -24,11 +26,13 @@ public class GpsTracking {
 	private LocalDateTime createdDate;
 	private LocalDateTime modifiedDate;
 	private GpsPoints gpsPoints;
+	private Status status;
 
 	@Builder
-	public GpsTracking(LocalDateTime trackingDate, GpsPoints gpsPoints) {
+	public GpsTracking(LocalDateTime trackingDate, GpsPoints gpsPoints, Status status) {
 		this.trackingDate = trackingDate;
 		this.gpsPoints = gpsPoints;
+		this.status = status;
 		// TODO : 토큰에서 검증해서 자동으로 삽입되도록 Listener에서 처리;
 		this.userLoginId = "test@mail.com";
 	}
@@ -41,10 +45,15 @@ public class GpsTracking {
 		this.modifiedDate = modifiedDate;
 	}
 
+	public void changeStatus(Status status) {
+		this.status = status;
+	}
+
 	public static GpsTracking toEntity(GpsTrackingSaveRequest request) {
 		return GpsTracking.builder()
+			.trackingDate(LocalDateTime.now(ZoneId.of("Asia/Seoul")))
 			.gpsPoints(request.getGpsPoints())
-			.trackingDate(request.getTrackingDate())
+			.status(Status.AVAILABLE)
 			.build();
 	}
 
