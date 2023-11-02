@@ -1,5 +1,8 @@
 package com.ssafy.dog.domain.dog.model;
 
+import lombok.Getter;
+
+@Getter
 public enum DogDisposition {
 	FRIENDLY("친화적", "다른 강아지나 사람들에게 친화적으로 접근하는 성격"),
 	PROTECTIVE("수호적", "주인이나 자신의 영역을 지키려는 성격"),
@@ -28,13 +31,5 @@ public enum DogDisposition {
 	DogDisposition(String key, String description) {
 		this.key = key;
 		this.description = description;
-	}
-
-	public String getKey() {
-		return key;
-	}
-
-	public String getDescription() {
-		return description;
 	}
 }

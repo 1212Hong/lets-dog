@@ -4,6 +4,7 @@ import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.xml.bind.DatatypeConverter;
@@ -14,7 +15,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
+
+import com.ssafy.dog.domain.user.entity.User;
+import com.ssafy.dog.domain.user.repository.UserRepository;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -32,10 +37,12 @@ public class JwtTokenProvider {
 
 	private final Key key;
 	private final long tokenValidTime = 60 * 60 * 24 * 365 * 1000L; // 1년
+	private final UserRepository userRepository;
 
-	public JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {
+	public JwtTokenProvider(@Value("${jwt.secret}") String secretKey, UserRepository userRepository) {
 		byte[] secretByteKey = DatatypeConverter.parseBase64Binary(secretKey);
 		this.key = Keys.hmacShaKeyFor(secretByteKey);
+		this.userRepository = userRepository;
 	}
 
 	public JwtToken generateToken(Authentication authentication) {
@@ -43,9 +50,16 @@ public class JwtTokenProvider {
 			.map(GrantedAuthority::getAuthority)
 			.collect(Collectors.joining(","));
 
+		// String userLoginId = authentication.getName();
+
+		Optional<User> curUser = userRepository.findByUserLoginId(authentication.getName());
+		if (curUser.isEmpty()) {
+			throw new UsernameNotFoundException("JwtTokenProvider 에서 authentication 에 담긴 userLoginId 로 유저를 찾을 수 없습니다.");
+		}
+
 		// Access Token 생성
 		String accessToken = Jwts.builder()
-			.setSubject(authentication.getName())
+			.setSubject(curUser.get().getUserId().toString())
 			.claim("auth", authorities)
 			.setExpiration(new Date(System.currentTimeMillis() + tokenValidTime))
 			.signWith(key, SignatureAlgorithm.HS256)

@@ -15,8 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ssafy.dog.common.api.Api;
 import com.ssafy.dog.common.error.UserErrorCode;
 import com.ssafy.dog.common.exception.ApiException;
-import com.ssafy.dog.domain.user.dto.UserLoginDto;
-import com.ssafy.dog.domain.user.dto.UserSignupDto;
+import com.ssafy.dog.domain.user.dto.request.UserLoginRequestDto;
+import com.ssafy.dog.domain.user.dto.request.UserSignupRequestDto;
+import com.ssafy.dog.domain.user.dto.response.UserLoginResponseDto;
 import com.ssafy.dog.domain.user.entity.User;
 import com.ssafy.dog.domain.user.model.UserRole;
 import com.ssafy.dog.domain.user.repository.UserRepository;
@@ -42,64 +43,64 @@ public class UserServiceImpl implements UserService {
 
 	@Transactional
 	@Override
-	public Api<?> create(UserSignupDto userSignupDto) {
+	public Api<String> create(UserSignupRequestDto userSignupRequestDto) {
 
-		if (!isValidEmail(userSignupDto.getUserLoginId())) {
+		if (!isValidEmail(userSignupRequestDto.getUserLoginId())) {
 			throw new ApiException(UserErrorCode.INVALID_EMAIL);
 		}
 
-		if (!isValidPassword(userSignupDto.getUserPw1())) {
+		if (!isValidPassword(userSignupRequestDto.getUserPw1())) {
 			throw new ApiException(UserErrorCode.INVALID_PASSWORD);
 		}
 
-		if (userRepository.findByUserLoginId(userSignupDto.getUserLoginId()).isPresent()) {
+		if (userRepository.findByUserLoginId(userSignupRequestDto.getUserLoginId()).isPresent()) {
 			throw new ApiException(UserErrorCode.EMAIL_EXISTS);
 		}
 
-		if (userRepository.findByUserNickname(userSignupDto.getUserNickname()).isPresent()) {
+		if (userRepository.findByUserNickname(userSignupRequestDto.getUserNickname()).isPresent()) {
 			throw new ApiException(UserErrorCode.NICKNAME_EXISTS);
 		}
 
-		if (!userSignupDto.getUserTermsAgreed().equals(true)) {
+		if (!userSignupRequestDto.getUserTermsAgreed().equals(true)) {
 			throw new ApiException(UserErrorCode.TERMS_NOT_AGREED);
 		}
 
-		if (userRepository.findByUserPhone(userSignupDto.getUserPhone()).isPresent()) {
+		if (userRepository.findByUserPhone(userSignupRequestDto.getUserPhone()).isPresent()) {
 			throw new ApiException(UserErrorCode.PHONE_EXISTS);
 		}
 
-		String encodedPassword = passwordEncoder.encode(userSignupDto.getUserPw1());
+		String encodedPassword = passwordEncoder.encode(userSignupRequestDto.getUserPw1());
 		User user = User.UserBuilder.anUser()
-			.withUserLoginId(userSignupDto.getUserLoginId())
+			.withUserLoginId(userSignupRequestDto.getUserLoginId())
 			.withUserPw(encodedPassword)
-			.withUserNickname(userSignupDto.getUserNickname())
-			.withUserPhone(userSignupDto.getUserPhone())
-			.withUserTermsAgreed(userSignupDto.getUserTermsAgreed())
+			.withUserNickname(userSignupRequestDto.getUserNickname())
+			.withUserPhone(userSignupRequestDto.getUserPhone())
+			.withUserTermsAgreed(userSignupRequestDto.getUserTermsAgreed())
 			.withUserIsRemoved(false)
 			.withUserRole(UserRole.USER)
 			.build();
 
 		userRepository.save(user);
 
-		return Api.ok(userSignupDto.getUserLoginId() + " 회원가입 성공");
+		return Api.ok(userSignupRequestDto.getUserLoginId() + " 회원가입 성공");
 	}
 
 	@Transactional
 	@Override
-	public Api<?> login(UserLoginDto userLoginDto) {
+	public Api<UserLoginResponseDto> login(UserLoginRequestDto userLoginRequestDto) {
 
-		if (!isValidEmail(userLoginDto.getUserLoginId())) {
+		if (!isValidEmail(userLoginRequestDto.getUserLoginId())) {
 			throw new ApiException(UserErrorCode.INVALID_EMAIL);
 		}
 
-		if (!isValidPassword(userLoginDto.getUserPw())) {
+		if (!isValidPassword(userLoginRequestDto.getUserPw())) {
 			throw new ApiException(UserErrorCode.INVALID_PASSWORD);
 		}
 
-		User user = userRepository.findByUserLoginId(userLoginDto.getUserLoginId())
+		User user = userRepository.findByUserLoginId(userLoginRequestDto.getUserLoginId())
 			.orElseThrow(() -> new ApiException(UserErrorCode.USER_NOT_FOUND));
 
-		if (!passwordEncoder.matches(userLoginDto.getUserPw(), user.getPassword())) {
+		if (!passwordEncoder.matches(userLoginRequestDto.getUserPw(), user.getPassword())) {
 			throw new ApiException(UserErrorCode.WRONG_PASSWORD);
 		}
 
@@ -113,7 +114,10 @@ public class UserServiceImpl implements UserService {
 
 		JwtToken jwtToken = jwtTokenProvider.generateToken(auth);
 
-		return Api.ok(jwtToken.getAccessToken()); // jwtToken 전체를 전달 해야하나?
+		return Api.ok(new UserLoginResponseDto(user.getUserLoginId(), user.getUserNickname(), user.getUserPicture(),
+			jwtToken.getAccessToken()));
+
+		// return Api.ok(jwtToken.getAccessToken()); // UserLoginResponseDto 로 보내기
 	}
 
 	// 이메일 형식 검증 메소드
