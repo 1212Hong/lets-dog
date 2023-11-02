@@ -1,7 +1,6 @@
 package com.dog.ui.screen
 
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -15,8 +14,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
@@ -30,17 +32,14 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -48,28 +47,32 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.dog.R
-import com.dog.data.local.chatList
 import com.dog.data.model.Chat
 import com.dog.data.model.Person
+import com.dog.data.viewmodel.chat.ChatViewModel
 import com.dog.ui.components.IconComponentDrawable
 import com.dog.ui.components.IconComponentImageVector
 import com.dog.ui.theme.DogTheme
-import com.dog.ui.theme.Pink400
+import com.dog.ui.theme.Orange300
+import com.dog.ui.theme.Purple100
+import com.dog.ui.theme.Purple300
+import com.dog.ui.theme.White
+import com.dog.ui.theme.Yellow300
 import com.dog.util.common.StompManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 private val stompManager: StompManager by lazy { StompManager() }
 
 @Composable
-fun ChattingScreen(navController: NavController) {
+fun ChattingScreen(navController: NavController, chatViewModel: ChatViewModel = viewModel()) {
 
-//    val stompManager = remember { StompManager() }
-
-//    val viewModel: YourViewModel = viewModel()
-//    val chatMessages by rememberUpdatedState(viewModel.chatMessages)
-
+    val chatState by chatViewModel.chatState.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
 
     // Use LaunchedEffect to initialize and connect StompManager
     DisposableEffect(Unit) {
@@ -87,35 +90,10 @@ fun ChattingScreen(navController: NavController) {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(15.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp)
-                        .padding(horizontal = 15.dp, vertical = 10.dp)
-                        .clip(MaterialTheme.shapes.large)
-                ) {
-                    Image(
-                        painter = painterResource(androidx.core.R.drawable.ic_call_answer),
-                        contentDescription = "profile_screen_bg",
-                        contentScale = ContentScale.Crop
-                    )
-                }
-                Text(
-                    "Chatting Screen",
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(vertical = 20.dp)
-                )
-            }
+            ChatScreen(chatViewModel, chatState, coroutineScope)
         }
     }
-    ChatScreen()
+
 }
 
 @Composable
@@ -132,7 +110,7 @@ fun UserNameRow(
             Column {
                 Text(
                     text = person.name, style = TextStyle(
-                        color = Color.White,
+                        color = Color.Black,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp
                     )
@@ -151,48 +129,75 @@ fun UserNameRow(
 
 @Composable
 fun ChatRow(
-    chat: Chat
+    chat: Chat,
+    person: Person
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = if (chat.direction) Alignment.Start else Alignment.End
     ) {
-        Box(
-            modifier = Modifier
-                .background(
-                    if (chat.direction) Color.Red else Color.Yellow,
-                    RoundedCornerShape(100.dp)
-                ),
-            contentAlignment = Center
-        ) {
-            Text(
-                text = chat.message, style = TextStyle(
-                    color = Color.Black,
-                    fontSize = 15.sp
-                ),
-                modifier = Modifier.padding(vertical = 8.dp, horizontal = 15.dp),
-                textAlign = TextAlign.End
-            )
+        Row {
+            if (chat.direction) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    IconComponentDrawable(icon = person.icon, size = 30.dp)
+                    Text(
+                        text = chat.name, style = TextStyle(
+                            color = Color.Black,
+                            fontSize = 14.sp
+                        )
+                    )
+                }
+
+            }
+            Box(
+                modifier = Modifier
+                    .background(
+                        if (chat.direction) Orange300 else Yellow300,
+                        RoundedCornerShape(100.dp)
+                    ),
+                contentAlignment = Center
+            ) {
+
+                Text(
+                    text = chat.message, style = TextStyle(
+                        color = Color.Black,
+                        fontSize = 15.sp
+                    ),
+                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 15.dp),
+                    textAlign = TextAlign.End
+                )
+            }
         }
+
         Text(
             text = chat.time,
             style = TextStyle(
                 color = Color.Gray,
                 fontSize = 12.sp
             ),
-            modifier = Modifier.padding(vertical = 8.dp, horizontal = 15.dp),
+            modifier = Modifier.padding(vertical = 7.dp, horizontal = 14.dp),
         )
     }
 }
 
 @Composable
 fun ChatScreen(
-
+    chatViewModel: ChatViewModel,
+    chatState: List<Chat>,
+    coroutineScope: CoroutineScope
 ) {
-    var message by remember { mutableStateOf("") }
     var data =
         rememberNavController().previousBackStackEntry?.savedStateHandle?.get<Person>("data")
             ?: Person()
+    val listState = rememberLazyListState()
+
+    // 스크롤 위치를 최하단으로 이동
+    DisposableEffect(listState, chatState) {
+        coroutineScope.launch {
+            listState.scrollToItem(chatState.size - 1) // 리스트 아이템의 가장 아래로 이동
+        }
+        onDispose { /* 생명주기가 종료될 때 정리 작업을 수행하거나 해제할 수 있음 */ }
+    }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -224,19 +229,21 @@ fun ChatScreen(
                         top = 25.dp,
                         end = 15.dp,
                         bottom = 75.dp
-                    )
+                    ),
+                    state = listState, // LazyListState를 사용
                 ) {
-                    items(chatList, key = { it.id }) {
-                        ChatRow(chat = it)
+                    items(chatState, key = { it.id }) {
+                        ChatRow(chat = it, person = data)
                     }
                 }
             }
         }
         CustomTextField(
-            text = message, onValueChange = { message = it },
+            text = chatViewModel.curMessage, onValueChange = { chatViewModel.curMessage = it },
             modifier = Modifier
                 .padding(horizontal = 20.dp, vertical = 20.dp)
-                .align(Alignment.BottomCenter)
+                .align(Alignment.BottomCenter),
+            chatViewModel = chatViewModel,
         )
     }
 }
@@ -247,23 +254,28 @@ fun CommonIconButton(
 ) {
     Box(
         modifier = Modifier
-            .background(Color.Yellow, CircleShape)
+            .background(Purple300, CircleShape)
             .size(33.dp), contentAlignment = Alignment.Center
     ) {
-        IconComponentImageVector(icon = imageVector, size = 15.dp, tint = Color.Black)
+        IconComponentImageVector(icon = imageVector, size = 15.dp, tint = White)
     }
 }
 
 @Composable
 fun CommonIconButtonDrawable(
     @DrawableRes icon: Int,
-    stompManager: StompManager
+    message: String,
+    chatViewModel: ChatViewModel
 ) {
+    val combinedClickActions = {
+        chatViewModel.sendMessage(1, 1, "test")
+        stompManager.sendStomp(message)
+    }
     Box(
         modifier = Modifier
-            .background(Color.Yellow, CircleShape)
+            .background(Purple300, CircleShape)
             .size(33.dp)
-            .clickable { stompManager.sendStomp() }, // 클릭 가능한 영역을 정의하고 onClick 함수 호출,
+            .clickable { combinedClickActions() }, // 클릭 가능한 영역을 정의하고 onClick 함수 호출,
         contentAlignment = Alignment.Center
 
     ) {
@@ -282,10 +294,12 @@ fun CommonIconButtonDrawable(
 fun CustomTextField(
     text: String,
     modifier: Modifier = Modifier,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit,
+    chatViewModel: ChatViewModel
 ) {
     TextField(
         value = text, onValueChange = { onValueChange(it) },
+        singleLine = true,
         placeholder = {
             Text(
                 text = stringResource(id = R.string.type_message),
@@ -297,7 +311,7 @@ fun CustomTextField(
             )
         },
         colors = TextFieldDefaults.textFieldColors(
-            containerColor = Pink400,
+            containerColor = Purple100,
             unfocusedIndicatorColor = Color.Transparent,
             focusedIndicatorColor = Color.Transparent
         ),
@@ -305,9 +319,20 @@ fun CustomTextField(
         trailingIcon = {
             CommonIconButtonDrawable(
                 icon = R.drawable.ic_launcher,
-                stompManager = stompManager
+                message = text,
+                chatViewModel = chatViewModel
             )
         },
+        keyboardOptions = KeyboardOptions.Default.copy(
+            imeAction = androidx.compose.ui.text.input.ImeAction.Done // Done 액션을 사용하면 엔터 키를 Done으로 변경
+        ),
+        keyboardActions = KeyboardActions(
+            onDone = {
+                // 엔터 키를 눌렀을 때 수행할 작업을 여기에 추가
+                chatViewModel.sendMessage(1, 1, "test")
+                stompManager.sendStomp(text)
+            }
+        ),
 
         modifier = modifier.fillMaxWidth(),
         shape = CircleShape

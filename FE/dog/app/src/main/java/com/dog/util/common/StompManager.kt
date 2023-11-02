@@ -1,7 +1,6 @@
 package com.dog.util.common
 
 import android.util.Log
-import android.widget.SimpleAdapter
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import io.reactivex.Completable
@@ -21,15 +20,13 @@ import java.util.Locale
 
 class StompManager() {
 
-    val TAG = "MainActivity"
+    private val TAG = "StompManager"
 
-    var mAdapter: SimpleAdapter? = null
-    val mDataSet: List<String> = ArrayList()
-    var mStompClient: StompClient? = null
-    val mRestPingDisposable: Disposable? = null
-    val mTimeFormat: SimpleDateFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
-    val mGson: Gson = GsonBuilder().create()
-    var compositeDisposable: CompositeDisposable = CompositeDisposable()
+    private var mStompClient: StompClient? = null
+    private val mRestPingDisposable: Disposable? = null
+    private val mTimeFormat: SimpleDateFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+    private val mGson: Gson = GsonBuilder().create()
+    private var compositeDisposable: CompositeDisposable = CompositeDisposable()
 
     fun initializeStompClient() {
         mStompClient = Stomp.over(
@@ -41,10 +38,6 @@ class StompManager() {
         mStompClient!!.disconnect()
     }
 
-    val LOGIN = "login"
-
-    val PASSCODE = "passcode"
-
     fun connectStomp() {
         // Check if the StompClient is already connected
         if (mStompClient?.isConnected == true) {
@@ -52,9 +45,9 @@ class StompManager() {
         }
 
         val headers: MutableList<StompHeader> = ArrayList()
-        headers.add(StompHeader("Authorization", "test"))
+        headers.add(StompHeader("Authorization", "1"))
 
-        val dispLifecycle: Disposable? = mStompClient?.lifecycle()
+        val disposableLifecycle: Disposable? = mStompClient?.lifecycle()
             ?.subscribeOn(Schedulers.io())
             ?.observeOn(AndroidSchedulers.mainThread())
             ?.subscribe { lifecycleEvent: LifecycleEvent ->
@@ -79,12 +72,12 @@ class StompManager() {
                 }
             }
 
-        if (dispLifecycle != null) {
-            compositeDisposable?.add(dispLifecycle)
+        if (disposableLifecycle != null) {
+            compositeDisposable?.add(disposableLifecycle)
         }
 
         // Receive greetings
-        val dispTopic = mStompClient!!.topic("/sub/chatroom/1")
+        val disposableTopic = mStompClient!!.topic("/sub/chatroom/1")
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ topicMessage: StompMessage ->
@@ -99,12 +92,12 @@ class StompManager() {
                 )
             }
 
-        compositeDisposable?.add(dispTopic)
+        compositeDisposable?.add(disposableTopic)
 
         mStompClient?.connect(headers)
     }
 
-    fun sendStomp() {
+    fun sendStomp(message: String) {
         Log.d("compositeDisposable", compositeDisposable.toString())
         if (mStompClient?.isConnected == true && compositeDisposable != null) {
             val jsonObject = JSONObject()
@@ -112,12 +105,9 @@ class StompManager() {
             jsonObject.put("sender_id", "2");
             jsonObject.put("sender_name", "머홍");
             jsonObject.put("content_type", "글");
-            jsonObject.put("content", "안녕하세요");
+            jsonObject.put("content", message);
             Log.d("jsonTest", jsonObject.toString())
 
-//            mStompClient!!.send("/pub/message", jsonObject.toString())
-//                .compose(applySchedulers())
-//                .subscribe()
 
             compositeDisposable!!.add(
                 mStompClient!!.send(
@@ -134,7 +124,7 @@ class StompManager() {
         }
     }
 
-    fun applySchedulers(): CompletableTransformer? {
+    private fun applySchedulers(): CompletableTransformer? {
         return CompletableTransformer { upstream: Completable ->
             upstream
                 .unsubscribeOn(Schedulers.newThread())
@@ -142,12 +132,6 @@ class StompManager() {
                 .observeOn(AndroidSchedulers.mainThread())
         }
     }
-
-//    private fun addItem(echoModel: EchoModel) {
-////        mDataSet.add(echoModel.getEcho() + " - " + mTimeFormat.format(Date()))
-//        mAdapter!!.notifyDataSetChanged()
-//        mRecyclerView!!.smoothScrollToPosition(mDataSet.size - 1)
-//    }
 
 //    private fun toast(text: String) {
 //        Log.i(TAG, text)
