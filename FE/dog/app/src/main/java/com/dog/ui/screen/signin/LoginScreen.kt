@@ -7,17 +7,16 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -32,14 +31,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.dog.R
+import com.dog.data.Screens
+import com.dog.ui.components.MainButton
 import com.dog.ui.components.signin.SigninItem
 import com.dog.ui.theme.Pink300
 import com.dog.ui.theme.White
 
-@Preview
 @Composable
-fun LoginScreen() {
+fun LoginScreen(navController: NavController) {
 
 
     val loginState = false
@@ -79,7 +80,7 @@ fun LoginScreen() {
 
 
             Text(
-                text = "Sign In",
+                text = "같이가개",
                 style = TextStyle(fontWeight = FontWeight.Bold, letterSpacing = 2.sp),
                 fontSize = 30.sp
             )
@@ -90,21 +91,13 @@ fun LoginScreen() {
                 SigninItem()
 
                 Spacer(modifier = Modifier.padding(10.dp))
-                Button(
-                    onClick = {
 
-//                        navController.popBackStack()
-//
-//                        navController.navigate(Screen.AppScaffold.route) {
-//
-//                            popUpTo(navController.graph.startDestinationId)
-//                            launchSingleTop = true
-//                        }
-                    }, modifier = Modifier
-                        .fillMaxWidth(0.8f)
-                        .height(50.dp)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
                 ) {
-                    Text(text = "Sign In", fontSize = 20.sp)
+                    MainButton(onClick = {}, text = "로그인")
                 }
                 Spacer(modifier = Modifier.padding(4.dp))
 
@@ -114,21 +107,21 @@ fun LoginScreen() {
                         .wrapContentHeight(), contentAlignment = Alignment.CenterEnd
                 ) {
                     Text(
-                        text = "Forgot my password",
+                        text = "비밀번호 찾기",
                         modifier = Modifier.clickable(onClick = {
                         }), color = Pink300, fontSize = 14.sp
                     )
                 }
                 Spacer(modifier = Modifier.padding(20.dp))
                 Text(
-                    text = "Create an account",
+                    text = "계정이 없으신가요?",
                     fontWeight = FontWeight.Bold,
                     color = Color.Gray,
                     modifier = Modifier.clickable(onClick = {
-//                        navController.navigate(Screen.RegisterScreen.route) {
-//                            popUpTo(navController.graph.startDestinationId)
-//                            launchSingleTop = true
-//                        }
+                        navController.navigate(Screens.Signup.route) {
+                            popUpTo(navController.graph.startDestinationId)
+                            launchSingleTop = true
+                        }
 
                     })
                 )

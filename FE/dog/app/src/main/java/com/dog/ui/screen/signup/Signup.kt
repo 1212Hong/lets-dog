@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.dog.R
 import com.dog.ui.components.CommonInput
 import com.dog.ui.components.HeadingText
@@ -19,9 +20,8 @@ import com.dog.ui.theme.DogTheme
 import com.dog.ui.theme.White
 
 
-@Preview
-@Composable
-fun SignIn() {
+@Composable()
+fun SignUp(navController: NavController) {
     DogTheme {
         Surface(
             modifier = Modifier

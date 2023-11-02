@@ -32,12 +32,13 @@ fun SigninItem() {
     OutlinedTextField(
         value = emailValue.value,
         onValueChange = { emailValue.value = it },
-        label = { Text(text = "Phone") },
-        placeholder = { Text(text = "Enter the phone number") },
+        label = { Text(text = "Email ID") },
+        placeholder = { Text(text = "이메일 주소를 입력하세요!!") },
         singleLine = true,
         modifier = Modifier.fillMaxWidth(0.8f),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
-    )
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+
+        )
 
     OutlinedTextField(
         value = passwordValue.value,
@@ -53,7 +54,7 @@ fun SigninItem() {
             }
         },
         label = { Text(text = "Password") },
-        placeholder = { Text(text = "Enter the password") },
+        placeholder = { Text(text = "") },
         singleLine = true,
         visualTransformation = if (passwordVisibility.value) VisualTransformation.None
         else PasswordVisualTransformation(),

@@ -9,10 +9,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.dog.ui.navigation.BottomNavigationBar
 import com.dog.ui.theme.DogTheme
-import com.dog.util.common.StompManager
 
 class MainActivity : ComponentActivity() {
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,19 +20,13 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    BottomNavigationBar()
-
+                    DogApp()
                 }
             }
         }
 
 
     }
-
-//    override fun onDestroy() {
-//        stompManager.onDestroy()
-//        super.onDestroy()
-//    }
 
 }
 

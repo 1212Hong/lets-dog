@@ -69,6 +69,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.0")
 
+    //datastore
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
+
     // websocket통신용
     implementation("androidx.recyclerview:recyclerview:1.1.0")
     implementation("com.squareup.okhttp3:okhttp:4.9.3")
