@@ -9,4 +9,7 @@ public interface BoardService {
 	public Api<String> createBoard(BoardDto boardDto);
 
 	public Api<List<BoardDto>> findBoardbyNickname(String userLoginId);
+
+	public Api<String> deleteBoard(Long boardId);
+
 }

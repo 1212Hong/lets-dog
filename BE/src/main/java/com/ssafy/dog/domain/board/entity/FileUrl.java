@@ -1,6 +1,6 @@
 package com.ssafy.dog.domain.board.entity;
 
-import static com.ssafy.dog.domain.board.enums.fileStatus.*;
+import static com.ssafy.dog.domain.board.enums.FileStatus.*;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -13,7 +13,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import com.ssafy.dog.domain.board.enums.fileStatus;
+import com.ssafy.dog.domain.board.enums.FileStatus;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -37,7 +37,7 @@ public class FileUrl {
 	private String fileUrl;
 
 	@Enumerated(EnumType.STRING)
-	private fileStatus fileStatus;
+	private FileStatus fileStatus;
 
 	@Builder
 	public FileUrl(Board boardId, String fileUrl) {
@@ -50,6 +50,11 @@ public class FileUrl {
 	public void setFileUrlList(Board board) {
 		this.board = board;
 		board.getFileUrlLists().add(this);
+	}
+
+	public void removeBoard() {
+		this.board = null;
+		this.fileStatus = DELETE;
 	}
 
 }
