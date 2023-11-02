@@ -1,5 +1,9 @@
 package com.ssafy.dog.domain.board.service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +27,7 @@ public class BoardServiceImpl implements BoardService {
 	private final FileUrlRepository fileUrlRepository;
 
 	@Transactional
-	public Api<?> createBoard(BoardDto boardDto) {
+	public Api<String> createBoard(BoardDto boardDto) {
 
 		// user1 -> userId를 통해 user1 객체를 받아온다
 		User curUser = userRepository.findByUserId(boardDto.getUserId());
@@ -46,6 +50,27 @@ public class BoardServiceImpl implements BoardService {
 		}
 
 		return Api.ok(board.getBoardId() + " 번 게시글 등록 성공");
+	}
+
+	@Transactional
+	public Api<List<BoardDto>> findBoardbyNickname(String userLoginId) {
+		List<Board> boardList = boardRepository.findBoardByUser_UserLoginId(userLoginId);
+		List<BoardDto> boardDtoList = new ArrayList<>();
+
+		for (Board board : boardList) {
+			BoardDto boardDto = BoardDto.builder()
+				.userId(board.getUser().getUserId())
+				.boardTitle(board.getBoardTitle())
+				.boardContent(board.getBoardContent())
+				.boardScope(board.getBoardScope())
+				.boardLikes(board.getBoardLikes())
+				.fileUrlLists(board.getFileUrlLists().stream().map(FileUrl::getFileUrl).collect(Collectors.toList()))
+				.build();
+
+			boardDtoList.add(boardDto);
+		}
+
+		return Api.ok(boardDtoList);
 	}
 
 }

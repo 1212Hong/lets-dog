@@ -12,6 +12,7 @@ import com.ssafy.dog.common.error.UserErrorCode;
 import com.ssafy.dog.common.exception.ApiException;
 import com.ssafy.dog.domain.chat.dto.MessageDto;
 import com.ssafy.dog.domain.chat.dto.req.ChatRoomReqDto;
+import com.ssafy.dog.domain.chat.dto.res.ChatListResDto;
 import com.ssafy.dog.domain.chat.entity.ChatMembers;
 import com.ssafy.dog.domain.chat.entity.ChatRoom;
 import com.ssafy.dog.domain.chat.entity.mongo.ChatHistory;
@@ -93,17 +94,18 @@ public class ChatService {
 		return Api.ok(chatRoom.getRoomId() + "채팅방 생성 성공");
 	}
 
-	public Api<?> getChatList(String accessToken) {
+	public Api<List<ChatListResDto>> getChatList(String accessToken) {
 		log.info("getChatList 메소드");
 		log.info("Access 토큰 : {}", accessToken);
 		// 임시, accessToken 으로 userId 받을 예정
-		Long curUserId = Long.valueOf(accessToken);
-		log.info("userID 값 : {}", curUserId);
+		// Long curUserId = Long.parseLong(accessToken);
+		// log.info("userID 값 : {}", curUserId);
+		Long curUserId = Long.valueOf(1);
+		List<ChatListResDto> roomLists = chatRoomRepository.getUserChatRoomsAndUserNicknames(curUserId);
+		// log.info("RoomID :{}", (chatMembersList.get(0).getChatRoom().getRoomId()));
+		log.info("RoomID :{}", (roomLists.size()));
 
-		List<ChatMembers> chatMembersList = chatMembersRepository.getChatMembersList(Long.valueOf(1));
-		log.info("RoomID :{}", (chatMembersList.get(0).getChatRoom().getRoomId()));
-
-		return Api.ok(chatMembersList);
+		return Api.ok(roomLists);
 	}
 
 	public Api<?> getChatHistory(Long roomId) {

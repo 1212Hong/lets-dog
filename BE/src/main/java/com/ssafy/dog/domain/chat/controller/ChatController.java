@@ -1,5 +1,7 @@
 package com.ssafy.dog.domain.chat.controller;
 
+import java.util.List;
+
 import javax.validation.Valid;
 
 import org.springframework.messaging.handler.annotation.Header;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ssafy.dog.common.api.Api;
 import com.ssafy.dog.domain.chat.dto.MessageDto;
 import com.ssafy.dog.domain.chat.dto.req.ChatRoomReqDto;
+import com.ssafy.dog.domain.chat.dto.res.ChatListResDto;
 import com.ssafy.dog.domain.chat.service.ChatRoomService;
 import com.ssafy.dog.domain.chat.service.ChatService;
 
@@ -42,7 +45,7 @@ public class ChatController {
 
 	// 유저의 채팅목록 가져오기 (jwt에서 유저정보)
 	@GetMapping("/chatroom")
-	public Api<?> getChatRoomList(@Header("Authorization") final String accessToken) {
+	public Api<List<ChatListResDto>> getChatRoomList(@Header("Authorization") final String accessToken) {
 		return chatService.getChatList(accessToken);
 	}
 

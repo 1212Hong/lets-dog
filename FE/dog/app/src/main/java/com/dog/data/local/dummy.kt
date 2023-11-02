@@ -62,60 +62,70 @@ val chatList = listOf(
     Chat(
         1,
         "Hey! How have you been?",
+        "소영섭",
         "12:15 PM",
         true
     ),
     Chat(
         2,
         "Wanna catch up for a beer?",
+        "소영섭",
         "12:17 PM",
         true
     ),
     Chat(
         3,
         "Awesome! Let’s meet up",
+        "권영재",
         "12:19 PM",
         false
     ),
     Chat(
         4,
         "Can I also get my cousin along? Will that be okay?",
+        "권영재",
         "12:20 PM",
         false
     ),
     Chat(
         5,
         "Yeah sure! get him too.",
+        "소영섭",
         "12:21 PM",
         true
     ),
     Chat(
         6,
         "Hey! How have you been?",
+        "권영재",
         "12:15 PM",
         false
     ),
     Chat(
         7,
         "Wanna catch up for a beer?",
+        "소영섭",
         "12:17 PM",
         true
     ),
     Chat(
         8,
         "Awesome! Let’s meet up",
+        "권영재",
         "12:19 PM",
         false
     ),
     Chat(
         9,
         "Can I also get my cousin along? Will that be okay?",
+        "권영재",
         "12:20 PM",
         false
     ),
     Chat(
         10,
         "Yeah sure! get him too.",
+        "소영섭",
         "12:21 PM",
         true
     ),

@@ -6,4 +6,5 @@ import com.ssafy.dog.domain.chat.entity.ChatMembers;
 
 public interface ChatMembersRepositoryCustom {
 	List<ChatMembers> getChatMembersList(Long userId);
+
 }
