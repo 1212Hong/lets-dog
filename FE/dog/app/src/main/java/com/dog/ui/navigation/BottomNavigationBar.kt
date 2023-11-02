@@ -22,6 +22,8 @@ import com.dog.ui.screen.HomeScreen
 import com.dog.ui.screen.MypageScreen
 import com.dog.ui.screen.WalkingLogScreen
 import com.dog.ui.screen.WalkingScreen
+import com.dog.ui.screen.signin.LoginScreen
+import com.dog.ui.screen.signup.SignUp
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -89,6 +91,12 @@ fun BottomNavigationBar() {
                 MypageScreen(
                     navController
                 )
+            }
+            composable(Screens.Signup.route) {
+                SignUp(navController)
+            }
+            composable(Screens.Signin.route) {
+                LoginScreen(navController)
             }
         }
     }
