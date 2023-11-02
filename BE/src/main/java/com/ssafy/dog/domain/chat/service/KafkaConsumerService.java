@@ -32,7 +32,7 @@ public class KafkaConsumerService {
 		// template.convertAndSend("/topic/tt", mapper.writeValueAsString(msg));
 
 		log.info("전송 위치 = /sub/chatroom/" + message.getRoomId());
-		log.info("채팅 방으로 메시지 전송 = {}", message);
+		log.info("채팅 방으로 메시지 전송 = {}", message.toString());
 
 		// /sub/chatroom/{roomId} - 구독
 		// 메시지객체 내부의 채팅방번호를 참조하여, 해당 채팅방 구독자에게 메시지를 발송한다.

@@ -39,10 +39,11 @@ public class StompHandler implements ChannelInterceptor {
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 
 		// AccessToken 유효성 검증
-		Long userId = verifyAccessToken(getAccessToken(accessor));
-		log.info("StompAccessor = {}", accessor);
+		// Long userId = verifyAccessToken(getAccessToken(accessor));
+		// log.info("StompAccessor = {}", accessor);
 		// StompCommand에 따라서 로직을 분기해서 처리하는 메서드를 호출
-		handleMessage(Objects.requireNonNull(accessor.getCommand()), accessor, userId);
+		// handleMessage(Objects.requireNonNull(accessor.getCommand()), accessor, userId);
+		handleMessage(Objects.requireNonNull(accessor.getCommand()), accessor);
 
 		// // websocket 연결시 헤더의 jwt token 유효성 검증
 		// if (StompCommand.CONNECT == accessor.getCommand()) {
@@ -62,14 +63,15 @@ public class StompHandler implements ChannelInterceptor {
 		return message;
 	}
 
-	public void handleMessage(StompCommand stompCommand, StompHeaderAccessor accessor, Long userId) {
+	public void handleMessage(StompCommand stompCommand, StompHeaderAccessor accessor) {
 		log.info("Command 종류 = {}", stompCommand);
 		switch (stompCommand) {
 			case CONNECT:
+				// AccessToken 유효성 검증
+				Long userId = verifyAccessToken(getAccessToken(accessor));
 				connectToChatRoom(accessor, userId);
 				break;
 			case SUBSCRIBE:
-				log.info("SUB 시작");
 				break;
 			case SEND:
 				verifyAccessToken(getAccessToken(accessor));
@@ -103,7 +105,9 @@ public class StompHandler implements ChannelInterceptor {
 		// }
 		//
 		// return jwtUtil.getUid(accessToken);
-		return Long.valueOf(accessToken);
+		return Long.parseLong(accessToken);
+		// return Long.valueOf(1);
+
 	}
 
 	private String getAccessToken(StompHeaderAccessor accessor) {

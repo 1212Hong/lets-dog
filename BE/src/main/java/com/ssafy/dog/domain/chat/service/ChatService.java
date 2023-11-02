@@ -3,6 +3,7 @@ package com.ssafy.dog.domain.chat.service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +13,7 @@ import com.ssafy.dog.common.error.UserErrorCode;
 import com.ssafy.dog.common.exception.ApiException;
 import com.ssafy.dog.domain.chat.dto.MessageDto;
 import com.ssafy.dog.domain.chat.dto.req.ChatRoomReqDto;
+import com.ssafy.dog.domain.chat.dto.res.ChatHistoriesResDto;
 import com.ssafy.dog.domain.chat.dto.res.ChatListResDto;
 import com.ssafy.dog.domain.chat.entity.ChatMembers;
 import com.ssafy.dog.domain.chat.entity.ChatRoom;
@@ -82,10 +84,7 @@ public class ChatService {
 
 		for (User user : users) {
 
-			ChatMembers chatMembers = ChatMembers.builder()
-				.chatRoom(chatRoom)
-				.user(user)
-				.build();
+			ChatMembers chatMembers = ChatMembers.builder().chatRoom(chatRoom).user(user).build();
 
 			chatMembersList.add(chatMembers);
 		}
@@ -108,42 +107,98 @@ public class ChatService {
 		return Api.ok(roomLists);
 	}
 
-	public Api<?> getChatHistory(Long roomId) {
-		return Api.ok("채팅 내역");
+	public Api<List<ChatHistoriesResDto>> getChatHistory(Long roomId, String accessToken) {
+
+		Long userId = Long.parseLong(accessToken);
+		log.info("유저 PK : {}", userId);
+		// 채팅 내역 불러오기
+		List<ChatHistory> chatHistories = chatHistoryRepository.findAllByRoomId(roomId);
+		log.info("채팅 history : {}", chatHistories.size());
+		List<ChatHistoriesResDto> chatHistoriesResDtos = new ArrayList<>();
+
+		for (ChatHistory history : chatHistories) {
+
+			// ChatRead 정보 조회
+			Optional<ChatRead> chatRead = chatReadRepository.findByHistoryId(history.getHistoryId().toString());
+			// history와 readList로 Dto 생성
+			chatRead.ifPresent(read -> {
+				List<Long> readList = readCheck(read.getReadList(), userId);
+				chatHistoriesResDtos.add(new ChatHistoriesResDto(history, readList));
+			});
+
+		}
+
+		return Api.ok(chatHistoriesResDtos);
 	}
 
+	public List<Long> readCheck(List<Long> readList, Long userId) {
+
+		if (!readList.contains(userId)) {
+			readList.add(userId);
+		}
+		return readList;
+	}
+
+	@Transactional
 	public void sendMessage(MessageDto message, String accessToken) {
 		// 메시지 전송 요청 헤더에 포함된 Access Token에서 email로 회원을 조회한다.
 		// Member findMember = memberRepository.findByEmail(jwtUtil.getUid(accessToken))
 		// 	.orElseThrow(IllegalStateException::new);
-
+		log.info("채팅전송 토큰 : {}", accessToken);
 		/*
 		AccessToken 검증 후 userId로 보내주기
 		 */
 		// read 한 사람들 추가
-		message.setSendTimeAndSenderAndRead(LocalDateTime.now(), Long.valueOf(accessToken), message.getSenderName(), 10,
-			chatRoomService.isConnected(message.getRoomId()));
+		message.setSendTimeAndSenderAndRead(LocalDateTime.now(), Long.parseLong(accessToken), message.getSenderName(),
+			10, chatRoomService.isConnected(message.getRoomId()));
 
 		kafkaProducerService.send(KafkaConstants.KAFKA_TOPIC, message);
 
 		// kafka producer -> consumer -> stomp converAndSend 까지 된 후 DB 저장로직
-		saveChat(message);
-
+		// saveChat(message);
+		ChatHistory curChatHistory = saveChatHistory(message);
+		saveChatRead(message, curChatHistory);
 	}
 
 	// MongoDB ChatHistory 저장
 	public void saveChat(MessageDto message) {
-		// chatHistoryRepository.save(message.convertEntity());
+
+		ChatHistory curChatHistory = message.convertEntity();
+		ChatHistory savedEntity = chatHistoryRepository.save(curChatHistory);
+		log.info("저장된 ChatHistory : {}", savedEntity.toString());
+		String historyId = savedEntity.getHistoryId();
+
+		List<Long> connectedList = chatRoomService.isConnected(message.getRoomId());
+		log.info("채팅 읽은 사람들 : {}", connectedList);
+		log.info("히스토리 PK 값 : {}", historyId);
+		ChatRead curRead = ChatRead.builder().
+			historyId(historyId).
+			readList(connectedList).build();
+
+		chatReadRepository.save(curRead);
+
+	}
+
+	public ChatHistory saveChatHistory(MessageDto message) {
+
 		ChatHistory curChatHistory = message.convertEntity();
 		chatHistoryRepository.save(curChatHistory);
+		log.info("저장된 ChatHistory : {}", curChatHistory.toString());
 
-		// Set<Long> connectedList = chatRoomService.isConnected(message.getRoomId());
+		return curChatHistory;
+
+	}
+
+	public void saveChatRead(MessageDto message, ChatHistory curChatHistory) {
+
+		String historyId = curChatHistory.getHistoryId();
+
 		List<Long> connectedList = chatRoomService.isConnected(message.getRoomId());
-
-		ChatRead curRead = ChatRead.builder()
-			.historyId(curChatHistory.getHistoryId())
-			.readList(connectedList)
-			.build();
+		log.info("채팅 읽은 사람들 : {}", connectedList);
+		log.info("히스토리 PK 값 : {}", historyId);
+		ChatRead curRead = ChatRead.builder().
+			historyId(historyId).
+			readList(connectedList).build();
 
 		chatReadRepository.save(curRead);
 
