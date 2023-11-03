@@ -29,7 +29,7 @@ fun MainButton(
         Button(
             onClick = onClick,
             modifier = modifier
-                .fillMaxWidth(0.8f)
+                .fillMaxWidth(0.4f)
                 .height(50.dp),
             enabled = enabled,
             colors = ButtonDefaults.buttonColors(
