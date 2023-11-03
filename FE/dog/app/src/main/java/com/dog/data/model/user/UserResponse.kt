@@ -2,12 +2,12 @@ package com.dog.data.model.user
 
 import com.dog.data.model.common.ResponseBodyResult
 
-data class signUpResponse(
+data class SignUpResponse(
     val responseBodyResult: ResponseBodyResult,
     val body: String? = null
 )
 
-data class signInResponse(
+data class SignInResponse(
     val responseBodyResult: ResponseBodyResult,
     val body: String? = null
 )

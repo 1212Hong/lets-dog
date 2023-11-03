@@ -7,17 +7,20 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.dog.data.local.chatList
 import com.dog.data.model.Chat
+import com.dog.data.repository.ChatRepository
+import com.dog.util.common.RetrofitClient
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class ChatViewModel : ViewModel() {
     // 채팅 정보 저장
-//    private val _chatStates = MutableStateFlow<List<ChatState>>(emptyList())
-//    val chatStates: StateFlow<List<ChatState>> = _chatStates.asStateFlow()
     private val _chatState = MutableStateFlow(chatList)
     val chatState: StateFlow<List<Chat>> = _chatState.asStateFlow()
 
+    // Retrofit 인터페이스를 사용하려면 여기서 인스턴스를 생성합니다.
+    private val chatApi: ChatRepository =
+        RetrofitClient.getInstance().create(ChatRepository::class.java)
     var curMessage by mutableStateOf("")
 
 
@@ -44,4 +47,19 @@ class ChatViewModel : ViewModel() {
         _chatState.value = currentChatState // 수정된 목록을 다시 StateFlow에 할당합니다.
         Log.d("chatState", chatState.toString())
     }
+
+    suspend fun leaveChatroom(roomId: Int) {
+        chatApi.disconnectChatroom(roomId)
+    }
+
+    suspend fun getChatList() {
+        val chatList = chatApi.getChatroomList()
+        Log.d("list", chatList.toString())
+    }
+
+    suspend fun getChatHistory(roomId: Int) {
+        val res = chatApi.getChatroomHistory(roomId)
+        Log.d("res", res.toString())
+    }
+
 }

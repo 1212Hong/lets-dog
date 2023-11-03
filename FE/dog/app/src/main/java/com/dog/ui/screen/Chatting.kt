@@ -32,6 +32,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -73,6 +74,10 @@ fun ChattingScreen(navController: NavController, chatViewModel: ChatViewModel = 
 
     val chatState by chatViewModel.chatState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        chatViewModel.getChatHistory(1) // 여기에서 roomId를 적절한 값으로 변경해야 합니다.
+    }
 
     // Use LaunchedEffect to initialize and connect StompManager
     DisposableEffect(Unit) {
@@ -195,6 +200,7 @@ fun ChatScreen(
     DisposableEffect(listState, chatState) {
         coroutineScope.launch {
             listState.scrollToItem(chatState.size - 1) // 리스트 아이템의 가장 아래로 이동
+
         }
         onDispose { /* 생명주기가 종료될 때 정리 작업을 수행하거나 해제할 수 있음 */ }
     }

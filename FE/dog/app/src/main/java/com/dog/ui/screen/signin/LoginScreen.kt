@@ -7,7 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,20 +27,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.dog.R
 import com.dog.data.Screens
-import com.dog.ui.components.MainButton
 import com.dog.ui.components.signin.SigninItem
 import com.dog.ui.theme.Pink300
 import com.dog.ui.theme.White
 
 @Composable
 fun LoginScreen(navController: NavController) {
-
 
     val loginState = false
 
@@ -89,17 +85,6 @@ fun LoginScreen(navController: NavController) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
                 SigninItem()
-
-                Spacer(modifier = Modifier.padding(10.dp))
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                ) {
-                    MainButton(onClick = {}, text = "로그인")
-                }
-                Spacer(modifier = Modifier.padding(4.dp))
 
                 Box(
                     modifier = Modifier

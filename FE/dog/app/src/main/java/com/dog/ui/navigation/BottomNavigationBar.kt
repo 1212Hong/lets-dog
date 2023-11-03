@@ -12,14 +12,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.dog.data.Screens
+import com.dog.ui.screen.ChattingScreen
+import com.dog.ui.screen.HomeScreen
+import com.dog.ui.screen.MypageScreen
+import com.dog.ui.screen.WalkingLogScreen
+import com.dog.ui.screen.WalkingScreen
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BottomNavigationBar() {
+fun BottomNavigationBar(startRoute: String) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -53,43 +61,42 @@ fun BottomNavigationBar() {
             }
         }
     ) {
-//            paddingValues ->
-//        NavHost(
-//            navController = navController,
-//            startDestination = Screens.Home.route,
+        NavHost(
+            navController = navController,
+            startDestination = startRoute,
 //            modifier = Modifier.padding(paddingValues = paddingValues)
-//        ) {
-//            composable(Screens.Home.route) {
-//                HomeScreen(
-//                    navController
-//                )
-//            }
-//            composable(Screens.Walking.route) {
-//                WalkingScreen(
-//                    navController
-//                )
-//            }
-//            composable(Screens.WalkingLog.route) {
-//                WalkingLogScreen(
-//                    navController
-//                )
-//            }
-//            composable(Screens.Chatting.route) {
-//                ChattingScreen(
-//                    navController
-//                )
-//            }
-//            composable(Screens.Mypage.route) {
-//                MypageScreen(
-//                    navController
-//                )
-//            }
+        ) {
+            composable(Screens.Home.route) {
+                HomeScreen(
+                    navController
+                )
+            }
+            composable(Screens.Walking.route) {
+                WalkingScreen(
+                    navController
+                )
+            }
+            composable(Screens.WalkingLog.route) {
+                WalkingLogScreen(
+                    navController
+                )
+            }
+            composable(Screens.Chatting.route) {
+                ChattingScreen(
+                    navController
+                )
+            }
+            composable(Screens.Mypage.route) {
+                MypageScreen(
+                    navController
+                )
+            }
 //            composable(Screens.Signup.route) {
 //                SignUp(navController)
 //            }
 //            composable(Screens.Signin.route) {
 //                LoginScreen(navController)
 //            }
-//        }
+        }
     }
 }
