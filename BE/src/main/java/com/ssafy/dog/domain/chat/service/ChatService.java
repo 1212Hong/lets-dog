@@ -12,6 +12,7 @@ import com.ssafy.dog.common.api.Api;
 import com.ssafy.dog.common.error.UserErrorCode;
 import com.ssafy.dog.common.exception.ApiException;
 import com.ssafy.dog.domain.chat.dto.MessageDto;
+import com.ssafy.dog.domain.chat.dto.NoticeDto;
 import com.ssafy.dog.domain.chat.dto.req.ChatRoomReqDto;
 import com.ssafy.dog.domain.chat.dto.res.ChatHistoriesResDto;
 import com.ssafy.dog.domain.chat.dto.res.ChatListResDto;
@@ -47,26 +48,6 @@ public class ChatService {
 	private final ChatHistoryRepository chatHistoryRepository;
 	private final ChatRoomUsersRepository chatRoomUsersRepository;
 	private final ChatReadRepository chatReadRepository;
-
-	// @Transactional
-	// public Api<?> createChatRoom(ChatRoomReqDto chatRoomReqDto) {
-	// 	ChatRoom chatRoom = ChatRoom.builder().build();
-	// 	chatRoomRepository.save(chatRoom);
-	// 	for (String nickName : chatRoomReqDto.getUserNicks()) {
-	// 		User user = userRepository.findByUserNickname(nickName)
-	// 			.orElseThrow(() -> new ApiException(UserErrorCode.USER_NOT_FOUND));
-	//
-	// 		ChatMembers chatMembers = ChatMembers.builder()
-	// 			.chatRoom(chatRoom)
-	// 			.user(user)
-	// 			.build();
-	//
-	// 		chatMembersRepository.save(chatMembers);
-	//
-	// 	}
-	//
-	// 	return Api.ok(chatRoom.getRoomId() + "채팅방 생성 성공");
-	// }
 
 	@Transactional
 	public Api<?> createChatRoom(ChatRoomReqDto chatRoomReqDto) {
@@ -138,6 +119,7 @@ public class ChatService {
 		return Api.ok(chatHistoriesResDtos);
 	}
 
+	@Transactional
 	public List<Long> readCheck(ChatRead chatRead, Long userId) {
 
 		// 기존에 없을경우 readList 변경 후 저장
@@ -161,7 +143,7 @@ public class ChatService {
 		message.setSendTimeAndSenderAndRead(LocalDateTime.now(), Long.parseLong(accessToken), message.getSenderName(),
 			10, chatRoomService.isConnected(message.getRoomId()));
 
-		kafkaProducerService.send(KafkaConstants.KAFKA_TOPIC, message);
+		kafkaProducerService.send(KafkaConstants.KAFKA_CHAT_TOPIC, message);
 
 		// kafka producer -> consumer -> stomp converAndSend 까지 된 후 DB 저장로직
 		saveChat(message);
@@ -189,6 +171,17 @@ public class ChatService {
 
 		chatReadRepository.save(curRead);
 
+	}
+
+	@Transactional
+	public void sendNotice(Long roomId, Long userId) {
+
+		NoticeDto curNotice = new NoticeDto(roomId, userId);
+
+		kafkaProducerService.sendNotice(KafkaConstants.KAFKA_NOTICE_TOPIC, curNotice);
+
+		// kafka producer -> consumer -> stomp converAndSend 까지 된 후 DB 저장로직
+		// saveChat(message);
 	}
 
 }

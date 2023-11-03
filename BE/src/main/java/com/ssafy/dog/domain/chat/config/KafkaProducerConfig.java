@@ -15,6 +15,7 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import com.google.common.collect.ImmutableMap;
 import com.ssafy.dog.domain.chat.dto.MessageDto;
+import com.ssafy.dog.domain.chat.dto.NoticeDto;
 
 import lombok.RequiredArgsConstructor;
 
@@ -48,5 +49,15 @@ public class KafkaProducerConfig {
 	@Bean
 	public KafkaTemplate<String, MessageDto> kafkaTemplate() {
 		return new KafkaTemplate<>(producerFactory());
+	}
+
+	@Bean
+	public ProducerFactory<String, NoticeDto> noticeproducerFactory() {
+		return new DefaultKafkaProducerFactory<>(producerConfigurations());
+	}
+
+	@Bean
+	public KafkaTemplate<String, NoticeDto> kafkaNoticeTemplate() {
+		return new KafkaTemplate<>(noticeproducerFactory());
 	}
 }
