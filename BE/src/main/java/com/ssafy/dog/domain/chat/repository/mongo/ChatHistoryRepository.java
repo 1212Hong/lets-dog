@@ -12,4 +12,6 @@ public interface ChatHistoryRepository extends MongoRepository<ChatHistory, Stri
 
 	List<ChatHistory> findAllByRoomId(Long roomId);
 
+	List<ChatHistory> findAll();
+
 }

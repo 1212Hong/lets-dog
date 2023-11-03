@@ -2,8 +2,7 @@ package com.ssafy.dog.domain.chat.entity.mongo;
 
 import java.time.LocalDateTime;
 
-import javax.persistence.Id;
-
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.AccessLevel;

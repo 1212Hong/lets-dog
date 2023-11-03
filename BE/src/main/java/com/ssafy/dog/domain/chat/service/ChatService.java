@@ -119,24 +119,33 @@ public class ChatService {
 		for (ChatHistory history : chatHistories) {
 
 			// ChatRead 정보 조회
-			Optional<ChatRead> chatRead = chatReadRepository.findByHistoryId(history.getHistoryId().toString());
+			Optional<ChatRead> chatRead = chatReadRepository.findByHistoryId(history.getHistoryId());
 			// history와 readList로 Dto 생성
 			chatRead.ifPresent(read -> {
-				List<Long> readList = readCheck(read.getReadList(), userId);
-				chatHistoriesResDtos.add(new ChatHistoriesResDto(history, readList));
+				log.info("ChatRead 기록 있음");
+				log.info("기존 readList : {}", read.getReadList());
+				List<Long> readList = readCheck(read, userId);
+				log.info("갱신된 readList : {}", readList);
+				ChatHistoriesResDto resDto = new ChatHistoriesResDto(history, readList);
+				chatHistoriesResDtos.add(resDto);
+				log.info("길이 + {}", chatHistoriesResDtos.size());
 			});
 
 		}
+		log.info("결과 + {}", chatHistoriesResDtos.size());
+		log.info("값 + {}", chatHistoriesResDtos.get(0).toString());
 
 		return Api.ok(chatHistoriesResDtos);
 	}
 
-	public List<Long> readCheck(List<Long> readList, Long userId) {
+	public List<Long> readCheck(ChatRead chatRead, Long userId) {
 
-		if (!readList.contains(userId)) {
-			readList.add(userId);
+		// 기존에 없을경우 readList 변경 후 저장
+		if (!chatRead.getReadList().contains(userId)) {
+			chatRead.getReadList().add(userId);
+			chatReadRepository.save(chatRead);
 		}
-		return readList;
+		return chatRead.getReadList();
 	}
 
 	@Transactional
@@ -155,9 +164,12 @@ public class ChatService {
 		kafkaProducerService.send(KafkaConstants.KAFKA_TOPIC, message);
 
 		// kafka producer -> consumer -> stomp converAndSend 까지 된 후 DB 저장로직
-		// saveChat(message);
-		ChatHistory curChatHistory = saveChatHistory(message);
-		saveChatRead(message, curChatHistory);
+		saveChat(message);
+	}
+
+	public ChatHistory getTest() {
+		List<ChatHistory> histories = chatHistoryRepository.findAll();
+		return histories.get(0);
 	}
 
 	// MongoDB ChatHistory 저장
@@ -167,31 +179,6 @@ public class ChatService {
 		ChatHistory savedEntity = chatHistoryRepository.save(curChatHistory);
 		log.info("저장된 ChatHistory : {}", savedEntity.toString());
 		String historyId = savedEntity.getHistoryId();
-
-		List<Long> connectedList = chatRoomService.isConnected(message.getRoomId());
-		log.info("채팅 읽은 사람들 : {}", connectedList);
-		log.info("히스토리 PK 값 : {}", historyId);
-		ChatRead curRead = ChatRead.builder().
-			historyId(historyId).
-			readList(connectedList).build();
-
-		chatReadRepository.save(curRead);
-
-	}
-
-	public ChatHistory saveChatHistory(MessageDto message) {
-
-		ChatHistory curChatHistory = message.convertEntity();
-		chatHistoryRepository.save(curChatHistory);
-		log.info("저장된 ChatHistory : {}", curChatHistory.toString());
-
-		return curChatHistory;
-
-	}
-
-	public void saveChatRead(MessageDto message, ChatHistory curChatHistory) {
-
-		String historyId = curChatHistory.getHistoryId();
 
 		List<Long> connectedList = chatRoomService.isConnected(message.getRoomId());
 		log.info("채팅 읽은 사람들 : {}", connectedList);

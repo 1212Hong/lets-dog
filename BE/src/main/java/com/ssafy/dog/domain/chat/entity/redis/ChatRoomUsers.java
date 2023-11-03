@@ -1,7 +1,6 @@
 package com.ssafy.dog.domain.chat.entity.redis;
 
-import javax.persistence.Id;
-
+import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.index.Indexed;
 

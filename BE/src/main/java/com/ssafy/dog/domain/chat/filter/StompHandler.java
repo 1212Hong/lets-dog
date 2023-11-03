@@ -2,6 +2,7 @@ package com.ssafy.dog.domain.chat.filter;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -37,7 +38,6 @@ public class StompHandler implements ChannelInterceptor {
 	@Override
 	public Message<?> preSend(Message<?> message, MessageChannel channel) {
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-
 		// AccessToken 유효성 검증
 		// Long userId = verifyAccessToken(getAccessToken(accessor));
 		// log.info("StompAccessor = {}", accessor);
@@ -68,21 +68,26 @@ public class StompHandler implements ChannelInterceptor {
 		switch (stompCommand) {
 			case CONNECT:
 				// AccessToken 유효성 검증
-				Long userId = verifyAccessToken(getAccessToken(accessor));
+				// Long userId = verifyAccessToken(getAccessToken(accessor));
+				// 임시로 랜덤생성
+				Long userId = Long.valueOf(ThreadLocalRandom.current().nextInt(1, 4));
 				connectToChatRoom(accessor, userId);
 				break;
 			case SUBSCRIBE:
 				break;
 			case SEND:
-				verifyAccessToken(getAccessToken(accessor));
+				// verifyAccessToken(getAccessToken(accessor));
 				break;
 		}
 	}
 
 	private void connectToChatRoom(StompHeaderAccessor accessor, Long userId) {
 		// 채팅방 번호를 가져온다.
-		Long chatRoomId = getChatRoomId(accessor);
+		// Long chatRoomId = getChatRoomId(accessor);
 
+		//임시 구현
+		Long chatRoomId = Long.valueOf(1);
+		log.info("채팅방 접속 성공 : {}, 유저Id : {}", chatRoomId, userId);
 		// 채팅방 입장 처리 -> Redis에 입장 내역 저장
 		chatRoomService.connectChatRoom(chatRoomId, userId);
 
