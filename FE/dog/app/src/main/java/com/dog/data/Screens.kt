@@ -1,6 +1,7 @@
 package com.dog.data
 
 sealed class Screens(val route: String) {
+    object DogApp : Screens("DogApp_screen")
     object Home : Screens("home_screen")
     object Walking : Screens("Walking_screen")
     object WalkingLog : Screens("WalkingLog_screen")
