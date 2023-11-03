@@ -28,7 +28,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -38,15 +37,30 @@ import com.dog.ui.components.MainButton
 import com.dog.ui.components.signin.SigninItem
 import com.dog.ui.theme.Pink300
 import com.dog.ui.theme.White
+import com.dog.util.common.DataStoreManager
 
 @Composable
 fun LoginScreen(navController: NavController) {
 
-
     val loginState = false
 
     if (loginState) {
+        // 로그인 성공 시 토큰을 저장하고 Home 화면으로 이동
         Toast.makeText(LocalContext.current, "LoginSuccess!", Toast.LENGTH_LONG).show()
+
+        // 토큰 저장 로직을 추가 (실제 토큰 저장 로직으로 변경)
+        val context = LocalContext.current
+        val store = DataStoreManager(context)
+        suspend { store.saveToken("your_access_token_here") }
+
+        // Home 화면으로 이동
+//        navController.navigate(Screens.Home.route) {
+//            popUpTo(navController.graph.findStartDestination().id) {
+//                saveState = true
+//            }
+//            launchSingleTop = true
+//            restoreState = true
+//        }
     }
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
@@ -97,7 +111,10 @@ fun LoginScreen(navController: NavController) {
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly,
                 ) {
-                    MainButton(onClick = {}, text = "로그인")
+                    MainButton(
+                        onClick = { navController.navigate(Screens.Home.route) },
+                        text = "로그인"
+                    )
                 }
                 Spacer(modifier = Modifier.padding(4.dp))
 
@@ -118,10 +135,14 @@ fun LoginScreen(navController: NavController) {
                     fontWeight = FontWeight.Bold,
                     color = Color.Gray,
                     modifier = Modifier.clickable(onClick = {
-                        navController.navigate(Screens.Signup.route) {
-                            popUpTo(navController.graph.startDestinationId)
-                            launchSingleTop = true
-                        }
+                        navController.navigate(route = Screens.Signup.route)
+//                        {
+//                            popUpTo(navController.graph.findStartDestination().id) {
+//                                saveState = true
+//                            }
+//                            launchSingleTop = true
+//                            restoreState = true
+//                        }
 
                     })
                 )

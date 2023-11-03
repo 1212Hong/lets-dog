@@ -46,6 +46,7 @@ class StompManager() {
 
         val headers: MutableList<StompHeader> = ArrayList()
         headers.add(StompHeader("Authorization", "1"))
+        headers.add(StompHeader("Chatroom-no", "1"))
 
         val disposableLifecycle: Disposable? = mStompClient?.lifecycle()
             ?.subscribeOn(Schedulers.io())

@@ -1,4 +1,5 @@
 package com.dog.data.model.chatHelthCheck
 
-class ChatRoomRequest {
-}
+data class ChatRoomRequest(
+    val user_nicks: List<String>
+)

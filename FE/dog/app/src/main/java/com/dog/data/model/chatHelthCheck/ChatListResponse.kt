@@ -1,4 +1,5 @@
 package com.dog.data.model.chatHelthCheck
 
-class ChatListResponse {
-}
+data class ChatListResponse(
+    val list: List<String>
+)
