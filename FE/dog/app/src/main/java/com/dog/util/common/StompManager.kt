@@ -93,7 +93,23 @@ class StompManager() {
                 )
             }
 
+        val disposableNoticeTopic = mStompClient!!.topic("/sub/notice/1")
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ topicMessage: StompMessage ->
+                Log.d(TAG, "Received " + topicMessage.payload)
+//                addItem(mGson.fromJson(topicMessage.payload, EchoModel::class.java))
+            }
+            ) { throwable: Throwable? ->
+                Log.e(
+                    TAG,
+                    "Error on subscribe topic",
+                    throwable
+                )
+            }
+
         compositeDisposable?.add(disposableTopic)
+        compositeDisposable?.add(disposableNoticeTopic)
 
         mStompClient?.connect(headers)
     }

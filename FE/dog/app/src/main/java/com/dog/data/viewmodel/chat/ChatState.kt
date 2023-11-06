@@ -10,4 +10,7 @@ data class ChatState(
     val senderName: String = "",
     val contentType: String = "", // 글 or 사진 구분용
     val content: String = "",
+    val sendTime: Long = 0,
+    val readCount: Int,
+    val readList: List<Int>
 ) : Parcelable

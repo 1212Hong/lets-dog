@@ -1,5 +1,6 @@
 package com.dog.ui.screen
 
+import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,6 +22,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -74,7 +76,7 @@ fun ChattingScreen(navController: NavController, roomId: Int) {
     val chatViewModel: ChatViewModel = viewModel()
     val chatState by chatViewModel.chatState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
-    
+
     LaunchedEffect(roomId) {
         chatViewModel.getChatHistory(roomId)
     }
@@ -95,7 +97,7 @@ fun ChattingScreen(navController: NavController, roomId: Int) {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            ChatScreen(chatViewModel, chatState, coroutineScope)
+            ChatScreen(chatViewModel, chatState, coroutineScope, navController)
         }
     }
 
@@ -104,13 +106,24 @@ fun ChattingScreen(navController: NavController, roomId: Int) {
 @Composable
 fun UserNameRow(
     modifier: Modifier = Modifier,
-    person: Person
+    person: Person,
+    navController: NavController
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row {
+            // Add a back button
+            IconComponentImageVector(
+                icon = Icons.Default.ArrowBack, // You can use a different icon for the back button
+                size = 24.dp,
+                tint = Color.Black,
+                modifier = Modifier.clickable {
+                    Log.d("clicked?", navController.currentBackStack.toString())
+                    navController.popBackStack()
+                }
+            )
             IconComponentDrawable(icon = person.icon, size = 42.dp)
             Column {
                 Text(
@@ -189,7 +202,8 @@ fun ChatRow(
 fun ChatScreen(
     chatViewModel: ChatViewModel,
     chatState: List<Chat>,
-    coroutineScope: CoroutineScope
+    coroutineScope: CoroutineScope,
+    navController: NavController
 ) {
     var data =
         rememberNavController().previousBackStackEntry?.savedStateHandle?.get<Person>("data")
@@ -215,7 +229,13 @@ fun ChatScreen(
         ) {
             UserNameRow(
                 person = data,
-                modifier = Modifier.padding(top = 20.dp, start = 20.dp, end = 20.dp, bottom = 20.dp)
+                modifier = Modifier.padding(
+                    top = 20.dp,
+                    start = 20.dp,
+                    end = 20.dp,
+                    bottom = 20.dp
+                ),
+                navController = navController
             )
             Divider(
                 color = Color.Gray,
