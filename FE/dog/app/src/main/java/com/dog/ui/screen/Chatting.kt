@@ -70,13 +70,13 @@ import kotlinx.coroutines.launch
 private val stompManager: StompManager by lazy { StompManager() }
 
 @Composable
-fun ChattingScreen(navController: NavController) {
+fun ChattingScreen(navController: NavController, roomId: Int) {
     val chatViewModel: ChatViewModel = viewModel()
     val chatState by chatViewModel.chatState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
-
-    LaunchedEffect(Unit) {
-//        chatViewModel.getChatHistory(1) // 여기에서 roomId를 적절한 값으로 변경해야 합니다.
+    
+    LaunchedEffect(roomId) {
+        chatViewModel.getChatHistory(roomId)
     }
 
     // Use LaunchedEffect to initialize and connect StompManager

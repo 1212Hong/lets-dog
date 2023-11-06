@@ -20,7 +20,7 @@ interface ChatRepository {
     suspend fun getChatroomList(): Call<Response<ChatListResponse>>
 
     @GET("chatroom/{roomId}")
-    suspend fun getChatroomHistory(@Path("roomId") roomID: Int): Call<Response<ChatState>>
+    suspend fun getChatroomHistory(@Path("roomId") roomID: Int): retrofit2.Response<Response<ChatState>>
 
     @DELETE("chatroom/{roomId}")
     suspend fun disconnectChatroom(@Path("roomId") roomID: Int): Call<Response<String>>

@@ -32,7 +32,7 @@ data class BottomNavigationItem(
             BottomNavigationItem(
                 label = "Chatting",
                 icon = Icons.Filled.AccountCircle,
-                route = Screens.Chatting.route
+                route = Screens.ChatList.route
             ),
             BottomNavigationItem(
                 label = "Mypage",
