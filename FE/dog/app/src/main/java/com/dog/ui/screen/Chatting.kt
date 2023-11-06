@@ -85,6 +85,7 @@ fun ChattingScreen(navController: NavHostController, roomId: Int) {
         chatViewModel.getChatHistory(roomId)
     }
 
+
     // Use LaunchedEffect to initialize and connect StompManager
     DisposableEffect(Unit) {
         stompManager.initializeStompClient()
@@ -93,6 +94,7 @@ fun ChattingScreen(navController: NavHostController, roomId: Int) {
         onDispose {
             // Composable 함수가 사라질 때, 여기에서 Stomp 연결을 해제합니다.
             stompManager.onDestroy()
+            chatViewModel.leaveChatroom(roomId)
         }
     }
 
