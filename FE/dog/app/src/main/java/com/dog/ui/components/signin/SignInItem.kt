@@ -1,6 +1,10 @@
 package com.dog.ui.components.signin
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -16,10 +20,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.dog.R
+import com.dog.ui.components.MainButton
 
-@Preview
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SigninItem() {
@@ -60,4 +64,17 @@ fun SigninItem() {
         else PasswordVisualTransformation(),
         modifier = Modifier.fillMaxWidth(0.8f)
     )
+
+    Spacer(modifier = Modifier.padding(10.dp))
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+    ) {
+        MainButton(onClick = {
+//            userViewModel.login(emailValue, passwordValue)
+        }, text = "로그인")
+    }
+    Spacer(modifier = Modifier.padding(4.dp))
 }
