@@ -32,7 +32,7 @@ fun AppNavigation(navController: NavHostController, isTokenEmpty: Boolean) {
     } else {
         // Token이 있는 경우: BottomNavigationBar를 표시
         startRoute = Screens.Home.route
-        BottomNavigationBar(startRoute, navController)
+        BottomNavigationBar(startRoute)
     }
 
 

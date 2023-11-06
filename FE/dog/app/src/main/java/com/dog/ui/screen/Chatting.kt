@@ -24,6 +24,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -51,9 +53,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.dog.R
+import com.dog.data.Screens
 import com.dog.data.model.Chat
 import com.dog.data.model.Person
 import com.dog.data.viewmodel.chat.ChatViewModel
@@ -63,6 +66,7 @@ import com.dog.ui.theme.DogTheme
 import com.dog.ui.theme.Orange300
 import com.dog.ui.theme.Purple100
 import com.dog.ui.theme.Purple300
+import com.dog.ui.theme.PurpleGray400
 import com.dog.ui.theme.White
 import com.dog.ui.theme.Yellow300
 import com.dog.util.common.StompManager
@@ -72,7 +76,7 @@ import kotlinx.coroutines.launch
 private val stompManager: StompManager by lazy { StompManager() }
 
 @Composable
-fun ChattingScreen(navController: NavController, roomId: Int) {
+fun ChattingScreen(navController: NavHostController, roomId: Int) {
     val chatViewModel: ChatViewModel = viewModel()
     val chatState by chatViewModel.chatState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
@@ -107,43 +111,52 @@ fun ChattingScreen(navController: NavController, roomId: Int) {
 fun UserNameRow(
     modifier: Modifier = Modifier,
     person: Person,
-    navController: NavController
+    navController: NavHostController
 ) {
+    val clickGoBack = {
+        Log.d("clicked?", navController.currentBackStackEntry?.destination?.route ?: "null")
+//        navController.navigateUp()
+        navController.navigate(Screens.ChatList.route)
+    }
+
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Row {
-            // Add a back button
-            IconComponentImageVector(
-                icon = Icons.Default.ArrowBack, // You can use a different icon for the back button
-                size = 24.dp,
-                tint = Color.Black,
-                modifier = Modifier.clickable {
-                    Log.d("clicked?", navController.currentBackStack.toString())
-                    navController.popBackStack()
-                }
-            )
-            IconComponentDrawable(icon = person.icon, size = 42.dp)
-            Column {
-                Text(
-                    text = person.name, style = TextStyle(
-                        color = Color.Black,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
-                    )
-                )
-                Text(
-                    text = stringResource(id = R.string.online), style = TextStyle(
-                        color = Color.Black,
-                        fontSize = 14.sp
-                    )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Button(
+                onClick = clickGoBack,
+                modifier = Modifier.height(30.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = PurpleGray400,
+                    contentColor = Color.White,
+                    disabledContainerColor = Color.Gray,
+                ),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = null
                 )
             }
+            IconComponentDrawable(icon = person.icon, size = 42.dp)
+            Text(
+                text = person.name, style = TextStyle(
+                    color = Color.Black,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                )
+            )
+
         }
+
         IconComponentImageVector(icon = Icons.Default.MoreVert, size = 24.dp, tint = Color.Black)
     }
+
 }
+
 
 @Composable
 fun ChatRow(
@@ -203,7 +216,7 @@ fun ChatScreen(
     chatViewModel: ChatViewModel,
     chatState: List<Chat>,
     coroutineScope: CoroutineScope,
-    navController: NavController
+    navController: NavHostController
 ) {
     var data =
         rememberNavController().previousBackStackEntry?.savedStateHandle?.get<Person>("data")
