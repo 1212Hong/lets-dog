@@ -17,6 +17,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Size;
 
+import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,6 +26,7 @@ import com.ssafy.dog.common.auditing.BaseTimeEntity;
 import com.ssafy.dog.domain.board.entity.Board;
 import com.ssafy.dog.domain.board.entity.Comment;
 import com.ssafy.dog.domain.dog.entity.Dog;
+import com.ssafy.dog.domain.user.dto.response.UserUpdateRes;
 import com.ssafy.dog.domain.user.model.UserGender;
 import com.ssafy.dog.domain.user.model.UserRole;
 
@@ -35,6 +37,7 @@ import lombok.NonNull;
 
 @Entity
 @Getter
+@DynamicUpdate
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "user")
 public class User extends BaseTimeEntity implements UserDetails { // 주소 속성 아직 안 들어감
@@ -134,6 +137,34 @@ public class User extends BaseTimeEntity implements UserDetails { // 주소 속�
 
 	@OneToMany(mappedBy = "user")
 	private List<Dog> dogs = new ArrayList<>();
+
+	// === update 메소드 === //
+	public void updateUser(String userNickname, String userPhone, String userPicture, String userAboutMe,
+		UserGender userGender, Double userLatitude, Double userLongitude, String userAddress) {
+		this.userNickname = userNickname;
+		this.userPhone = userPhone;
+		this.userPicture = userPicture;
+		this.userAboutMe = userAboutMe;
+		this.userGender = userGender;
+		this.userLatitude = userLatitude;
+		this.userLongitude = userLongitude;
+		this.userAddress = userAddress;
+	}
+
+	public UserUpdateRes toUserUpdateRes() {
+		return UserUpdateRes.builder()
+			.userId(userId)
+			.userLoginId(userLoginId)
+			.userNickname(userNickname)
+			.userPhone(userPhone)
+			.userPicture(userPicture)
+			.userAboutMe(userAboutMe)
+			.userGender(userGender)
+			.userLatitude(userLatitude)
+			.userLongitude(userLongitude)
+			.userAddress(userAddress)
+			.build();
+	}
 
 	// === 빌더 === //
 	public static final class UserBuilder {

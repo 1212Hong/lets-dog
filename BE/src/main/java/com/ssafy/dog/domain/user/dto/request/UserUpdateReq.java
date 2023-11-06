@@ -1,15 +1,11 @@
-package com.ssafy.dog.domain.user.dto;
+package com.ssafy.dog.domain.user.dto.request;
 
 import com.ssafy.dog.domain.user.model.UserGender;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
-public class UserDto {
-	private Long userId;
-	private String userLoginId;
+public class UserUpdateReq {
 	private String userNickname;
 	private String userPhone;
 	private String userPicture;

@@ -17,7 +17,9 @@ import com.ssafy.dog.common.error.UserErrorCode;
 import com.ssafy.dog.common.exception.ApiException;
 import com.ssafy.dog.domain.user.dto.request.UserLoginReq;
 import com.ssafy.dog.domain.user.dto.request.UserSignupReq;
+import com.ssafy.dog.domain.user.dto.request.UserUpdateReq;
 import com.ssafy.dog.domain.user.dto.response.UserLoginRes;
+import com.ssafy.dog.domain.user.dto.response.UserUpdateRes;
 import com.ssafy.dog.domain.user.entity.User;
 import com.ssafy.dog.domain.user.model.UserRole;
 import com.ssafy.dog.domain.user.repository.UserRepository;
@@ -118,6 +120,26 @@ public class UserServiceImpl implements UserService {
 			jwtToken.getAccessToken()));
 
 		// return Api.ok(jwtToken.getAccessToken()); // UserLoginResponseDto 로 보내기
+	}
+
+	@Transactional
+	@Override
+	public Api<UserUpdateRes> updateByUserId(Long userId, UserUpdateReq userUpdateReq) {
+		User user = userRepository.findByUserId(userId)
+			.orElseThrow(() -> new ApiException(UserErrorCode.USER_NOT_FOUND));
+
+		user.updateUser(
+			userUpdateReq.getUserNickname(),
+			userUpdateReq.getUserPhone(),
+			userUpdateReq.getUserPicture(),
+			userUpdateReq.getUserAboutMe(),
+			userUpdateReq.getUserGender(),
+			userUpdateReq.getUserLatitude(),
+			userUpdateReq.getUserLatitude(),
+			userUpdateReq.getUserAddress()
+		);
+
+		return Api.ok(user.toUserUpdateRes());
 	}
 
 	// 이메일 형식 검증 메소드
