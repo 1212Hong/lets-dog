@@ -180,8 +180,14 @@ public class ChatService {
 
 		kafkaProducerService.sendNotice(KafkaConstants.KAFKA_NOTICE_TOPIC, curNotice);
 
-		// kafka producer -> consumer -> stomp converAndSend 까지 된 후 DB 저장로직
-		// saveChat(message);
+	}
+
+	public Api<List<ChatListResDto>> testSecurity(Long curUserId) {
+		log.info("userId : {}", curUserId);
+		List<ChatListResDto> roomLists = chatRoomRepository.getUserChatRoomsAndUserNicknames(curUserId);
+		log.info("RoomID :{}", (roomLists.size()));
+
+		return Api.ok(roomLists);
 	}
 
 }

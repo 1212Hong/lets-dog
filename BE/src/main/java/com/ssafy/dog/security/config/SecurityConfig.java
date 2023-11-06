@@ -40,10 +40,13 @@ public class SecurityConfig {
 		http
 			// 1. 기본 설정
 			.authorizeRequests()
-			.antMatchers("/**").permitAll()
+			// .antMatchers("/**").permitAll()
 			// .antMatchers("/api/board/**").hasRole("USER")
 			// .antMatchers("/api/chatroom/**").hasRole("USER")
-			// .anyRequest().permitAll() // 그 외 나머지 요청은 누구나 접근 가능
+
+			.antMatchers("/api/chatroom/test/**").hasRole("USER") // 임시 SecurityContext 확인 테스트
+			.anyRequest().permitAll() // 그 외 나머지 요청은 누구나 접근 가능
+
 			.and()
 			.csrf().disable() // csrf 보안 토큰 disable 처리
 			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 토큰 기반이므로 세션 사용 X

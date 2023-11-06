@@ -22,6 +22,7 @@ import com.ssafy.dog.domain.chat.dto.res.ChatHistoriesResDto;
 import com.ssafy.dog.domain.chat.dto.res.ChatListResDto;
 import com.ssafy.dog.domain.chat.service.ChatRoomService;
 import com.ssafy.dog.domain.chat.service.ChatService;
+import com.ssafy.dog.util.SecurityUtils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -81,8 +82,8 @@ public class ChatController {
 	}
 
 	@GetMapping("/chatroom/test")
-	public Api<?> getTest() {
-
-		return Api.ok(chatService.getTest());
+	public Api<List<ChatListResDto>> getTest() {
+		
+		return chatService.testSecurity(SecurityUtils.getUserId());
 	}
 }
