@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ssafy.dog.common.api.Api;
 import com.ssafy.dog.domain.board.dto.BoardDto;
+import com.ssafy.dog.domain.board.dto.BoardReqDto;
 import com.ssafy.dog.domain.board.service.BoardService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,7 +26,7 @@ public class BoardController {
 
 	@PostMapping("/board")
 	@Operation(summary = "게시글 작성")
-	public Api<String> createBoard(@RequestBody BoardDto boardDto) {
+	public Api<String> createBoard(@RequestBody BoardReqDto boardDto) {
 		return boardService.createBoard(boardDto);
 	}
 
@@ -39,5 +40,12 @@ public class BoardController {
 	@Operation(summary = "BoardId 로 게시글 삭제하기")
 	public Api<String> deleteBoard(@RequestParam Long boardId) {
 		return boardService.deleteBoard(boardId);
+	}
+
+	@GetMapping("boardnear")
+	@Operation(summary = "주변 사용자들 게시글목록 가져오기")
+	public Api<List<BoardDto>> getBoardListNearby(@RequestParam double userLatitude,
+		@RequestParam double userLongitude) {
+		return boardService.findBoardNeararea(userLatitude, userLongitude);
 	}
 }
