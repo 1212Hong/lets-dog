@@ -1,18 +1,23 @@
 package com.ssafy.dog.domain.board.service;
 
+import static com.ssafy.dog.util.DistanceCalculator.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ssafy.dog.common.api.Api;
 import com.ssafy.dog.common.error.BoardErrorCode;
+import com.ssafy.dog.common.error.GpsErrorCode;
 import com.ssafy.dog.common.error.UserErrorCode;
 import com.ssafy.dog.common.exception.ApiException;
 import com.ssafy.dog.domain.board.dto.BoardDto;
+import com.ssafy.dog.domain.board.dto.BoardReqDto;
 import com.ssafy.dog.domain.board.entity.Board;
 import com.ssafy.dog.domain.board.entity.Comment;
 import com.ssafy.dog.domain.board.entity.FileUrl;
@@ -34,8 +39,10 @@ public class BoardServiceImpl implements BoardService {
 	private final BoardRepository boardRepository;
 	private final FileUrlRepository fileUrlRepository;
 
+	Sort sort = Sort.by(Sort.Direction.DESC, "createdDate");
+
 	@Transactional
-	public Api<String> createBoard(BoardDto boardDto) {
+	public Api<String> createBoard(BoardReqDto boardDto) {
 		Optional<User> curUser = userRepository.findByUserNickname(boardDto.getUserNickname());
 		if (curUser.isEmpty()) {
 			throw new ApiException(UserErrorCode.USER_NOT_FOUND);
@@ -72,7 +79,8 @@ public class BoardServiceImpl implements BoardService {
 		Optional<User> curUser = userRepository.findUserByUserNickname(userNickname);
 		User currentUser = curUser.orElseThrow(() -> new ApiException(UserErrorCode.USER_NOT_FOUND));
 
-		List<Board> boardList = boardRepository.findBoardByUserUserNickname(userNickname);
+		List<Board> boardList = boardRepository.findBoardByUserUserNickname(userNickname, sort);
+
 		List<BoardDto> boardDtoList = new ArrayList<>();
 
 		// 게시물 없을시 빈배열 보내기로 합의함. 11.06 09:25
@@ -119,4 +127,48 @@ public class BoardServiceImpl implements BoardService {
 		board.removeBoard();
 		return Api.ok(boardId + " 번 게시글 삭제 완료");
 	}
+
+	@Transactional
+	public Api<List<BoardDto>> findBoardNeararea(double userLatitude, double userLongitude) {
+		List<Board> boardList = boardRepository.findAll(sort);
+
+		// 대한민국 위경도 기준
+		// 북위 : 33.10000000 ~ 38.45000000
+		// 동경 : 125.06666667 ~ 131.87222222
+
+		List<BoardDto> boardDtoList = new ArrayList<>();
+		if (!(33.10000000 < userLongitude && userLongitude < 38.45000000)) {
+			throw new ApiException(GpsErrorCode.GPS_POINT_NOT_IN_KOREA);
+		}
+		if (!(125.06666667 < userLatitude && userLatitude < 131.87222222)) {
+			throw new ApiException(GpsErrorCode.GPS_POINT_NOT_IN_KOREA);
+		}
+
+		for (Board board : boardList) {
+			if (board.getBoardStatus() == FileStatus.DELETE) {
+				continue;
+			}
+			if (board.getUser().getUserLatitude() == null || board.getUser().getUserLongitude() == null) {
+				continue;
+			}
+			if (calculateDistance(userLatitude, userLongitude,
+				board.getUser().getUserLatitude(), board.getUser().getUserLongitude()) > 1.5) {
+				continue;
+			}
+			BoardDto boardDto = BoardDto.builder()
+				.userNickname(board.getUser().getUserNickname())
+				.boardId(board.getBoardId())
+				.boardContent(board.getBoardContent())
+				.boardScope(board.getBoardScope())
+				.boardLikes(board.getBoardLikes())
+				.boardComments(board.getBoardComments())
+				.fileUrlLists(
+					board.getFileUrlLists().stream().map(FileUrl::getFileUrl).collect(Collectors.toList()))
+				.build();
+			boardDtoList.add(boardDto);
+		}
+
+		return Api.ok(boardDtoList);
+	}
+
 }

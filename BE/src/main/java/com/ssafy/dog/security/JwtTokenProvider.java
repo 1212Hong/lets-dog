@@ -14,7 +14,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
@@ -50,9 +49,9 @@ public class JwtTokenProvider {
 			.map(GrantedAuthority::getAuthority)
 			.collect(Collectors.joining(","));
 
-		// String userLoginId = authentication.getName();
+		String userLoginId = authentication.getName();
 
-		Optional<User> curUser = userRepository.findByUserLoginId(authentication.getName());
+		Optional<User> curUser = userRepository.findByUserLoginId(userLoginId);
 		if (curUser.isEmpty()) {
 			throw new UsernameNotFoundException("JwtTokenProvider 에서 authentication 에 담긴 userLoginId 로 유저를 찾을 수 없습니다.");
 		}
@@ -85,10 +84,23 @@ public class JwtTokenProvider {
 				.map(SimpleGrantedAuthority::new)
 				.collect(Collectors.toList());
 
-		UserDetails principal = new org.springframework.security.core.userdetails.User(
-			claims.getSubject(), "", authorities);
+		// UserDetails principal = new org.springframework.security.core.userdetails.User(
+		// 	claims.getSubject(), "", authorities);
 
-		return new UsernamePasswordAuthenticationToken(principal, "", authorities);
+		Optional<User> curUser = userRepository.findByUserId(Long.valueOf(claims.getSubject()));
+		if (curUser.isEmpty()) {
+			throw new UsernameNotFoundException("JwtTokenProvider 에서 authentication 에 담긴 userLoginId 로 유저를 찾을 수 없습니다.");
+		}
+
+		// SecurityContext에 등록할 SecurityUser 객체를 만들어준다.
+		SecurityUserDto securityUserDto = SecurityUserDto.builder()
+			.userId(curUser.get().getUserId())
+			.userLoginId(curUser.get().getUserLoginId())
+			.userNickname(curUser.get().getUserNickname())
+			.build();
+
+		return new UsernamePasswordAuthenticationToken(securityUserDto, "", authorities);
+		// return new UsernamePasswordAuthenticationToken(principal, "", authorities);
 	}
 
 	public boolean validateToken(String token) { // 에러 내보고 ApiException 으로 오류 처리해야 하는지 확인하기

@@ -11,7 +11,8 @@ import lombok.Getter;
 @Getter
 public enum GpsErrorCode implements ErrorCodeIfs {
 
-	GPS_POINT_NOT_VALID(400, 2404, "위도와 경도를 입력해주세요");
+	GPS_POINT_NOT_VALID(400, 2404, "위도와 경도를 입력해주세요"),
+	GPS_POINT_NOT_IN_KOREA(400, 2405, "서비스지역을 벗어났습니다");
 
 	private final Integer httpStatusCode;
 	private final Integer errorCode;

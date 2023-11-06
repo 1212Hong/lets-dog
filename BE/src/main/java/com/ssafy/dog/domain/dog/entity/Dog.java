@@ -1,5 +1,7 @@
 package com.ssafy.dog.domain.dog.entity;
 
+import static javax.persistence.FetchType.*;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -11,19 +13,23 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ssafy.dog.domain.dog.model.DogDisposition;
 import com.ssafy.dog.domain.dog.model.DogDispositionListConverter;
 import com.ssafy.dog.domain.dog.model.DogSize;
+import com.ssafy.dog.domain.user.entity.User;
 
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NonNull;
 
 @Entity
 @Getter
@@ -34,7 +40,12 @@ public class Dog {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long dogId;
 
-	@NonNull
+	@ManyToOne(fetch = LAZY)
+	@JoinColumn(name = "user_id")
+	@JsonIgnore
+	private User user;
+
+	@NotNull
 	@Size(max = 10)
 	private String dogName;
 
@@ -48,7 +59,8 @@ public class Dog {
 	@Size(max = 20, message = "문자 제한은 20개입니다.")
 	private String dogBreed;
 
-	@Size(max = 5, message = "최대 5개의 성향만 가질 수 있습니다.")
+	@Size(min = 3, max = 5, message = "3~5개의 성향만 가질 수 있습니다.")
+	@NotNull
 	@Convert(converter = DogDispositionListConverter.class)
 	private List<DogDisposition> dogDispositionList;
 	/*
@@ -66,12 +78,13 @@ public class Dog {
 
 	public static final class DogBuilder {
 		private Long dogId;
-		private @NonNull @Size(max = 10) String dogName;
+		private User user;
+		private String dogName;
 		private String dogPicture;
 		private LocalDateTime dogBirthdate;
-		private @Size(max = 20, message = "문자 제한은 20개입니다.") String dogBreed;
-		private @Size(max = 5, message = "최대 5개의 성향만 가질 수 있습니다.") List<DogDisposition> dogDispositionList;
-		private @Size(max = 200) String dogAboutMe;
+		private String dogBreed;
+		private List<DogDisposition> dogDispositionList;
+		private String dogAboutMe;
 		private DogSize dogSize;
 
 		private DogBuilder() {
@@ -83,6 +96,11 @@ public class Dog {
 
 		public DogBuilder withDogId(Long dogId) {
 			this.dogId = dogId;
+			return this;
+		}
+
+		public DogBuilder withUser(User user) {
+			this.user = user;
 			return this;
 		}
 
@@ -124,14 +142,16 @@ public class Dog {
 		public Dog build() {
 			Dog dog = new Dog();
 			dog.dogPicture = this.dogPicture;
-			dog.dogAboutMe = this.dogAboutMe;
-			dog.dogId = this.dogId;
-			dog.dogSize = this.dogSize;
 			dog.dogBreed = this.dogBreed;
-			dog.dogName = this.dogName;
-			dog.dogDispositionList = this.dogDispositionList;
 			dog.dogBirthdate = this.dogBirthdate;
+			dog.user = this.user;
+			dog.dogAboutMe = this.dogAboutMe;
+			dog.dogName = this.dogName;
+			dog.dogSize = this.dogSize;
+			dog.dogId = this.dogId;
+			dog.dogDispositionList = this.dogDispositionList;
 			return dog;
 		}
 	}
 }
+

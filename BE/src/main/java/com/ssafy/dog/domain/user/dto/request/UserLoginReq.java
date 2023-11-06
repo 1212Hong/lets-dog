@@ -7,7 +7,7 @@ import javax.validation.constraints.Pattern;
 import lombok.Getter;
 
 @Getter
-public class UserLoginRequestDto {
+public class UserLoginReq {
 	@NotBlank(message = "이메일(아이디)은 필수 입력 값입니다.")
 	@Email(message = "로그인 아이디는 이메일 형식이어야 합니다.",
 		regexp = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")
