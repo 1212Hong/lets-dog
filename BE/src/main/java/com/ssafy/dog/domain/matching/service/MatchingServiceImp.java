@@ -62,7 +62,7 @@ public class MatchingServiceImp implements MatchingService {
 			double let2 = it.getUserLatitude();
 			double lon2 = it.getUserLongitude();
 			double distance = DistanceCalculator.calculateDistance(let1, lon1, let2, lon2);
-			return distance <= 3;
+			return distance <= 300;
 		}).collect(Collectors.toList());
 	}
 

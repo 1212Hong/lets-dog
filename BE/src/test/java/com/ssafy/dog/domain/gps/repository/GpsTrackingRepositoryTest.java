@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Import;
 
 import com.ssafy.dog.domain.gps.entity.GpsPoints;
 import com.ssafy.dog.domain.gps.entity.GpsTracking;
+import com.ssafy.dog.domain.gps.entity.enums.Status;
 import com.ssafy.dog.domain.gps.listener.GpsTrackingModelListener;
 
 @DataMongoTest // test 실행시 application enable JPA auditing 주석 필요
@@ -45,7 +46,7 @@ class GpsTrackingRepositoryTest {
 		List<Double> point2 = Arrays.asList(41.712, 73.23);
 		List<List<Double>> gpsList = Arrays.asList(point1, point2);
 		GpsPoints gpsPoints = new GpsPoints(gpsList);
-		GpsTracking gpsTracking = new GpsTracking(LocalDateTime.now(), gpsPoints);
+		GpsTracking gpsTracking = new GpsTracking(LocalDateTime.now(), gpsPoints, Status.AVAILABLE);
 		//when
 		GpsTracking savedEntity = gpsTrackingRepository.save(gpsTracking);
 		Optional<GpsTracking> getEntity = gpsTrackingRepository.findById(savedEntity.getId());
