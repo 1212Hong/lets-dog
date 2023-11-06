@@ -2,6 +2,8 @@ package com.ssafy.dog.domain.board.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -11,6 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.ssafy.dog.common.auditing.BaseTimeEntity;
+import com.ssafy.dog.domain.board.enums.FileStatus;
 import com.ssafy.dog.domain.user.entity.User;
 
 import lombok.AccessLevel;
@@ -33,18 +36,21 @@ public class Comment extends BaseTimeEntity {
 	private Board board;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "member_id")
+	@JoinColumn(name = "user_id")
 	private User user;
 
 	private String commentContent;
 	private int commentLikes;
+	@Enumerated(EnumType.STRING)
+	private FileStatus commentStatus;
 
 	@Builder
-	public Comment(User user, Board board, String commentContent) {
+	public Comment(User user, Board board, String commentContent, FileStatus commentStatus) {
 		this.commentContent = commentContent;
 		this.user = user;
 		this.board = board;
 		this.commentLikes = 0;
+		this.commentStatus = commentStatus;
 	}
 
 	// == 연관 관계 메서드 == //
@@ -55,6 +61,10 @@ public class Comment extends BaseTimeEntity {
 
 	public void setBoard(Board board) {
 		this.board = board;
-		board.getCommentListForBoard().add(this);
+		board.getCommentList().add(this);
+	}
+
+	public void removeComment() {
+		this.commentStatus = FileStatus.DELETE;
 	}
 }

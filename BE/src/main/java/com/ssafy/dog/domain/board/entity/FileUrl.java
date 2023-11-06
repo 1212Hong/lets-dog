@@ -52,8 +52,7 @@ public class FileUrl {
 		board.getFileUrlLists().add(this);
 	}
 
-	public void removeBoard() {
-		this.board = null;
+	public void removeFile() {
 		this.fileStatus = DELETE;
 	}
 
