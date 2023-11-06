@@ -14,7 +14,7 @@ fun DogApp() {
     val context = LocalContext.current
     val store = DataStoreManager(context)
 
-    val tokenText = store.getAccessToken.collectAsState(initial = "")
+    val tokenText = store.getAccessToken.collectAsState(initial = "test")
     // Token이 비어있는지 확인합니다.
     val isTokenEmpty = tokenText.value.isEmpty()
 

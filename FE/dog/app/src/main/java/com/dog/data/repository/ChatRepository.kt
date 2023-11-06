@@ -16,12 +16,12 @@ interface ChatRepository {
     @POST("/chatroom")
     suspend fun createChatroom(@Body roomID: Int): Call<Response<ChatListResponse>>
 
-    @GET("/chatroom")
+    @GET("chatroom")
     suspend fun getChatroomList(): Call<Response<ChatListResponse>>
 
-    @GET("/chatroom/{roomId}")
-    suspend fun getChatroomHistory(@Path("roomID") roomID: Int): Call<Response<ChatState>>
+    @GET("chatroom/{roomId}")
+    suspend fun getChatroomHistory(@Path("roomId") roomID: Int): Call<Response<ChatState>>
 
-    @DELETE("/chatroom/{roomId}")
-    suspend fun disconnectChatroom(@Path("roomID") roomID: Int): Call<Response<String>>
+    @DELETE("chatroom/{roomId}")
+    suspend fun disconnectChatroom(@Path("roomId") roomID: Int): Call<Response<String>>
 }

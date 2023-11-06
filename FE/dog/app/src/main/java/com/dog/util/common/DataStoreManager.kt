@@ -18,7 +18,7 @@ class DataStoreManager(private val context: Context) {
     }
 
     val getAccessToken: Flow<String> = context.dataStore.data.map { preferences ->
-        preferences[USER_TOKEN_KEY] ?: ""
+        preferences[USER_TOKEN_KEY] ?: "test"
     }
 
     suspend fun saveToken(token: String) {
