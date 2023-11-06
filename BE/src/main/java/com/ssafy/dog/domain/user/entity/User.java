@@ -1,6 +1,5 @@
 package com.ssafy.dog.domain.user.entity;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -12,7 +11,6 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -89,10 +87,6 @@ public class User extends BaseTimeEntity implements UserDetails { // 주소 속�
 	@Column(length = 255)
 	private String userAddress;
 
-	@OneToMany // 단방향 1:N 매핑
-	@JoinColumn(name = "dog_id")
-	private List<Dog> dogs = new ArrayList<>();
-
 	// UserDetails 로서의 User 속성 및 메소드들
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -131,9 +125,18 @@ public class User extends BaseTimeEntity implements UserDetails { // 주소 속�
 		return true;
 	}
 
+	// === 연결 === //
+	@OneToMany(mappedBy = "user")
+	private List<Board> boardList = new ArrayList<>();
+
+	@OneToMany(mappedBy = "user")
+	private List<Comment> commentListForUser = new ArrayList<>();
+
+	@OneToMany(mappedBy = "user")
+	private List<Dog> dogs = new ArrayList<>();
+
+	// === 빌더 === //
 	public static final class UserBuilder {
-		private LocalDateTime createdDate;
-		private LocalDateTime modifiedDate;
 		private Long userId;
 		private String userLoginId;
 		private String userPw;
@@ -148,23 +151,14 @@ public class User extends BaseTimeEntity implements UserDetails { // 주소 속�
 		private Double userLatitude;
 		private Double userLongitude;
 		private String userAddress;
-		private List<Dog> dogs;
+		private List<Board> boardList;
+		private List<Comment> commentListForUser;
 
 		private UserBuilder() {
 		}
 
 		public static UserBuilder anUser() {
 			return new UserBuilder();
-		}
-
-		public UserBuilder withCreatedDate(LocalDateTime createdDate) {
-			this.createdDate = createdDate;
-			return this;
-		}
-
-		public UserBuilder withModifiedDate(LocalDateTime modifiedDate) {
-			this.modifiedDate = modifiedDate;
-			return this;
 		}
 
 		public UserBuilder withUserId(Long userId) {
@@ -237,36 +231,35 @@ public class User extends BaseTimeEntity implements UserDetails { // 주소 속�
 			return this;
 		}
 
-		public UserBuilder withDogs(List<Dog> dogs) {
-			this.dogs = dogs;
+		public UserBuilder withBoardList(List<Board> boardList) {
+			this.boardList = boardList;
+			return this;
+		}
+
+		public UserBuilder withCommentListForUser(List<Comment> commentListForUser) {
+			this.commentListForUser = commentListForUser;
 			return this;
 		}
 
 		public User build() {
 			User user = new User();
-			user.userNickname = this.userNickname;
-			user.userLatitude = this.userLatitude;
-			user.userLoginId = this.userLoginId;
-			user.userRole = this.userRole;
 			user.userPhone = this.userPhone;
-			user.userGender = this.userGender;
-			user.userLongitude = this.userLongitude;
-			user.userPicture = this.userPicture;
-			user.dogs = this.dogs;
+			user.userLoginId = this.userLoginId;
+			user.userNickname = this.userNickname;
+			user.userRole = this.userRole;
+			user.commentListForUser = this.commentListForUser;
 			user.userPw = this.userPw;
-			user.userId = this.userId;
-			user.userTermsAgreed = this.userTermsAgreed;
-			user.userAddress = this.userAddress;
 			user.userAboutMe = this.userAboutMe;
+			user.userPicture = this.userPicture;
+			user.boardList = this.boardList;
+			user.userAddress = this.userAddress;
+			user.userLatitude = this.userLatitude;
+			user.userLongitude = this.userLongitude;
+			user.userGender = this.userGender;
+			user.userTermsAgreed = this.userTermsAgreed;
 			user.userIsRemoved = this.userIsRemoved;
+			user.userId = this.userId;
 			return user;
 		}
 	}
-
-	// === 연결 === //
-	@OneToMany(mappedBy = "user")
-	private List<Board> boardList = new ArrayList<>();
-
-	@OneToMany(mappedBy = "user")
-	private List<Comment> commentListForUser = new ArrayList<>();
 }

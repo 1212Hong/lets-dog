@@ -11,7 +11,7 @@ import lombok.Setter;
 
 @Getter
 @Setter // Setter 가 필요한가?
-public class UserSignupRequestDto {
+public class UserSignupReq {
 	@NotBlank(message = "아이디는 필수 입력 값입니다.")
 	@Email(message = "로그인 아이디는 이메일 형식이어야 합니다.",
 		regexp = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")

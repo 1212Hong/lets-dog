@@ -9,11 +9,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ssafy.dog.common.api.Api;
-import com.ssafy.dog.domain.user.dto.request.UserLoginRequestDto;
-import com.ssafy.dog.domain.user.dto.request.UserSignupRequestDto;
+import com.ssafy.dog.domain.user.dto.request.UserLoginReq;
+import com.ssafy.dog.domain.user.dto.request.UserSignupReq;
 import com.ssafy.dog.domain.user.repository.UserRepository;
 import com.ssafy.dog.domain.user.service.UserService;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 
 @RequestMapping("/api/user")
@@ -25,13 +26,15 @@ public class UserController {
 	private final UserRepository userRepository;
 
 	@PostMapping("/signup")
-	public Api<?> signUp(@Valid @RequestBody UserSignupRequestDto userSignupRequestDto) {
-		return userService.create(userSignupRequestDto);
+	@Operation(summary = "회원가입")
+	public Api<?> signUp(@Valid @RequestBody UserSignupReq userSignupReq) {
+		return userService.create(userSignupReq);
 	}
 
 	@PostMapping("/login")
-	public Api<?> login(@Valid @RequestBody UserLoginRequestDto userLoginRequestDto) {
+	@Operation(summary = "로그인")
+	public Api<?> login(@Valid @RequestBody UserLoginReq userLoginReq) {
 
-		return userService.login(userLoginRequestDto);
+		return userService.login(userLoginReq);
 	}
 }
