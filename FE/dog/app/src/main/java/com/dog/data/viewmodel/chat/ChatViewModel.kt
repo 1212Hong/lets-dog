@@ -5,18 +5,23 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.dog.data.local.chatList
 import com.dog.data.model.Chat
+import com.dog.data.model.chat.ChatroomInfo
 import com.dog.data.repository.ChatRepository
 import com.dog.util.common.RetrofitClient
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class ChatViewModel : ViewModel() {
     // 채팅 정보 저장
     private val _chatState = MutableStateFlow(chatList)
     val chatState: StateFlow<List<Chat>> = _chatState.asStateFlow()
+    val _chatListState = MutableStateFlow<List<ChatroomInfo>>(emptyList())
+    val chatListState: StateFlow<List<ChatroomInfo>> = _chatListState.asStateFlow()
 
     // Retrofit 인터페이스를 사용하려면 여기서 인스턴스를 생성합니다.
     private val chatApi: ChatRepository =
@@ -48,13 +53,35 @@ class ChatViewModel : ViewModel() {
         Log.d("chatState", chatState.toString())
     }
 
-    suspend fun leaveChatroom(roomId: Int) {
-        chatApi.disconnectChatroom(roomId)
+    fun leaveChatroom(roomId: Int) {
+        viewModelScope.launch {
+            chatApi.disconnectChatroom(roomId)
+        }
+
     }
 
-    suspend fun getChatList() {
-        val chatList = chatApi.getChatroomList()
-        Log.d("list", chatList.toString())
+    fun getChatList() {
+        viewModelScope.launch {
+            try {
+                val res = chatApi.getChatroomList()
+
+                if (res.isSuccessful) {
+                    val responseBody = res.body()
+                    if (responseBody != null) {
+                        print(responseBody)
+//                        _chatListState.value = responseBody.body // chatListState에 응답의 body를 할당
+                    }
+                } else {
+                    val errorBody = res.errorBody()
+                    if (errorBody != null) {
+                        // 에러 응답 데이터를 처리
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("APIError", "API 호출 중 오류 발생: ${e.message}")
+            }
+        }
+
     }
 
     suspend fun getChatHistory(roomId: Int) {
@@ -62,16 +89,17 @@ class ChatViewModel : ViewModel() {
             val res = chatApi.getChatroomHistory(roomId)
 
             // 여기에서 성공적인 응답 처리
-
             if (res.isSuccessful) {
                 // API 호출이 성공했을 때의 처리
                 val responseBody = res.body()
+                print(responseBody)
                 if (responseBody != null) {
                     // 응답 데이터를 사용하는 로직
                 }
             } else {
                 // API 호출은 성공적으로 완료되었지만, 서버에서 오류 응답을 반환했을 때의 처리
                 val errorBody = res.errorBody()
+                print(errorBody)
                 if (errorBody != null) {
                     // 에러 응답 데이터를 처리
                 }

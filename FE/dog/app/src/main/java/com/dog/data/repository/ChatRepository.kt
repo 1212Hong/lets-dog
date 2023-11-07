@@ -13,11 +13,11 @@ import retrofit2.http.Path
 
 interface ChatRepository {
 
-    @POST("/chatroom")
+    @POST("chatroom")
     suspend fun createChatroom(@Body roomID: Int): Call<Response<ChatListResponse>>
 
     @GET("chatroom")
-    suspend fun getChatroomList(): Call<Response<ChatListResponse>>
+    suspend fun getChatroomList(): retrofit2.Response<Response<ChatListResponse>>
 
     @GET("chatroom/{roomId}")
     suspend fun getChatroomHistory(@Path("roomId") roomID: Int): retrofit2.Response<Response<ChatState>>

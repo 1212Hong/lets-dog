@@ -1,5 +1,6 @@
 package com.dog.ui.screen
 
+import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,7 +22,10 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -49,9 +53,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.dog.R
+import com.dog.data.Screens
 import com.dog.data.model.Chat
 import com.dog.data.model.Person
 import com.dog.data.viewmodel.chat.ChatViewModel
@@ -61,6 +66,7 @@ import com.dog.ui.theme.DogTheme
 import com.dog.ui.theme.Orange300
 import com.dog.ui.theme.Purple100
 import com.dog.ui.theme.Purple300
+import com.dog.ui.theme.PurpleGray400
 import com.dog.ui.theme.White
 import com.dog.ui.theme.Yellow300
 import com.dog.util.common.StompManager
@@ -70,14 +76,15 @@ import kotlinx.coroutines.launch
 private val stompManager: StompManager by lazy { StompManager() }
 
 @Composable
-fun ChattingScreen(navController: NavController, roomId: Int) {
+fun ChattingScreen(navController: NavHostController, roomId: Int) {
     val chatViewModel: ChatViewModel = viewModel()
     val chatState by chatViewModel.chatState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
-    
+
     LaunchedEffect(roomId) {
         chatViewModel.getChatHistory(roomId)
     }
+
 
     // Use LaunchedEffect to initialize and connect StompManager
     DisposableEffect(Unit) {
@@ -87,6 +94,7 @@ fun ChattingScreen(navController: NavController, roomId: Int) {
         onDispose {
             // Composable 함수가 사라질 때, 여기에서 Stomp 연결을 해제합니다.
             stompManager.onDestroy()
+            chatViewModel.leaveChatroom(roomId)
         }
     }
 
@@ -95,7 +103,7 @@ fun ChattingScreen(navController: NavController, roomId: Int) {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            ChatScreen(chatViewModel, chatState, coroutineScope)
+            ChatScreen(chatViewModel, chatState, coroutineScope, navController)
         }
     }
 
@@ -104,33 +112,53 @@ fun ChattingScreen(navController: NavController, roomId: Int) {
 @Composable
 fun UserNameRow(
     modifier: Modifier = Modifier,
-    person: Person
+    person: Person,
+    navController: NavHostController
 ) {
+    val clickGoBack = {
+        Log.d("clicked?", navController.currentBackStackEntry?.destination?.route ?: "null")
+//        navController.navigateUp()
+        navController.navigate(Screens.ChatList.route)
+    }
+
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Row {
-            IconComponentDrawable(icon = person.icon, size = 42.dp)
-            Column {
-                Text(
-                    text = person.name, style = TextStyle(
-                        color = Color.Black,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
-                    )
-                )
-                Text(
-                    text = stringResource(id = R.string.online), style = TextStyle(
-                        color = Color.Black,
-                        fontSize = 14.sp
-                    )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Button(
+                onClick = clickGoBack,
+                modifier = Modifier.height(30.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = PurpleGray400,
+                    contentColor = Color.White,
+                    disabledContainerColor = Color.Gray,
+                ),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = null
                 )
             }
+            IconComponentDrawable(icon = person.icon, size = 42.dp)
+            Text(
+                text = person.name, style = TextStyle(
+                    color = Color.Black,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                )
+            )
+
         }
+
         IconComponentImageVector(icon = Icons.Default.MoreVert, size = 24.dp, tint = Color.Black)
     }
+
 }
+
 
 @Composable
 fun ChatRow(
@@ -189,7 +217,8 @@ fun ChatRow(
 fun ChatScreen(
     chatViewModel: ChatViewModel,
     chatState: List<Chat>,
-    coroutineScope: CoroutineScope
+    coroutineScope: CoroutineScope,
+    navController: NavHostController
 ) {
     var data =
         rememberNavController().previousBackStackEntry?.savedStateHandle?.get<Person>("data")
@@ -215,7 +244,13 @@ fun ChatScreen(
         ) {
             UserNameRow(
                 person = data,
-                modifier = Modifier.padding(top = 20.dp, start = 20.dp, end = 20.dp, bottom = 20.dp)
+                modifier = Modifier.padding(
+                    top = 20.dp,
+                    start = 20.dp,
+                    end = 20.dp,
+                    bottom = 20.dp
+                ),
+                navController = navController
             )
             Divider(
                 color = Color.Gray,
