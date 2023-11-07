@@ -1,7 +1,9 @@
 package com.dog.data.viewmodel.chat
 
 import android.util.Log
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -20,8 +22,10 @@ class ChatViewModel : ViewModel() {
     // 채팅 정보 저장
     private val _chatState = MutableStateFlow(chatList)
     val chatState: StateFlow<List<Chat>> = _chatState.asStateFlow()
-    val _chatListState = MutableStateFlow<List<ChatroomInfo>>(emptyList())
-    val chatListState: StateFlow<List<ChatroomInfo>> = _chatListState.asStateFlow()
+    private val _chatListState = mutableStateListOf<ChatroomInfo>()
+    val chatListState: List<ChatroomInfo> get() = _chatListState
+    private val _loading = mutableStateOf(false)
+    val loading: State<Boolean> get() = _loading
 
     // Retrofit 인터페이스를 사용하려면 여기서 인스턴스를 생성합니다.
     private val chatApi: ChatRepository =
@@ -57,7 +61,6 @@ class ChatViewModel : ViewModel() {
         viewModelScope.launch {
             chatApi.disconnectChatroom(roomId)
         }
-
     }
 
     fun getChatList() {
@@ -66,19 +69,19 @@ class ChatViewModel : ViewModel() {
                 val res = chatApi.getChatroomList()
 
                 if (res.isSuccessful) {
-                    val responseBody = res.body()
-                    if (responseBody != null) {
-                        print(responseBody)
-//                        _chatListState.value = responseBody.body // chatListState에 응답의 body를 할당
+                    Log.d("chatlist", res.body().toString())
+                    res.body()?.body?.let { chatroom ->
+                        _chatListState.clear()
+                        _chatListState.addAll(chatroom)
+                        _loading.value = true
+                        Log.d("chatroom", chatroom.toString())
                     }
                 } else {
-                    val errorBody = res.errorBody()
-                    if (errorBody != null) {
-                        // 에러 응답 데이터를 처리
-                    }
+                    Log.e("ChatViewModel", "Error: ${res.errorBody()?.string()}")
+                    _loading.value = false
                 }
             } catch (e: Exception) {
-                Log.e("APIError", "API 호출 중 오류 발생: ${e.message}")
+                Log.e("APIError in ChatViewModel", "API 호출 중 오류 발생: ${e.message}")
             }
         }
 
@@ -106,7 +109,7 @@ class ChatViewModel : ViewModel() {
             }
         } catch (e: Exception) {
             // API 호출 중에 예외가 발생한 경우의 처리
-            Log.e("APIError", "API 호출 중 오류 발생: ${e.message}")
+            Log.e("APIError in ChatViewModel", "API 호출 중 오류 발생: ${e.message}")
         }
     }
 

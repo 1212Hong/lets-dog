@@ -1,4 +1,4 @@
-package com.dog.data.viewmodel.chat
+package com.dog.data.model.chat
 
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize

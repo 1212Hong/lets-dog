@@ -21,12 +21,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.dog.data.Screens
-import com.dog.ui.screen.ChatListScreen
-import com.dog.ui.screen.ChattingScreen
 import com.dog.ui.screen.HomeScreen
 import com.dog.ui.screen.MypageScreen
 import com.dog.ui.screen.WalkingLogScreen
 import com.dog.ui.screen.WalkingScreen
+import com.dog.ui.screen.chat.ChatListScreen
+import com.dog.ui.screen.chat.ChattingScreen
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")

@@ -1,9 +1,10 @@
 package com.dog.data.repository
 
+import com.dog.data.model.chat.ChatHistoryResponse
 import com.dog.data.model.chat.ChatListResponse
-import com.dog.data.model.common.Response
-import com.dog.data.viewmodel.chat.ChatState
+import com.dog.data.model.chat.ExitChatroomResponse
 import retrofit2.Call
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -17,11 +18,11 @@ interface ChatRepository {
     suspend fun createChatroom(@Body roomID: Int): Call<Response<ChatListResponse>>
 
     @GET("chatroom")
-    suspend fun getChatroomList(): retrofit2.Response<Response<ChatListResponse>>
+    suspend fun getChatroomList(): Response<ChatListResponse>
 
     @GET("chatroom/{roomId}")
-    suspend fun getChatroomHistory(@Path("roomId") roomID: Int): retrofit2.Response<Response<ChatState>>
+    suspend fun getChatroomHistory(@Path("roomId") roomID: Int): Response<ChatHistoryResponse>
 
     @DELETE("chatroom/{roomId}")
-    suspend fun disconnectChatroom(@Path("roomId") roomID: Int): Call<Response<String>>
+    suspend fun disconnectChatroom(@Path("roomId") roomID: Int): Response<ExitChatroomResponse>
 }

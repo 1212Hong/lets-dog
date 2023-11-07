@@ -1,4 +1,4 @@
-package com.dog.ui.screen
+package com.dog.ui.screen.chat
 
 import android.util.Log
 import androidx.annotation.DrawableRes
