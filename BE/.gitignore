@@ -194,3 +194,6 @@ out/
 
 # querdls 생성되는폴더
 /src/main/generated/
+
+# Firebase 키값
+/src/main/resources/*.json
