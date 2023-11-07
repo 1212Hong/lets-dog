@@ -15,6 +15,7 @@ import com.ssafy.dog.domain.gps.dto.GpsTrackingSaveRequest;
 import com.ssafy.dog.domain.gps.entity.GpsTracking;
 import com.ssafy.dog.domain.gps.entity.enums.Status;
 import com.ssafy.dog.domain.gps.repository.GpsTrackingRepository;
+import com.ssafy.dog.util.SecurityUtils;
 
 import io.jsonwebtoken.lang.Collections;
 import lombok.RequiredArgsConstructor;
@@ -64,7 +65,7 @@ public class GpsTrackingServiceImp implements GpsTrackingService {
 		if (record.isEmpty()) {
 			throw new ApiException(ErrorCode.BAD_REQUEST, "올바른 요청을 해주세요");
 		}
-		if (!record.get().getUserLoginId().equals("test@mail.com")) { //TODO:추후 컨텍스트 홀더 내의 아이디 가져올 예정
+		if (!record.get().getUserLoginId().equals(SecurityUtils.getUserLoginId())) {
 			throw new ApiException(ErrorCode.BAD_REQUEST, "작성자 본인만 기록을 삭제할 수 있습니다.");
 		}
 		record.get().changeStatus(Status.DELETED);

@@ -9,7 +9,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dog.data.model.user.MatchingUserResponse
+import com.dog.data.model.matching.MatchingUserResponse
 import com.dog.data.repository.MatchingRepository
 import com.dog.util.common.RetrofitLocalClient
 import kotlinx.coroutines.launch

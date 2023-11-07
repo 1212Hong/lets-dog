@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.ssafy.dog.domain.gps.dto.GpsTrackingSaveRequest;
 import com.ssafy.dog.domain.gps.entity.enums.Status;
+import com.ssafy.dog.util.SecurityUtils;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -33,8 +34,7 @@ public class GpsTracking {
 		this.trackingDate = trackingDate;
 		this.gpsPoints = gpsPoints;
 		this.status = status;
-		// TODO : 토큰에서 검증해서 자동으로 삽입되도록 Listener에서 처리;
-		this.userLoginId = "test@mail.com";
+		this.userLoginId = SecurityUtils.getUserLoginId();
 	}
 
 	public void setCreatedDate(LocalDateTime createdDate) {

@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,9 +20,9 @@ public class MatchingController {
 
 	private final MatchingService matchingService;
 
-	@GetMapping("/matching/{userId}")
-	public Api<List<MatchingUserResponse>> matchingUsers(@PathVariable String userId) {
-		return Api.ok(matchingService.matchingUser(userId)
+	@GetMapping("/matching")
+	public Api<List<MatchingUserResponse>> matchingUsers() {
+		return Api.ok(matchingService.matchingUser()
 			.stream()
 			.map(MatchingUserResponse::toResponse)
 			.collect(Collectors.toList()));
