@@ -4,7 +4,6 @@ import com.ssafy.dog.common.api.Api;
 import com.ssafy.dog.common.error.ErrorCode;
 import com.ssafy.dog.common.exception.ApiException;
 import com.ssafy.dog.security.JwtTokenProvider;
-import com.ssafy.dog.security.dto.ValidRes;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +42,7 @@ public class JwtController {
                 Long userId = parser.getLong("sub");
 
                 log.info("DEBUG : Header == " + header + ", Payload == " + payload);
-                return Api.ok(new ValidRes(userId));
+                return Api.ok(userId);
             }
         }
 
