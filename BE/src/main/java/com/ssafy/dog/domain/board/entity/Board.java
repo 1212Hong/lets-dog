@@ -54,6 +54,9 @@ public class Board extends BaseTimeEntity {
 	@OneToMany(mappedBy = "board")
 	private List<FileUrl> fileUrlLists = new ArrayList<>();
 
+	@OneToMany(mappedBy = "board")
+	private List<LikeEntity> likeEntityUserList = new ArrayList<>();
+
 	@Enumerated(EnumType.STRING)
 	private FileStatus boardStatus;
 

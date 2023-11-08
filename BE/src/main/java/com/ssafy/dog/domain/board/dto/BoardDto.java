@@ -21,10 +21,11 @@ public class BoardDto {
 	private int boardLikes;
 	private List<String> fileUrlLists;
 	private int boardComments;
+	private boolean likecheck;
 
 	@Builder
 	public BoardDto(String userNickname, String boardContent, Scope boardScope, int boardLikes,
-		List<String> fileUrlLists, int boardComments, Long boardId) {
+		List<String> fileUrlLists, int boardComments, Long boardId, boolean likecheck) {
 		this.userNickname = userNickname;
 		this.boardContent = boardContent;
 		this.boardScope = boardScope;
@@ -32,6 +33,7 @@ public class BoardDto {
 		this.fileUrlLists = fileUrlLists;
 		this.boardComments = boardComments;
 		this.boardId = boardId;
+		this.likecheck = likecheck;
 	}
 
 	public BoardDto() {

@@ -3,6 +3,7 @@ package com.ssafy.dog.domain.user.entity;
 import com.ssafy.dog.common.auditing.BaseTimeEntity;
 import com.ssafy.dog.domain.board.entity.Board;
 import com.ssafy.dog.domain.board.entity.Comment;
+import com.ssafy.dog.domain.board.entity.LikeEntity;
 import com.ssafy.dog.domain.dog.entity.Dog;
 import com.ssafy.dog.domain.user.dto.response.UserReadRes;
 import com.ssafy.dog.domain.user.dto.response.UserUpdateRes;
