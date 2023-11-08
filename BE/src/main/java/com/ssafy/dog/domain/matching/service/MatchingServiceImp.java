@@ -16,7 +16,7 @@ import com.ssafy.dog.domain.dog.entity.Dog;
 import com.ssafy.dog.domain.dog.model.DogDisposition;
 import com.ssafy.dog.domain.user.entity.User;
 import com.ssafy.dog.domain.user.repository.UserRepository;
-import com.ssafy.dog.util.DistanceCalculator;
+import com.ssafy.dog.util.SecurityUtils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,9 +34,10 @@ public class MatchingServiceImp implements MatchingService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<User> matchingUser(String userLoginId) {
-		//TODO 추후 contextHolder에 저장된 userLonginID 사용
-		Optional<User> user = userRepository.findByUserLoginId(userLoginId);
+	public List<User> matchingUser() {
+		// TODO : 추천 기준 변경 필요 현재는 시 기준으로 일단 필터링
+		Long userId = SecurityUtils.getUserId();
+		Optional<User> user = userRepository.findByUserId(userId);
 		if (user.isEmpty()) {
 			throw new ApiException(UserErrorCode.USER_NOT_FOUND, "존재하지 않는 유저입니다.");
 		}
@@ -46,24 +47,16 @@ public class MatchingServiceImp implements MatchingService {
 		}
 
 		String[] address = userAddress.split(" ");
-		List<User> matchingCandidates = userRepository.findAllByUserAddressContains(address[0]);
+		List<User> matchingCandidates = userRepository.findAllByUserAddressContainsAndUserIdIsNot(
+			address[0], userId);
+		log.info("[MatchingServiceImp] 지역 필터링: {}", address[0]);
 		if (matchingCandidates.isEmpty()) {
 			throw new ApiException(ErrorCode.BAD_REQUEST, "같은 지역에 매칭할 수 있는 유저가 없습니다.");
 		}
-		List<User> filteredByDistance3kmUsers = filteredByDistance3km(user.get(), matchingCandidates);
+		// List<User> filteredByDistance3kmUsers = filteredByDistance3km(user.get(), matchingCandidates);
+		//TODO: user entity에 친구 목록 추가시 친구인 사람들은 필터링
 
-		return sortByDogDisposition(user.get(), filteredByDistance3kmUsers);
-	}
-
-	private List<User> filteredByDistance3km(User user, List<User> candidates) {
-		return candidates.stream().filter(it -> {
-			double let1 = user.getUserLatitude();
-			double lon1 = user.getUserLongitude();
-			double let2 = it.getUserLatitude();
-			double lon2 = it.getUserLongitude();
-			double distance = DistanceCalculator.calculateDistance(let1, lon1, let2, lon2);
-			return distance <= 300;
-		}).collect(Collectors.toList());
+		return sortByDogDisposition(user.get(), matchingCandidates);
 	}
 
 	private List<User> sortByDogDisposition(User user, List<User> candidates) {

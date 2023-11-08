@@ -1,5 +1,7 @@
 package com.dog.fileupload.config;
 
+import static org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration.*;
+
 import com.dog.fileupload.common.api.Api;
 import com.dog.fileupload.common.error.ErrorCode;
 import com.dog.fileupload.common.exception.ApiException;
@@ -7,8 +9,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.server.PathContainer;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -24,7 +28,6 @@ public class JwtValidationFilter implements WebFilter {
 
     private final WebClient webClient;
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
-
     public JwtValidationFilter(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder.baseUrl("http://k9c205.p.ssafy.io:8000/jwt").build();
     }
@@ -34,11 +37,19 @@ public class JwtValidationFilter implements WebFilter {
         String jwtToken = exchange.getRequest().getHeaders().getFirst("Authorization");
 
         String requestPath = exchange.getRequest().getPath().toString();
+        HttpMethod requestMethod = exchange.getRequest().getMethod();
 
-        if (pathMatcher.match("/swagger-ui/**", requestPath) ||
-                pathMatcher.match("/v3/api-docs", requestPath) ||
-                pathMatcher.match("/swagger-resources/**", requestPath)) {
-            log.info("스웨거 필터 통과");
+        // Swagger 관련 경로 패턴
+        boolean swaggerMatched = pathPatternParser.parse("/swagger-ui/**").matches(PathContainer.parsePath(requestPath)) ||
+            pathPatternParser.parse("/v3/api-docs").matches(PathContainer.parsePath(requestPath)) ||
+            pathPatternParser.parse("/swagger-resources/**").matches(PathContainer.parsePath(requestPath));
+
+        // 파일 다운로드 경로 패턴 (GET 메서드만)
+        boolean fileGetRequestMatched = HttpMethod.GET.equals(requestMethod) &&
+            pathPatternParser.parse("/api/file/**").matches(PathContainer.parsePath(requestPath));
+        // Swagger 경로나 파일 다운로드 GET 요청이 매치되면 필터 체인을 계속 진행
+        if (swaggerMatched || fileGetRequestMatched) {
+            log.info("스웨거 혹은 파일 다운로드 GET 요청 필터 통과");
             return chain.filter(exchange);
         }
 

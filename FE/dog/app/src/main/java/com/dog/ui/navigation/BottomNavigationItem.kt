@@ -25,9 +25,9 @@ data class BottomNavigationItem(
                 route = Screens.Walking.route
             ),
             BottomNavigationItem(
-                label = "Log",
+                label = "Matching",
                 icon = Icons.Filled.AccountCircle,
-                route = Screens.WalkingLog.route
+                route = Screens.Matching.route
             ),
             BottomNavigationItem(
                 label = "Chatting",

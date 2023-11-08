@@ -161,6 +161,8 @@ dependencies {
     // Querydsl 추가
     implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
     annotationProcessor "com.querydsl:querydsl-apt:${queryDslVersion}"
+    // Json In Java
+    implementation group: 'org.json', name: 'json', version: '20160810'
 
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

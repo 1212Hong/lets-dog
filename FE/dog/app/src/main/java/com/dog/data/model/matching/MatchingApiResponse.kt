@@ -1,4 +1,4 @@
-package com.dog.data.model.user
+package com.dog.data.model.matching
 
 import com.dog.data.model.common.ResponseBodyResult
 import com.google.gson.annotations.SerializedName

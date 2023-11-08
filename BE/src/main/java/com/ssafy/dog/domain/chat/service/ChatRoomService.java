@@ -40,19 +40,6 @@ public class ChatRoomService {
 		chatRoomUsersRepository.delete(chatRoomUsers);
 	}
 
-	// public Set<Long> isConnected(Long chatRoomId) {
-	//
-	// 	List<ChatRoomUsers> connectedUser = chatRoomUsersRepository.findByChatRoomId(chatRoomId);
-	//
-	// 	Set<Long> userIdList = new HashSet<>();
-	//
-	// 	for (ChatRoomUsers conUser : connectedUser) {
-	// 		userIdList.add(conUser.getUserId());
-	// 	}
-	// 	// return chatRoomUsersRepository.findByChatRoomId(chatRoomId);
-	// 	return userIdList;
-	// }
-
 	public List<Long> isConnected(Long chatRoomId) {
 
 		List<ChatRoomUsers> connectedUser = chatRoomUsersRepository.findByChatRoomId(chatRoomId);
