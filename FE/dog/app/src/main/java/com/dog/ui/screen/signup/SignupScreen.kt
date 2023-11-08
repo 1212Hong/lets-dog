@@ -37,7 +37,6 @@ import com.dog.data.Screens
 import com.dog.ui.components.MainButton
 import com.dog.ui.theme.Gray300
 import com.dog.ui.theme.White
-import com.dog.util.common.RetrofitClient
 
 
 @OptIn(ExperimentalMaterial3Api::class)

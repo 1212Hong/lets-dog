@@ -22,16 +22,27 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.dog.R
+import com.dog.data.viewmodel.user.UserViewModel
 import com.dog.ui.components.MainButton
+import kotlinx.coroutines.coroutineScope
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SigninItem() {
+fun SigninItem(userViewModel: UserViewModel) {
 
     val passwordVector = painterResource(id = R.drawable.password_eye)
     val emailValue = remember { mutableStateOf("") }
     val passwordValue = remember { mutableStateOf("") }
     val passwordVisibility = remember { mutableStateOf(false) }
+
+    val loginAction = suspend {
+        coroutineScope {
+            val email = emailValue.value
+            val password = passwordValue.value
+            userViewModel.login(email, password)
+//            store.saveToken(userViewModel.jwtToken.value)
+        }
+    }
 
     OutlinedTextField(
         value = emailValue.value,
@@ -72,9 +83,7 @@ fun SigninItem() {
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly,
     ) {
-        MainButton(onClick = {
-//            userViewModel.login(emailValue, passwordValue)
-        }, text = "로그인")
+        MainButton(onClick = loginAction, text = "로그인")
     }
     Spacer(modifier = Modifier.padding(4.dp))
 }

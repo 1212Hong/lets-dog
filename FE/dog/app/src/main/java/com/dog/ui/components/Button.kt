@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dog.ui.theme.DogTheme
 import com.dog.ui.theme.Orange300
+import kotlinx.coroutines.runBlocking
 
 @Composable
 fun MainButton(
@@ -22,12 +23,12 @@ fun MainButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     shape: Shape? = null,
-    onClick: () -> Unit
+    onClick: suspend () -> Unit?
 ) {
     DogTheme {
 
         Button(
-            onClick = onClick,
+            onClick = { runBlocking { onClick() } },
             modifier = modifier
                 .fillMaxWidth(0.4f)
                 .height(50.dp),

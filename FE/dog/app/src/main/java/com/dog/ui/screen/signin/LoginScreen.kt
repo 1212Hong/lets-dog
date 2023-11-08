@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,17 +33,25 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.dog.R
 import com.dog.data.Screens
+import com.dog.data.viewmodel.user.UserViewModel
 import com.dog.ui.components.signin.SigninItem
 import com.dog.ui.theme.Pink300
 import com.dog.ui.theme.White
 
 @Composable
-fun LoginScreen(navController: NavController) {
+fun LoginScreen(
+    navController: NavController,
+    userViewModel: UserViewModel,
+) {
+    val context = LocalContext.current
+//    val loginState = false
 
-    val loginState = false
-
-    if (loginState) {
-        Toast.makeText(LocalContext.current, "LoginSuccess!", Toast.LENGTH_LONG).show()
+    DisposableEffect(userViewModel.isLogin) {
+        val isLogin = userViewModel.isLogin.value
+        if (isLogin) {
+            Toast.makeText(context, "Login Success!", Toast.LENGTH_LONG).show()
+        }
+        onDispose { /* 정리 코드 (여기서는 필요 없음) */ }
     }
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
@@ -84,7 +93,7 @@ fun LoginScreen(navController: NavController) {
             Spacer(modifier = Modifier.padding(10.dp))
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
-                SigninItem()
+                SigninItem(userViewModel)
 
                 Box(
                     modifier = Modifier

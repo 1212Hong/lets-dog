@@ -61,6 +61,11 @@ buildscript {
 
 
 dependencies {
+    //inject
+    implementation("javax.inject:javax.inject:1")
+    //hilt
+    implementation("com.google.dagger:hilt-android:2.43.2")
+    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
     //레드토핏
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
