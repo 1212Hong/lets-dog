@@ -164,6 +164,8 @@ dependencies {
     // Json In Java
     implementation group: 'org.json', name: 'json', version: '20160810'
 
+    // Firebase FCM
+    implementation group: 'com.google.firebase', name: 'firebase-admin', version: '9.2.0'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 //	testImplementation 'org.springframework.batch:spring-batch-test'

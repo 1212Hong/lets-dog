@@ -13,5 +13,6 @@
     <string name="type_message">메시지 입력..</string>
     <string name="online">online</string>
     <string name="title_activity_rest_api">RestApiActivity</string>
+    <string name="default_notification_channel_id">dog</string>
 
 </resources>
