@@ -364,7 +364,7 @@ fun UserDetailsScreen(viewModel: MatchingViewModel, listState: LazyListState) {
         EmptyStateView(true)
     } else {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator() // 로딩 인디케이터를 표시합니다.
+            CircularProgressIndicator()
         }
     }
 }

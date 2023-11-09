@@ -79,10 +79,9 @@ class MatchingViewModel : ViewModel() {
     fun senFriendRequest(receiverNickname: String) {
         viewModelScope.launch {
             try {
-                val apiService = RetrofitLocalClient.instance.create(FriendRepository::class.java)
+                val apiService = RetrofitClient.getInstance().create(FriendRepository::class.java)
                 val retrofitResponse = apiService.sendFriendRequest(receiverNickname)
                 if (retrofitResponse.isSuccessful) {
-                    // 처리 성공 시
                     val responseBody = retrofitResponse.body()
                     _toastMessage.value = "친구 신청이 성공적으로 전송되었습니다."
                 } else {

@@ -2,34 +2,29 @@ package com.dog.ui.screen
 
 import android.util.Log
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.dog.data.viewmodel.map.LocationTrackingViewModel
 import com.dog.ui.theme.DogTheme
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
-import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
@@ -49,56 +44,80 @@ fun WalkingScreen(navController: NavController) {
 fun WalkingPage(viewModel: LocationTrackingViewModel) {
     val userLocation by viewModel.userLocation.collectAsState()
     val pathPoints by viewModel.pathPoints.collectAsState()
-
-    var uiSettings by remember { mutableStateOf(MapUiSettings(myLocationButtonEnabled = true)) }
-    var properties by remember {
-        mutableStateOf(MapProperties(isMyLocationEnabled = true))
-    }
-
+    val initialPosition = userLocation ?: LatLng(0.0, 0.0)
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(LatLng(0.0, 0.0), 15f)
+        position = CameraPosition.fromLatLngZoom(initialPosition, 15f)
     }
 
+    UpdateCameraPosition(userLocation, cameraPositionState)
+    RenderWalkingScreen(userLocation, pathPoints, cameraPositionState, viewModel)
+}
+
+@Composable
+private fun UpdateCameraPosition(
+    userLocation: LatLng?,
+    cameraPositionState: CameraPositionState
+) {
     LaunchedEffect(userLocation) {
-        userLocation?.let {
-            cameraPositionState.move(CameraUpdateFactory.newLatLngZoom(it, 15f))
+        userLocation?.let { location ->
+            val update = CameraUpdateFactory.newCameraPosition(
+                CameraPosition.Builder()
+                    .target(location)
+                    .zoom(cameraPositionState.position.zoom)
+                    .build()
+            )
+            cameraPositionState.animate(update, 2000)
         }
     }
+}
 
-    Column {
+
+@Composable
+private fun RenderWalkingScreen(
+    userLocation: LatLng?,
+    pathPoints: List<LatLng>,
+    cameraPositionState: CameraPositionState,
+    viewModel: LocationTrackingViewModel
+) {
+    val uiSettings = MapUiSettings(myLocationButtonEnabled = true)
+    val properties = MapProperties(isMyLocationEnabled = true)
+    Log.i("LocationTracking", "pathPoints[RenderWalkingScreen] : $pathPoints")
+
+    Box(modifier = Modifier.fillMaxSize()) {
         GoogleMap(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxSize(),
+            modifier = Modifier.matchParentSize(),
             cameraPositionState = cameraPositionState,
             uiSettings = uiSettings,
             properties = properties
         ) {
-            userLocation?.let { userLocation ->
-                Marker(state = MarkerState(position = userLocation))
+            userLocation?.let { location ->
+                Marker(state = MarkerState(position = location))
             }
-
-            Polyline(
-                points = pathPoints,
-                color = Color.Blue,
-                width = 50f
-            )
-            Log.i("LocationTracking", "스크린 : ${pathPoints}")
-
+            if (pathPoints.isNotEmpty()) {
+                Polyline(
+                    points = pathPoints,
+                    color = Color.Blue,
+                    width = 12.dp.value
+                )
+            }
         }
-        Row {
-            Button(onClick = { viewModel.getCurrentLocation() }) {
-                Text("현재 위치")
-            }
-            Button(onClick = { viewModel.startTracking() }) {
-                Text("시작")
-            }
-            Button(onClick = { viewModel.stopTracking() }) {
-                Text("종료")
-            }
+        ControlButtons(viewModel = viewModel)
+    }
+}
+
+
+@Composable
+private fun ControlButtons(viewModel: LocationTrackingViewModel) {
+    Row(Modifier.padding(bottom = 100.dp)) {
+        Button(onClick = { viewModel.startTracking() }) {
+            Text("시작")
+        }
+        Button(onClick = { viewModel.stopTracking() }) {
+            Text("종료")
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable
