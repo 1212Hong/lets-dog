@@ -11,10 +11,11 @@ public class FileNameUtils {
     public final static String EXTENSION = "extension";
 
     public static String convert(String originalName) {
-        String base = getBaseOrExtension(originalName, BASE);
+        String base = getBaseOrExtension(originalName.replaceAll("[가-힣]+", UUID.randomUUID().toString()), BASE);
         String extension = getBaseOrExtension(originalName, EXTENSION);
-        return base + UUID.randomUUID() + extension;
+        return UUID.randomUUID() + extension;
     }
+
 
     public static String getBaseOrExtension(String fileName, String part) {
         int dotIndex = fileName.lastIndexOf(".");

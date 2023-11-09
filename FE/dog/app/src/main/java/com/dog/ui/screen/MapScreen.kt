@@ -50,9 +50,9 @@ fun WalkingPage(viewModel: LocationTrackingViewModel) {
     val userLocation by viewModel.userLocation.collectAsState()
     val pathPoints by viewModel.pathPoints.collectAsState()
 
-    var uiSettings by remember { mutableStateOf(MapUiSettings()) }
+    var uiSettings by remember { mutableStateOf(MapUiSettings(myLocationButtonEnabled = true)) }
     var properties by remember {
-        mutableStateOf(MapProperties(mapType = MapType.SATELLITE))
+        mutableStateOf(MapProperties(isMyLocationEnabled = true))
     }
 
     val cameraPositionState = rememberCameraPositionState {
@@ -64,13 +64,16 @@ fun WalkingPage(viewModel: LocationTrackingViewModel) {
             cameraPositionState.move(CameraUpdateFactory.newLatLngZoom(it, 15f))
         }
     }
-    Box(Modifier.fillMaxSize()) {
-        GoogleMap(
-            modifier = Modifier.matchParentSize(),
-            properties = properties,
-            uiSettings = uiSettings
-        ) {
 
+    Column {
+        GoogleMap(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxSize(),
+            cameraPositionState = cameraPositionState,
+            uiSettings = uiSettings,
+            properties = properties
+        ) {
             userLocation?.let { userLocation ->
                 Marker(state = MarkerState(position = userLocation))
             }
@@ -82,54 +85,19 @@ fun WalkingPage(viewModel: LocationTrackingViewModel) {
             )
             Log.i("LocationTracking", "스크린 : ${pathPoints}")
 
-            Row {
-                Button(onClick = { viewModel.getCurrentLocation() }) {
-                    Text("현재 위치")
-                }
-                Button(onClick = { viewModel.startTracking() }) {
-                    Text("시작")
-                }
-                Button(onClick = { viewModel.stopTracking() }) {
-                    Text("종료")
-                }
+        }
+        Row {
+            Button(onClick = { viewModel.getCurrentLocation() }) {
+                Text("현재 위치")
             }
-
+            Button(onClick = { viewModel.startTracking() }) {
+                Text("시작")
+            }
+            Button(onClick = { viewModel.stopTracking() }) {
+                Text("종료")
+            }
         }
     }
-
-//    Column {
-//        GoogleMap(
-//            modifier = Modifier
-//                .weight(1f)
-//                .fillMaxWidth(),
-//            cameraPositionState = cameraPositionState,
-//            properties = properties,
-//            uiSettings = uiSettings
-//        ) {
-//            userLocation?.let { userLocation ->
-//                Marker(state = MarkerState(position = userLocation))
-//            }
-//
-//            Polyline(
-//                points = pathPoints,
-//                color = Color.Blue,
-//                width = 50f
-//            )
-//            Log.i("LocationTracking", "스크린 : ${pathPoints}")
-//
-//        }
-//        Row {
-//            Button(onClick = { viewModel.getCurrentLocation() }) {
-//                Text("현재 위치")
-//            }
-//            Button(onClick = { viewModel.startTracking() }) {
-//                Text("시작")
-//            }
-//            Button(onClick = { viewModel.stopTracking() }) {
-//                Text("종료")
-//            }
-//        }
-//    }
 }
 
 @Preview(showBackground = true)
