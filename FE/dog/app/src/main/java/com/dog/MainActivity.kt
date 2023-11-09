@@ -15,12 +15,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             DogTheme {
-
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    DogApp()
+                    DogApp{finish()}
                 }
             }
         }

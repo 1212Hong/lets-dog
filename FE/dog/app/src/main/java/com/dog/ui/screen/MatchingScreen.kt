@@ -1,5 +1,6 @@
 package com.dog.ui.screen
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -49,6 +50,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -81,12 +83,12 @@ fun MatchingPge(viewModel: MatchingViewModel) {
         ) {
             items(viewModel.users.size) { index ->
                 val user = viewModel.users[index]
-                val isSelected = user.loginId == viewModel.selectedUserId.value
+                val isSelected = user.userLoginId == viewModel.selectedUserId.value
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     UserThumbnail(user = user, isSelected = isSelected) {
-                        viewModel.selectUser(user.loginId)
+                        viewModel.selectUser(user.userLoginId)
                     }
-                    Text(user.nickname, fontWeight = FontWeight.Black)
+                    Text(user.userNickname, fontWeight = FontWeight.Black)
                 }
             }
         }
@@ -94,7 +96,7 @@ fun MatchingPge(viewModel: MatchingViewModel) {
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        UserDetailsScreen(viewModel = viewModel, listState = listState)
+        UserDetailsScreen(viewModel = viewModel, listState = listState,)
 
         EmptyStateView(visible = users.isEmpty())
     }
@@ -132,12 +134,12 @@ fun UserThumbnail(user: MatchingUserResponse, isSelected: Boolean, onSelect: () 
     }
 
     Box {
-        ImageLoader(imageUrl = user.picture, modifier = thumbnailModifier, type = "thumbnail")
+        ImageLoader(imageUrl = user.userPicture, modifier = thumbnailModifier, type = "thumbnail")
     }
 }
 
 @Composable
-fun UserDetailsView(user: MatchingUserResponse) {
+fun UserDetailsView(user: MatchingUserResponse, viewModel: MatchingViewModel) {
 
     Card(
         modifier = Modifier
@@ -156,7 +158,7 @@ fun UserDetailsView(user: MatchingUserResponse) {
                     .fillMaxWidth()
                     .weight(5.5f)
             ) {
-                ImageLoader(imageUrl = user.picture)
+                ImageLoader(imageUrl = user.userPicture)
             }
             Column(
                 modifier = Modifier
@@ -164,7 +166,7 @@ fun UserDetailsView(user: MatchingUserResponse) {
                     .weight(4f),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                UserInformation(user = user)
+                UserInformation(user = user, viewModel = viewModel)
                 DogsListView(dogs = user.dogs)
                 Spacer(modifier = Modifier.height(10.dp))
             }
@@ -175,11 +177,21 @@ fun UserDetailsView(user: MatchingUserResponse) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UserInformation(user: MatchingUserResponse) {
+fun UserInformation(user: MatchingUserResponse, viewModel: MatchingViewModel) {
+    val context = LocalContext.current
+    val toastMessage = viewModel.toastMessage.value
+
+    LaunchedEffect(toastMessage) {
+        toastMessage?.let {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            viewModel.clearToastMessage()
+        }
+    }
     Column(
         modifier = Modifier.padding(16.dp)
     ) {
         var showDialog by remember { mutableStateOf(false) }
+
 
         if (showDialog) {
             AlertDialog(
@@ -198,13 +210,13 @@ fun UserInformation(user: MatchingUserResponse) {
                             color = Color.White
                         )
                         Spacer(modifier = Modifier.height(16.dp))
-                        Text(text = "${user.nickname}님에게 친구 신청을 하시겠습니까?", color = Color.White)
+                        Text(text = "${user.userNickname}님에게 친구 신청을 하시겠습니까?", color = Color.White)
                         Spacer(modifier = Modifier.height(16.dp))
                         Row {
                             Button(
                                 onClick = {
                                     showDialog = false
-                                    // TODO: 신청 API 호출
+                                    viewModel.senFriendRequest(user.userNickname)
                                 }
                             ) {
                                 Text("신청")
@@ -222,7 +234,7 @@ fun UserInformation(user: MatchingUserResponse) {
         }
         Row(horizontalArrangement = Arrangement.Start) {
             Text(
-                text = user.nickname,
+                text = user.userNickname,
                 style = MaterialTheme.typography.headlineMedium
             )
             Spacer(modifier = Modifier.width(16.dp))
@@ -232,14 +244,14 @@ fun UserInformation(user: MatchingUserResponse) {
 
         }
         Text(
-            text = user.aboutMe,
+            text = user.userAboutMe,
             style = MaterialTheme.typography.bodyMedium
         )
         Text(
-            text = "Gender: ${user.gender}",
+            text = "Gender: ${user.userGender}",
             style = MaterialTheme.typography.bodySmall
         )
-        user.address?.let {
+        user.userAddress?.let {
             Text(
                 text = it,
                 style = MaterialTheme.typography.bodySmall,
@@ -307,7 +319,7 @@ fun DispositionChip(disposition: String) {
 fun DogItemView(dog: Dog) {
 
     Text(
-        text = "Dog Name: ${dog.dogName}",
+        text = "Dog Name: ${dog.dogName} | ${dog.dogBreed}",
         style = MaterialTheme.typography.bodyMedium
     )
 
@@ -338,7 +350,7 @@ fun UserDetailsScreen(viewModel: MatchingViewModel, listState: LazyListState) {
         viewModel.pagerState = pagerState
 
         LaunchedEffect(pagerState.currentPage) {
-            viewModel.selectUser(viewModel.users[pagerState.currentPage].loginId)
+            viewModel.selectUser(viewModel.users[pagerState.currentPage].userLoginId)
             listState.animateScrollToItem(pagerState.currentPage)
         }
 
@@ -346,7 +358,7 @@ fun UserDetailsScreen(viewModel: MatchingViewModel, listState: LazyListState) {
             state = pagerState,
             modifier = Modifier.fillMaxWidth()
         ) { page ->
-            UserDetailsView(user = viewModel.users[page])
+            UserDetailsView(user = viewModel.users[page], viewModel = viewModel)
         }
     } else if (viewModel.isDataLoaded.value) {
         EmptyStateView(true)
@@ -355,11 +367,4 @@ fun UserDetailsScreen(viewModel: MatchingViewModel, listState: LazyListState) {
             CircularProgressIndicator() // 로딩 인디케이터를 표시합니다.
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    val viewModel = MatchingViewModel()
-    MatchingPge(viewModel = viewModel)
 }
