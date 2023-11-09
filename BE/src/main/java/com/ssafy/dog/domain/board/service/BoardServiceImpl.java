@@ -119,6 +119,7 @@ public class BoardServiceImpl implements BoardService {
 				.boardLikes(board.getBoardLikes())
 				.boardComments(board.getBoardComments())
 				.likecheck(checkLikeBoard(board.getBoardId(), viewUserNickname))
+				.profileUrl(board.getUser().getUserPicture())
 				.fileUrlLists(board.getFileUrlLists().stream().map(FileUrl::getFileUrl).collect(Collectors.toList()))
 				.build();
 			boardDtoList.add(boardDto);
@@ -186,6 +187,7 @@ public class BoardServiceImpl implements BoardService {
 				.boardLikes(board.getBoardLikes())
 				.boardComments(board.getBoardComments())
 				.likecheck(checkLikeBoard(board.getBoardId(), viewUserNickname))
+				.profileUrl(board.getUser().getUserPicture())
 				.fileUrlLists(
 					board.getFileUrlLists().stream().map(FileUrl::getFileUrl).collect(Collectors.toList()))
 				.build();

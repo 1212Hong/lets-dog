@@ -9,8 +9,10 @@ import com.ssafy.dog.domain.board.enums.Scope;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
 public class BoardDto {
 	private String userNickname;
 	private Long boardId;
@@ -22,10 +24,11 @@ public class BoardDto {
 	private List<String> fileUrlLists;
 	private int boardComments;
 	private boolean likecheck;
+	private String profileUrl;
 
 	@Builder
 	public BoardDto(String userNickname, String boardContent, Scope boardScope, int boardLikes,
-		List<String> fileUrlLists, int boardComments, Long boardId, boolean likecheck) {
+		List<String> fileUrlLists, int boardComments, Long boardId, boolean likecheck, String profileUrl) {
 		this.userNickname = userNickname;
 		this.boardContent = boardContent;
 		this.boardScope = boardScope;
@@ -34,9 +37,7 @@ public class BoardDto {
 		this.boardComments = boardComments;
 		this.boardId = boardId;
 		this.likecheck = likecheck;
+		this.profileUrl = profileUrl;
 	}
 
-	public BoardDto() {
-		// 기본 생성자 구현 (빈 생성자)
-	}
 }

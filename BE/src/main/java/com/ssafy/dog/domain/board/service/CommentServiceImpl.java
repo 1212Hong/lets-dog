@@ -85,11 +85,12 @@ public class CommentServiceImpl implements CommentService {
 		for (Comment comment : curBoard.getCommentList()) {
 			if (comment.getCommentStatus() == FileStatus.USE) {
 				CommentResDto comment1 = CommentResDto.builder()
-					.boardId(comment.getBoard().getBoardId())
+					.boardId(curBoard.getBoardId())
 					.userNickname(comment.getUser().getUserNickname())
 					.commentContent(comment.getCommentContent())
 					.commentLikes(comment.getCommentLikes())
 					.commentId(comment.getCommentId())
+					.userProfileUrl(comment.getUser().getUserPicture())
 					.build();
 				commentList.add(comment1);
 			}
