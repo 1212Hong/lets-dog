@@ -10,13 +10,22 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 
-@Module
+
 @InstallIn(SingletonComponent::class)
+@Module
 class DataStoreModule {
 
     @Provides
     @UserDataStore
     fun providesUserDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
         return context.userStore
+//        return PreferenceDataStoreFactory.create(
+//            corruptionHandler = ReplaceFileCorruptionHandler(
+//                produceNewData = { emptyPreferences() }
+//            ),
+//            migrations = listOf(SharedPreferencesMigration(context, USER_PREFERENCES)),
+//            scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
+//            produceFile = { context.preferencesDataStoreFile(USER_PREFERENCES) }
+//        )
     }
 }

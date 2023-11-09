@@ -3,32 +3,21 @@ package com.dog.data.viewmodel.user
 import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dog.data.model.user.SignInRequest
 import com.dog.data.repository.UserRepository
-import com.dog.di.UserDataStore
 import com.dog.util.common.RetrofitClient
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import javax.inject.Inject
 
-@HiltViewModel
 class UserViewModel : ViewModel() {
     private val token by lazy { stringPreferencesKey("token") }
 //    private val passwordKey by lazy { stringPreferencesKey("password") }
 
-    @Inject
-    @UserDataStore
-    lateinit var dataStore: DataStore<Preferences>
+//    @Inject
+//    @UserDataStore
+//    lateinit var dataStore: DataStore<Preferences>
 
     // 유저 정보 저장
     private
@@ -44,21 +33,21 @@ class UserViewModel : ViewModel() {
     private val userApi: UserRepository =
         RetrofitClient.getInstance().create(UserRepository::class.java)
 
-    var test: String
-        get() {
-            return runBlocking(Dispatchers.IO) {
-                dataStore.data.map { preferences ->
-                    preferences[token] ?: ""
-                }.first()
-            }
-        }
-        set(value) {
-            viewModelScope.launch {
-                dataStore.edit { preferences ->
-                    preferences[token] = value
-                }
-            }
-        }
+//    var test: String
+//        get() {
+//            return runBlocking(Dispatchers.IO) {
+//                dataStore.data.map { preferences ->
+//                    preferences[token] ?: ""
+//                }.first()
+//            }
+//        }
+//        set(value) {
+//            viewModelScope.launch {
+//                dataStore.edit { preferences ->
+//                    preferences[token] = value
+//                }
+//            }
+//        }
 
     suspend fun login(id: String, pw: String) {
         viewModelScope.launch {

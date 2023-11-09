@@ -47,13 +47,16 @@ fun LoginScreen(
     val context = LocalContext.current
 //    val loginState = false
     // userViewModel에서 test 프로퍼티로 저장된 token 값을 읽어옵니다.
-    val token = userViewModel.test
+
 
     DisposableEffect(userViewModel.isLogin) {
+        val token = userViewModel.jwtToken.value
         val isLogin = userViewModel.isLogin.value
         if (isLogin) {
             Toast.makeText(context, "Login Success!", Toast.LENGTH_LONG).show()
-            Log.d("tokentest", token)
+            if (token != null) {
+                Log.d("tokentest", token)
+            }
         }
         onDispose { /* 정리 코드 (여기서는 필요 없음) */ }
     }
