@@ -4,6 +4,7 @@ import static com.ssafy.dog.util.DistanceCalculator.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -21,9 +22,11 @@ import com.ssafy.dog.domain.board.dto.BoardReqDto;
 import com.ssafy.dog.domain.board.entity.Board;
 import com.ssafy.dog.domain.board.entity.Comment;
 import com.ssafy.dog.domain.board.entity.FileUrl;
+import com.ssafy.dog.domain.board.entity.LikeEntity;
 import com.ssafy.dog.domain.board.enums.FileStatus;
 import com.ssafy.dog.domain.board.repository.BoardRepository;
 import com.ssafy.dog.domain.board.repository.FileUrlRepository;
+import com.ssafy.dog.domain.board.repository.LikeReposiotry;
 import com.ssafy.dog.domain.user.entity.User;
 import com.ssafy.dog.domain.user.repository.UserRepository;
 
@@ -38,8 +41,22 @@ public class BoardServiceImpl implements BoardService {
 	private final UserRepository userRepository;
 	private final BoardRepository boardRepository;
 	private final FileUrlRepository fileUrlRepository;
+	private final LikeReposiotry likeReposiotry;
 
 	Sort sort = Sort.by(Sort.Direction.DESC, "createdDate");
+
+	boolean checkLikeBoard(Long boardId, String userNickname) {
+		List<LikeEntity> likeList = likeReposiotry.findByUserUserNickname(userNickname);
+		for (LikeEntity likelist : likeList) {
+			if (likelist.getLikeStatus() == FileStatus.DELETE) {
+				continue;
+			}
+			if (Objects.equals(likelist.getBoard().getBoardId(), boardId)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	@Transactional
 	public Api<String> createBoard(BoardReqDto boardDto) {
@@ -75,9 +92,11 @@ public class BoardServiceImpl implements BoardService {
 	}
 
 	@Transactional
-	public Api<List<BoardDto>> findBoardbyNickname(String userNickname) {
+	public Api<List<BoardDto>> findBoardbyNickname(String userNickname, String viewUserNickname) {
 		Optional<User> curUser = userRepository.findUserByUserNickname(userNickname);
 		User currentUser = curUser.orElseThrow(() -> new ApiException(UserErrorCode.USER_NOT_FOUND));
+		Optional<User> curUser1 = userRepository.findUserByUserNickname(viewUserNickname);
+		User currentUser1 = curUser1.orElseThrow(() -> new ApiException(UserErrorCode.USER_NOT_FOUND));
 
 		List<Board> boardList = boardRepository.findBoardByUserUserNickname(userNickname, sort);
 
@@ -99,6 +118,8 @@ public class BoardServiceImpl implements BoardService {
 				.boardScope(board.getBoardScope())
 				.boardLikes(board.getBoardLikes())
 				.boardComments(board.getBoardComments())
+				.likecheck(checkLikeBoard(board.getBoardId(), viewUserNickname))
+				.profileUrl(board.getUser().getUserPicture())
 				.fileUrlLists(board.getFileUrlLists().stream().map(FileUrl::getFileUrl).collect(Collectors.toList()))
 				.build();
 			boardDtoList.add(boardDto);
@@ -129,8 +150,11 @@ public class BoardServiceImpl implements BoardService {
 	}
 
 	@Transactional
-	public Api<List<BoardDto>> findBoardNeararea(double userLatitude, double userLongitude) {
+	public Api<List<BoardDto>> findBoardNeararea(double userLatitude, double userLongitude, String viewUserNickname) {
 		List<Board> boardList = boardRepository.findAll(sort);
+
+		Optional<User> curUser1 = userRepository.findUserByUserNickname(viewUserNickname);
+		User currentUser1 = curUser1.orElseThrow(() -> new ApiException(UserErrorCode.USER_NOT_FOUND));
 
 		// 대한민국 위경도 기준
 		// 북위 : 33.10000000 ~ 38.45000000
@@ -162,6 +186,8 @@ public class BoardServiceImpl implements BoardService {
 				.boardScope(board.getBoardScope())
 				.boardLikes(board.getBoardLikes())
 				.boardComments(board.getBoardComments())
+				.likecheck(checkLikeBoard(board.getBoardId(), viewUserNickname))
+				.profileUrl(board.getUser().getUserPicture())
 				.fileUrlLists(
 					board.getFileUrlLists().stream().map(FileUrl::getFileUrl).collect(Collectors.toList()))
 				.build();

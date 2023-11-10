@@ -9,9 +9,9 @@ import com.ssafy.dog.domain.board.dto.BoardReqDto;
 public interface BoardService {
 	public Api<String> createBoard(BoardReqDto boardDto);
 
-	public Api<List<BoardDto>> findBoardbyNickname(String userLoginId);
+	public Api<List<BoardDto>> findBoardbyNickname(String userLoginId, String viewUserNickname);
 
-	public Api<List<BoardDto>> findBoardNeararea(double userLatitude, double userLongitude);
+	public Api<List<BoardDto>> findBoardNeararea(double userLatitude, double userLongitude, String viewUserNickname);
 
 	public Api<String> deleteBoard(Long boardId);
 

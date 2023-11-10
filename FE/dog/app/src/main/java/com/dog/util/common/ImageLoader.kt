@@ -26,7 +26,7 @@ import com.dog.R
 @Composable
 fun ImageLoader(imageUrl: String, modifier: Modifier = Modifier, type:String = "") {
     val JWT_TOKEN =
-        "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMDEiLCJhdXRoIjoiUk9MRV9VU0VSIiwiZXhwIjoxNzMwODU1NjU3fQ.A-LpWLT_ZjyAjB1_kFwk25SoiR1vCIIA_ikg6_600RA"
+        "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMDEiLCJhdXRoIjoiUk9MRV9VU0VSIiwiZXhwIjoxNzMwOTQwMTgyfQ.K0cFACWvETHE4yZwyNB3ebDgMwGI2_RIC--Sc8MD8jw"
 
     val glideUrl = GlideUrl(
         imageUrl, LazyHeaders.Builder()
@@ -40,6 +40,7 @@ fun ImageLoader(imageUrl: String, modifier: Modifier = Modifier, type:String = "
             modifier = modifier
                 .clip(CircleShape),
             contentScale = ContentScale.Crop,
+            failure = placeholder(R.drawable.background)
         )
     } else {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -50,7 +51,8 @@ fun ImageLoader(imageUrl: String, modifier: Modifier = Modifier, type:String = "
                     .padding(5.dp)
                     .fillMaxSize(),
                 contentScale = ContentScale.FillBounds,
-                alpha = 0.4f
+                alpha = 0.4f,
+                failure = placeholder(R.drawable.background)
             )
             GlideImage(
                 model = glideUrl,

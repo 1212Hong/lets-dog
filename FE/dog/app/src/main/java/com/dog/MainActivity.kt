@@ -1,6 +1,7 @@
 package com.dog;
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,35 +9,34 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.dog.ui.theme.DogTheme
-import dagger.hilt.android.AndroidEntryPoint
+import com.google.android.gms.tasks.Task
+import com.google.firebase.messaging.FirebaseMessaging
 
-@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             DogTheme {
-
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    DogApp()
-//                    val navController = rememberNavController()
-//                    val userViewModel: UserViewModel = viewModel()
-//                    Log.d("userViewModel_inMain", userViewModel.toString())
-//                    val context = LocalContext.current
-//                    val store = DataStoreManager(context)
-//                    Log.d("store_token_inMain", store.getAccessToken.toString())
-//    val tokenText = store.getAccessToken.collectAsState(initial = "")
-//    // Token이 비어있는지 확인합니다.
-//    val isTokenEmpty = tokenText.value.isEmpty()
-
-//                    AppNavigation(navController, userViewModel, store)
+                    DogApp { finish() }
                 }
             }
         }
+
+        // 앱이 생성될 때 즉시 Firebase messaging token을 생성
+        FirebaseMessaging.getInstance().token
+            .addOnCompleteListener { task: Task<String> ->
+                if (!task.isSuccessful) {
+                    Log.w("FCM Log", "Fetching FCM registration token failed", task.exception)
+                    return@addOnCompleteListener
+                }
+                val token = task.result
+                Log.d("FCM Log", "Current token: $token")
+            }
 
 
     }

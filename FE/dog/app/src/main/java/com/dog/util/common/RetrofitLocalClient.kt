@@ -23,8 +23,7 @@ object RetrofitLocalClient {
     val instance: Retrofit
         get() = Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .client(okHttpClient) // 설정한 OkHttpClient를 사용합니다.
+            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-
 }

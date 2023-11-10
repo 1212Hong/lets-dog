@@ -4,6 +4,10 @@
         xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
             android:allowBackup="true"
@@ -16,6 +20,10 @@
             android:theme="@style/Theme.Dog"
             android:usesCleartextTraffic="true"
             tools:targetApi="31">
+        <meta-data
+                android:name="com.google.android.geo.API_KEY"
+                android:value="AIzaSyCxziSmxXrZNqg2uS_PZm0L-21zJ5MOeDA" />
+
         <activity
                 android:name=".charTest.MainActivity"
                 android:exported="false"
@@ -32,6 +40,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+                android:name=".util.common.MyFirebaseMessagingService"
+                android:enabled="true"
+                android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <meta-data
+                android:name="com.google.firebase.messaging.default_notification_channel_id"
+                android:value="@string/default_notification_channel_id" />
     </application>
 
 </manifest>

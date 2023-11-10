@@ -15,6 +15,7 @@ import com.ssafy.dog.common.exception.ApiException;
 import com.ssafy.dog.domain.dog.entity.Dog;
 import com.ssafy.dog.domain.dog.model.DogDisposition;
 import com.ssafy.dog.domain.user.entity.User;
+import com.ssafy.dog.domain.user.repository.FriendshipRepository;
 import com.ssafy.dog.domain.user.repository.UserRepository;
 import com.ssafy.dog.util.SecurityUtils;
 
@@ -27,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 public class MatchingServiceImp implements MatchingService {
 
 	private final UserRepository userRepository;
+	private final FriendshipRepository friendshipRepository;
 	/*
 	모든 유저를 불러와 위도 경도로 거리를 게산하는건 성능적으로 별로
 	-> address로 1차 필터링 서울,부산,광주,.. -> 저장된 포맷이 중요
@@ -48,13 +50,17 @@ public class MatchingServiceImp implements MatchingService {
 
 		String[] address = userAddress.split(" ");
 		List<User> matchingCandidates = userRepository.findAllByUserAddressContainsAndUserIdIsNot(
-			address[0], userId);
+				address[0], userId).stream()
+			.filter(candidate -> {
+				List<Integer> myFriendsPk = friendshipRepository.findFriendIdsByUserId(userId);
+				return !myFriendsPk.contains(candidate.getUserId());
+			})
+			.collect(Collectors.toList());
 		log.info("[MatchingServiceImp] 지역 필터링: {}", address[0]);
 		if (matchingCandidates.isEmpty()) {
 			throw new ApiException(ErrorCode.BAD_REQUEST, "같은 지역에 매칭할 수 있는 유저가 없습니다.");
 		}
 		// List<User> filteredByDistance3kmUsers = filteredByDistance3km(user.get(), matchingCandidates);
-		//TODO: user entity에 친구 목록 추가시 친구인 사람들은 필터링
 
 		return sortByDogDisposition(user.get(), matchingCandidates);
 	}
