@@ -200,6 +200,7 @@ public class FriendServiceImpl implements FriendService { // 리팩토링 시 �
                         .userLatitude(request.getReceiver().getUserLatitude())
                         .userLongitude(request.getReceiver().getUserLongitude())
                         .userAddress(request.getReceiver().getUserAddress())
+                        .userIsRemoved(request.getReceiver().getUserIsRemoved())
                         .build())
                 .collect(Collectors.toList());
 
@@ -226,6 +227,7 @@ public class FriendServiceImpl implements FriendService { // 리팩토링 시 �
                         .userLatitude(request.getSender().getUserLatitude())
                         .userLongitude(request.getSender().getUserLongitude())
                         .userAddress(request.getSender().getUserAddress())
+                        .userIsRemoved(request.getReceiver().getUserIsRemoved())
                         .build())
                 .collect(Collectors.toList());
 
@@ -251,6 +253,7 @@ public class FriendServiceImpl implements FriendService { // 리팩토링 시 �
                             .userLatitude(friend.getUserLatitude())
                             .userLongitude(friend.getUserLongitude())
                             .userAddress(friend.getUserAddress())
+                            .userIsRemoved(friend.getUserIsRemoved())
                             .build();
                 })
                 .collect(Collectors.toList());

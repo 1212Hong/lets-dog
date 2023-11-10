@@ -23,28 +23,28 @@ public class FriendController {
 
     @PostMapping("/request/{receiverNickname}")
     @Operation(summary = "친구 신청")
-    public Api<FriendRequestResDto> sendFriendRequest(@RequestParam String receiverNickname) {
+    public Api<FriendRequestResDto> sendFriendRequest(@PathVariable String receiverNickname) {
 
         return friendService.sendFriendRequest(SecurityUtils.getUserId(), receiverNickname);
     }
 
     @PostMapping("/decline/{requesterNickname}")
     @Operation(summary = "친구 신청 거절")
-    public Api<FriendRequestResDto> declineFriendRequest(@RequestParam String requesterNickname) {
+    public Api<FriendRequestResDto> declineFriendRequest(@PathVariable String requesterNickname) {
 
         return friendService.declineFriendRequest(SecurityUtils.getUserId(), requesterNickname);
     }
 
     @PutMapping("/accept/{requesterNickname}")
     @Operation(summary = "친구 신청 승낙")
-    public Api<FriendRequestResDto> acceptFriendRequest(@RequestParam String requesterNickname) {
+    public Api<FriendRequestResDto> acceptFriendRequest(@PathVariable String requesterNickname) {
 
         return friendService.acceptFriendRequest(SecurityUtils.getUserId(), requesterNickname);
     }
 
     @DeleteMapping("/unfriend/{friendNickname}")
     @Operation(summary = "친구 끊기")
-    public Api<String> unfriend(@RequestParam String friendNickname) {
+    public Api<String> unfriend(@PathVariable String friendNickname) {
         return friendService.unfriend(SecurityUtils.getUserId(), friendNickname);
     }
 
