@@ -1,7 +1,5 @@
 package com.dog.util.common
 
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
@@ -25,7 +23,8 @@ object RetrofitClient {
         @Throws(IOException::class)
         override fun intercept(chain: Interceptor.Chain): Response {
             val builder = chain.request().newBuilder()
-            var auth = "1" // get from localStorage
+            var auth =
+                "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxNDciLCJhdXRoIjoiUk9MRV9VU0VSIiwiZXhwIjoxNzMxMTEwMTM2fQ.uCk2N1QZnGcfI8B50k792UmLUOMkrHZO6rjqhe2fE1Y" // get from localStorage
 
             builder.addHeader("Authorization", auth)
 

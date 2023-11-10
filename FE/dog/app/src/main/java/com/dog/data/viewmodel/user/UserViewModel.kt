@@ -3,7 +3,6 @@ package com.dog.data.viewmodel.user
 import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dog.data.model.user.SignInRequest
@@ -12,7 +11,7 @@ import com.dog.util.common.RetrofitClient
 import kotlinx.coroutines.launch
 
 class UserViewModel : ViewModel() {
-    private val token by lazy { stringPreferencesKey("token") }
+//    private val token by lazy { stringPreferencesKey("token") }
 //    private val passwordKey by lazy { stringPreferencesKey("password") }
 
 //    @Inject
@@ -60,14 +59,18 @@ class UserViewModel : ViewModel() {
                     val loginBody = signInResponse?.body
                     val token = loginBody?.jwt
 
-                    // 토큰 저장
-                    _jwtToken.value = token
-                    _isLogin.value = true
+
 
                     if (signInResponse != null) {
                         // 로그인이 성공한 경우
                         // 여기에서 처리
+                        // 토큰 저장
+                        _jwtToken.value = token
+                        _isLogin.value = true
                         Log.d("login", signInResponse.toString())
+                        if (_isLogin.value) {
+                            
+                        }
                     } else {
                         // 서버에서 올바르지 않은 응답을 반환한 경우
                         Log.e("login!", response.errorBody().toString())
