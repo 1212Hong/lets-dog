@@ -1,7 +1,11 @@
 package com.ssafy.dog.domain.dog.dto.request;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import com.ssafy.dog.domain.dog.model.DogDisposition;
+import com.ssafy.dog.domain.dog.model.DogDispositionListConverter;
+import com.ssafy.dog.domain.dog.model.DogSize;
+import lombok.Getter;
+import org.hibernate.validator.constraints.UniqueElements;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.Convert;
 import javax.persistence.EnumType;
@@ -9,50 +13,41 @@ import javax.persistence.Enumerated;
 import javax.persistence.Lob;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
-import org.hibernate.validator.constraints.UniqueElements;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import com.ssafy.dog.domain.dog.model.DogDisposition;
-import com.ssafy.dog.domain.dog.model.DogDispositionListConverter;
-import com.ssafy.dog.domain.dog.model.DogSize;
-
-import lombok.Builder;
-import lombok.Getter;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 public class DogCreateReq {
-	@NotNull
-	@Size(max = 10)
-	private String dogName;
+    @NotNull
+    @Size(max = 10)
+    private String dogName;
 
-	@NotNull
-	private Long userId;
+    @NotNull
+    private Long userId;
 
-	@Lob
-	private String dogPicture;
+    @Lob
+    private String dogPicture;
 
-	@DateTimeFormat(pattern = "yyyy-MM-dd")
-	@Builder.Default
-	private LocalDateTime dogBirthdate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDateTime dogBirthdate;
 
-	@Size(max = 20, message = "문자 제한은 20개입니다.")
-	private String dogBreed;
+    @Size(max = 20, message = "문자 제한은 20개입니다.")
+    private String dogBreed;
 
-	@Size(min = 3, max = 5, message = "3~5개의 성향만 가질 수 있습니다.")
-	@UniqueElements
-	@Convert(converter = DogDispositionListConverter.class)
-	private List<DogDisposition> dogDispositionList;
-	/*
-	 * DogDisposition 의 생김새 : CONSTANT("key", "description")
-	 * DogDisposition 의 길이 : 20
-	 * 아래는 DogDisposition 의 일부
-	 * public enum DogDisposition { FRIENDLY("친화적", "다른 강아지나 사람들에게 친화적으로..."), ... }
-	 * */
+    @Size(min = 3, max = 5, message = "3~5개의 성향만 가질 수 있습니다.")
+    @UniqueElements
+    @Convert(converter = DogDispositionListConverter.class)
+    private List<DogDisposition> dogDispositionList;
+    /*
+     * DogDisposition 의 생김새 : CONSTANT("key", "description")
+     * DogDisposition 의 길이 : 20
+     * 아래는 DogDisposition 의 일부
+     * public enum DogDisposition { FRIENDLY("친화적", "다른 강아지나 사람들에게 친화적으로..."), ... }
+     * */
 
-	@Size(max = 200)
-	private String dogAboutMe;
+    @Size(max = 200)
+    private String dogAboutMe;
 
-	@Enumerated(EnumType.STRING)
-	private DogSize dogSize;
+    @Enumerated(EnumType.STRING)
+    private DogSize dogSize;
 }

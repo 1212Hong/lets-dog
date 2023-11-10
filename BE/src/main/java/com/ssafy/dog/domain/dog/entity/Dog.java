@@ -5,7 +5,6 @@ import com.ssafy.dog.domain.dog.model.DogDisposition;
 import com.ssafy.dog.domain.dog.model.DogDispositionListConverter;
 import com.ssafy.dog.domain.dog.model.DogSize;
 import com.ssafy.dog.domain.user.entity.User;
-import lombok.Builder;
 import lombok.Getter;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -39,7 +38,6 @@ public class Dog {
     private String dogPicture;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @Builder.Default
     private LocalDateTime dogBirthdate;
 
     @Size(max = 20, message = "문자 제한은 20개입니다.")
