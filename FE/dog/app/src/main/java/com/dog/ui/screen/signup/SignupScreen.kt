@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -34,17 +35,34 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.dog.R
 import com.dog.data.Screens
+import com.dog.data.viewmodel.user.UserViewModel
 import com.dog.ui.components.MainButton
 import com.dog.ui.theme.Gray300
 import com.dog.ui.theme.White
+import kotlinx.coroutines.coroutineScope
+import showCustomToast
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignupScreen(navController: NavController) {
+fun SignupScreen(navController: NavController, userViewModel: UserViewModel) {
     var email by remember { mutableStateOf("") }
+    var phoneNum by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
+    var nickName by remember { mutableStateOf("") }
+//    var confirmPassword by remember { mutableStateOf("") }
+    val context = LocalContext.current
+
+    val signupAction = suspend {
+        coroutineScope {
+            try {
+                userViewModel.signup(email, phoneNum, password, confirmPassword, nickName, true)
+            } catch (e: Exception) {
+                showCustomToast(context, "회원가입에 실패했습니다: ${e.message}")
+            }
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
         // 배경 이미지 및 기타 구성 요소를 추가
@@ -60,7 +78,6 @@ fun SignupScreen(navController: NavController) {
                 contentDescription = "Signup main",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxWidth(0.8f)
-
             )
         }
 
@@ -116,10 +133,7 @@ fun SignupScreen(navController: NavController) {
 
             // 회원 가입 버튼
             MainButton(
-                onClick = {
-                    // 여기서 API 호출 및 회원 가입 로직을 처리합니다.
-
-                },
+                onClick = signupAction,
                 text = "회원 가입"
             )
 

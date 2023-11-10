@@ -1,6 +1,8 @@
 package com.dog.util.common
 
 import android.util.Log
+import com.dog.data.model.Chat
+import com.dog.data.viewmodel.chat.ChatViewModel
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import io.reactivex.Completable
@@ -18,7 +20,7 @@ import ua.naiksoftware.stomp.dto.StompMessage
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class StompManager() {
+class StompManager(chatViewModel: ChatViewModel) {
 
     private val TAG = "StompManager"
 
@@ -27,6 +29,8 @@ class StompManager() {
     private val mTimeFormat: SimpleDateFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
     private val mGson: Gson = GsonBuilder().create()
     private var compositeDisposable: CompositeDisposable = CompositeDisposable()
+
+    private val chatViewModel = chatViewModel
 
     fun initializeStompClient() {
         mStompClient = Stomp.over(
@@ -83,7 +87,12 @@ class StompManager() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ topicMessage: StompMessage ->
                 Log.d(TAG, "Received " + topicMessage.payload)
-//                addItem(mGson.fromJson(topicMessage.payload, EchoModel::class.java))
+                chatViewModel.updateChatState(
+                    mGson.fromJson(
+                        topicMessage.payload,
+                        Chat::class.java
+                    )
+                )
             }
             ) { throwable: Throwable? ->
                 Log.e(

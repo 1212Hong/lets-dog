@@ -1,5 +1,6 @@
 package com.dog.ui.components.signin
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,6 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -25,6 +27,7 @@ import com.dog.R
 import com.dog.data.viewmodel.user.UserViewModel
 import com.dog.ui.components.MainButton
 import kotlinx.coroutines.coroutineScope
+import showCustomToast
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,12 +37,18 @@ fun SigninItem(userViewModel: UserViewModel) {
     val emailValue = remember { mutableStateOf("") }
     val passwordValue = remember { mutableStateOf("") }
     val passwordVisibility = remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     val loginAction = suspend {
         coroutineScope {
             val email = emailValue.value
             val password = passwordValue.value
-            userViewModel.login(email, password)
+            try {
+                userViewModel.login(email, password)
+            } catch (e: Exception) {
+                Log.d("error?", e.toString())
+                showCustomToast(context, "로그인에 실패했습니다: ${e.message}")
+            }
 //            store.saveToken(userViewModel.jwtToken.value)
         }
     }

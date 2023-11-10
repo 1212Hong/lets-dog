@@ -45,7 +45,7 @@ class ChatViewModel : ViewModel() {
         curMessage = ""
     }
 
-    private fun updateChatState(chat: Chat) {
+    fun updateChatState(chat: Chat) {
 //        _chatState.update { currentChatState ->
 //            currentChatState.toMutableList().apply {
 //                add(chat)
