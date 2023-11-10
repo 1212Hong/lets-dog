@@ -73,13 +73,13 @@ import com.dog.util.common.StompManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-private val stompManager: StompManager by lazy { StompManager() }
 
 @Composable
 fun ChattingScreen(navController: NavHostController, roomId: Int) {
     val chatViewModel: ChatViewModel = viewModel()
     val chatState by chatViewModel.chatState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
+    val stompManager: StompManager by lazy { StompManager(chatViewModel) }
 
     LaunchedEffect(roomId) {
         chatViewModel.getChatHistory(roomId)
@@ -103,7 +103,7 @@ fun ChattingScreen(navController: NavHostController, roomId: Int) {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            ChatScreen(chatViewModel, chatState, coroutineScope, navController)
+            ChatScreen(chatViewModel, chatState, coroutineScope, navController, stompManager)
         }
     }
 
@@ -146,7 +146,6 @@ fun UserNameRow(
             IconComponentDrawable(icon = person.icon, size = 42.dp)
             Text(
                 text = person.name, style = TextStyle(
-                    color = Color.Black,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp
                 )
@@ -174,7 +173,7 @@ fun ChatRow(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     IconComponentDrawable(icon = person.icon, size = 30.dp)
                     Text(
-                        text = chat.name, style = TextStyle(
+                        text = chat.senderName, style = TextStyle(
                             color = Color.Black,
                             fontSize = 14.sp
                         )
@@ -192,7 +191,7 @@ fun ChatRow(
             ) {
 
                 Text(
-                    text = chat.message, style = TextStyle(
+                    text = chat.content, style = TextStyle(
                         color = Color.Black,
                         fontSize = 15.sp
                     ),
@@ -203,7 +202,7 @@ fun ChatRow(
         }
 
         Text(
-            text = chat.time,
+            text = chat.sendTime,
             style = TextStyle(
                 color = Color.Gray,
                 fontSize = 12.sp
@@ -218,7 +217,8 @@ fun ChatScreen(
     chatViewModel: ChatViewModel,
     chatState: List<Chat>,
     coroutineScope: CoroutineScope,
-    navController: NavHostController
+    navController: NavHostController,
+    stompManager: StompManager
 ) {
     var data =
         rememberNavController().previousBackStackEntry?.savedStateHandle?.get<Person>("data")
@@ -285,6 +285,7 @@ fun ChatScreen(
                 .padding(horizontal = 20.dp, vertical = 20.dp)
                 .align(Alignment.BottomCenter),
             chatViewModel = chatViewModel,
+            stompManager = stompManager
         )
     }
 }
@@ -306,7 +307,8 @@ fun CommonIconButton(
 fun CommonIconButtonDrawable(
     @DrawableRes icon: Int,
     message: String,
-    chatViewModel: ChatViewModel
+    chatViewModel: ChatViewModel,
+    stompManager: StompManager
 ) {
     val combinedClickActions = {
         chatViewModel.sendMessage(1, 1, "test")
@@ -336,7 +338,8 @@ fun CustomTextField(
     text: String,
     modifier: Modifier = Modifier,
     onValueChange: (String) -> Unit,
-    chatViewModel: ChatViewModel
+    chatViewModel: ChatViewModel,
+    stompManager: StompManager
 ) {
     TextField(
         value = text, onValueChange = { onValueChange(it) },
@@ -361,7 +364,8 @@ fun CustomTextField(
             CommonIconButtonDrawable(
                 icon = R.drawable.ic_launcher,
                 message = text,
-                chatViewModel = chatViewModel
+                chatViewModel = chatViewModel,
+                stompManager = stompManager
             )
         },
         keyboardOptions = KeyboardOptions.Default.copy(

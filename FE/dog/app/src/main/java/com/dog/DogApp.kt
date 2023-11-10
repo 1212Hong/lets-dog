@@ -15,7 +15,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
+import com.dog.data.viewmodel.user.UserViewModel
 import com.dog.ui.navigation.AppNavigation
 import com.dog.util.common.DataStoreManager
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -55,8 +57,9 @@ fun DogApp(onPermissionDenied: () -> Unit) {
         val store = DataStoreManager(context)
         val tokenText = store.getAccessToken.collectAsState(initial = "test").value
         val isTokenEmpty = tokenText.isEmpty()
+        val userViewModel: UserViewModel = viewModel()
 
-        AppNavigation(navController, isTokenEmpty)
+        AppNavigation(navController, userViewModel, store)
     } else {
 
         PermissionRequestDialog(permissionsState, openDialog) {
@@ -80,7 +83,8 @@ fun PermissionRequestDialog(
             onDismissRequest = {
                 openDialog.value = false
                 if (!permissionsState.allPermissionsGranted &&
-                    permissionsState.permissions.any { !it.status.shouldShowRationale }) {
+                    permissionsState.permissions.any { !it.status.shouldShowRationale }
+                ) {
                     onPermissionDenied()
                 }
             },

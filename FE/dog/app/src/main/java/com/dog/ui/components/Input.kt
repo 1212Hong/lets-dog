@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
@@ -74,7 +75,9 @@ fun CommonInput(
             },
             trailingIcon = {
                 if (auth === true) {
-                    MainButton(onClick = { /*TODO*/ }, text = "인증")
+                    Button(onClick = { /*TODO*/ }) {
+                        text = "인증"
+                    }
                 }
             },
             supportingText = {
@@ -123,7 +126,9 @@ fun SignInIdInput(
             },
             trailingIcon = {
                 if (auth === true) {
-                    MainButton(onClick = { /*TODO*/ }, text = "인증")
+                    Button(onClick = { /*TODO*/ }) {
+                        text = "인증"
+                    }
                 }
             },
             supportingText = {
@@ -170,7 +175,9 @@ fun SignInPwInput(
             },
             trailingIcon = {
                 if (auth === true) {
-                    MainButton(onClick = { /*TODO*/ }, text = "인증")
+                    Button(onClick = { /*TODO*/ }) {
+                        text = "인증"
+                    }
                 }
             },
             supportingText = {

@@ -8,6 +8,6 @@ data class SignUpResponse(
 )
 
 data class SignInResponse(
-    val responseBodyResult: ResponseBodyResult,
-    val body: String? = null
+    val result: ResponseBodyResult?,
+    val body: LoginBody?
 )
