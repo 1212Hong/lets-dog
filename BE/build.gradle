@@ -163,6 +163,9 @@ dependencies {
     annotationProcessor "com.querydsl:querydsl-apt:${queryDslVersion}"
     // Json In Java
     implementation group: 'org.json', name: 'json', version: '20160810'
+    // thymeleaf
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
 
     // Firebase FCM
     implementation group: 'com.google.firebase', name: 'firebase-admin', version: '9.2.0'

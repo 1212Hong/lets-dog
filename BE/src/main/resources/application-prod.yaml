@@ -28,6 +28,21 @@ spring:
     host: redis
     port: 6379
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+        transport:
+          protocol: smtp
+    debug: true
+
 logging:
   level:
     p6spy: info
