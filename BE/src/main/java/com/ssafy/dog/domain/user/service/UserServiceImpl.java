@@ -23,9 +23,14 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.Errors;
+import org.springframework.validation.FieldError;
 
+import javax.validation.Valid;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 @Slf4j
@@ -41,34 +46,11 @@ public class UserServiceImpl implements UserService {
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$");
     private static final Pattern PASSWORD_PATTERN = Pattern.compile(
             "^(?=.*[A-Z])(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,16}$");
+    private static final Pattern PHONE_NUMBER_PATTERN = Pattern.compile("^\\d{10,11}$");
 
     @Transactional
     @Override
-    public Api<String> create(UserSignupReq userSignupReq) {
-
-        if (!isValidEmail(userSignupReq.getUserLoginId())) {
-            throw new ApiException(UserErrorCode.INVALID_EMAIL);
-        }
-
-        if (!isValidPassword(userSignupReq.getUserPw1())) {
-            throw new ApiException(UserErrorCode.INVALID_PASSWORD);
-        }
-
-        if (userRepository.findByUserLoginId(userSignupReq.getUserLoginId()).isPresent()) {
-            throw new ApiException(UserErrorCode.EMAIL_EXISTS);
-        }
-
-        if (userRepository.findUserByUserNickname(userSignupReq.getUserNickname()).isPresent()) {
-            throw new ApiException(UserErrorCode.NICKNAME_EXISTS);
-        }
-
-        if (!userSignupReq.getUserTermsAgreed().equals(true)) {
-            throw new ApiException(UserErrorCode.TERMS_NOT_AGREED);
-        }
-
-        if (userRepository.findByUserPhone(userSignupReq.getUserPhone()).isPresent()) {
-            throw new ApiException(UserErrorCode.PHONE_EXISTS);
-        }
+    public Api<String> create(@Valid UserSignupReq userSignupReq) {
 
         String encodedPassword = passwordEncoder.encode(userSignupReq.getUserPw1());
         User user = User.UserBuilder.anUser()
@@ -88,7 +70,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public Api<UserLoginRes> login(UserLoginReq userLoginReq) {
+    public Api<UserLoginRes> login(@Valid UserLoginReq userLoginReq) {
 
         if (!isValidEmail(userLoginReq.getUserLoginId())) {
             throw new ApiException(UserErrorCode.INVALID_EMAIL);
@@ -150,12 +132,30 @@ public class UserServiceImpl implements UserService {
         return Api.ok(user.toUserReadRes());
     }
 
+    // 회원가입 시, 유효성 체크
+    @Transactional(readOnly = true)
+    public Map<String, String> validateHandling(Errors errors) {
+        Map<String, String> validatorResult = new HashMap<>();
+
+        // 유효성 검사에 실패한 필드 목록을 받음
+        for (FieldError error : errors.getFieldErrors()) {
+            String validKeyName = String.format("%s", error.getField());
+            validatorResult.put(validKeyName, error.getDefaultMessage());
+        }
+
+        return validatorResult;
+    }
+
     // 이메일 형식 검증 메소드
-    private boolean isValidEmail(String email) {
+    public boolean isValidEmail(String email) {
         return EMAIL_PATTERN.matcher(email).matches();
     }
 
-    private boolean isValidPassword(String password) {
+    public boolean isValidPassword(String password) {
         return PASSWORD_PATTERN.matcher(password).matches();
+    }
+
+    public boolean isValidPhoneNumber(String phoneNumber) {
+        return PHONE_NUMBER_PATTERN.matcher(phoneNumber).matches();
     }
 }

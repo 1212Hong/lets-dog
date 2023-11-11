@@ -14,13 +14,17 @@ public enum UserErrorCode implements ErrorCodeIfs {
     EMAIL_EXISTS(400, 1404, "해당 이메일은 이미 사용 중입니다."),
     INVALID_PASSWORD(400, 1405, "형식에 맞지 않는 비밀번호 입니다."),
     NICKNAME_EXISTS(400, 1406, "해당 닉네임은 이미 사용 중입니다."),
-    TERMS_NOT_AGREED(400, 1407, "약관 동의를 하지 않았거나, 해당 값이 null 입니다."),
+    TERMS_NOT_AGREED(400, 1407, "약관 동의를 하지 않았습니다."),
     PHONE_EXISTS(400, 1408, "이미 가입한 핸드폰 번호입니다."),
     INVALID_EMAIL(400, 1409, "형식에 맞지 않는 이메일 입니다."),
+    NOT_SAME_PASSWORDS(400, 1426, "비밀번호가 같지 않습니다."),
+    INVALID_PHONE_NUMBER(400, 1427, "핸드폰 번호는 10~11자의 숫자로만 작성해주세요."),
+    INVALID_SIGNUP_FIELDS(400, 1428, "회원가입 시 제출한 내용 중 검출하지 못한 유효성 검사가 있습니다."),
 
     // 로그인 관련
     USER_NOT_FOUND(404, 1410, "사용자를 찾을 수 없음."),
     WRONG_PASSWORD(401, 1411, "유저는 존재하나 잘못된 비밀번호입니다."),
+    /* 중첩 */
     // INVALID_PASSWORD(400, 1405, "형식에 맞지 않는 비밀번호 입니다."),
     // INVALID_EMAIL(400, 1409, "형식에 맞지 않는 이메일 입니다."),
 

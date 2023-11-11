@@ -7,16 +7,26 @@ import com.ssafy.dog.domain.user.dto.request.UserUpdateReq;
 import com.ssafy.dog.domain.user.dto.response.UserLoginRes;
 import com.ssafy.dog.domain.user.dto.response.UserReadRes;
 import com.ssafy.dog.domain.user.dto.response.UserUpdateRes;
+import org.springframework.validation.Errors;
 
 import javax.validation.Valid;
+import java.util.Map;
 
 public interface UserService {
 
-    Api<String> create(UserSignupReq userSignupReq);
+    Api<String> create(@Valid UserSignupReq userSignupReq);
 
     Api<UserLoginRes> login(UserLoginReq userLoginReq);
 
     Api<UserUpdateRes> updateByUserNickname(String nickname, @Valid UserUpdateReq userUpdateReq);
 
     Api<UserReadRes> getByUserNickname(String userNickname);
+
+    Map<String, String> validateHandling(Errors errors);
+
+    boolean isValidEmail(String email);
+
+    boolean isValidPassword(String password);
+
+    boolean isValidPhoneNumber(String phoneNumber);
 }
