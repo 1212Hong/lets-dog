@@ -70,7 +70,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     private Boolean userTermsAgreed;
 
     @NonNull
-    private Boolean userIsRemoved = false;
+    private Boolean userIsRemoved;
 
     private Double userLatitude;
 
