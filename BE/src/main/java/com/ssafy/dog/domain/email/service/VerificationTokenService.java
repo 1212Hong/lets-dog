@@ -31,9 +31,11 @@ public class VerificationTokenService {
     }
 
     private String generateRandomToken() {
-        // 랜덤 토큰 생성 로직 구현
-        // 0부터 2^130 - 1 범위의 random 변수로 만든 임의의 수를 32진수(숫자 0 부터 Z까지)로 변환
-        return new BigInteger(130, random).toString(32);
+        // 랜덤하게 생성된 32진수(0 ~ Z) 6자리 수를 문자열로 return
+        BigInteger maxLimit = new BigInteger("32").pow(6).subtract(BigInteger.ONE);
+        BigInteger randomNum = new BigInteger(maxLimit.bitLength(), random);
+        randomNum = randomNum.mod(maxLimit.add(BigInteger.ONE));
+        return randomNum.toString(32);
     }
 
     public boolean verifyToken(String token, String email) {
