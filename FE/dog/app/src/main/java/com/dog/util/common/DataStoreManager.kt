@@ -20,9 +20,10 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore("u
 class DataStoreManager @Inject constructor(@ApplicationContext private val context: Context) {
 
     private val tokenDataStore = context.dataStore
-    
+
     companion object {
         private val USER_TOKEN_KEY = stringPreferencesKey("user_token")
+        private val FCM_TOKEN_KEY = stringPreferencesKey("fcm_token")
     }
 
     val getAccessToken: Flow<String> = context.dataStore.data.map { preferences ->
@@ -36,12 +37,26 @@ class DataStoreManager @Inject constructor(@ApplicationContext private val conte
                 preferences[USER_TOKEN_KEY] = token
             }
         }
-
     }
 
     suspend fun getToken(): String {
         return context.dataStore.data.map { preferences ->
             preferences[USER_TOKEN_KEY] ?: ""
+        }.first()
+    }
+
+    suspend fun saveFCM(token: String?) {
+        if (token != null) {
+            Log.d("FCM_token", token)
+            context.dataStore.edit { preferences ->
+                preferences[FCM_TOKEN_KEY] = token
+            }
+        }
+    }
+
+    suspend fun getFCM(): String {
+        return context.dataStore.data.map { preferences ->
+            preferences[FCM_TOKEN_KEY] ?: ""
         }.first()
     }
 

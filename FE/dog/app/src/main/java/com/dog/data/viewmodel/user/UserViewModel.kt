@@ -38,17 +38,22 @@ class UserViewModel @Inject constructor(
     val userState = _userState.asStateFlow()
     private val _jwtToken = mutableStateOf<String?>(null)
     val jwtToken: State<String?> get() = _jwtToken
-    private val _isLogin = mutableStateOf(false)
-    val isLogin: State<Boolean> get() = _isLogin
+    private val _isLogin = MutableStateFlow<Boolean>(false)
+    val isLogin = _isLogin.asStateFlow()
     private val _message = MutableStateFlow("")
     val message: StateFlow<String> = _message.asStateFlow()
     private val _userInfo = MutableStateFlow<UserBody?>(null)
     val userInfo = _userInfo.asStateFlow()
 
+    fun renderLogin() {
+        _isLogin.value = true
+    }
+
     suspend fun login(id: String, pw: String) {
         viewModelScope.launch {
             try {
-                val response = userApi.login(SignInRequest(id, pw))
+                val fcmToken = dataStoreManager.getFCM()
+                val response = userApi.login(SignInRequest(id, pw, fcmToken))
                 Log.d("api", response.toString())
                 if (response.isSuccessful) {
                     // 성공적으로 응답을 받았을 때의 처리

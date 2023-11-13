@@ -36,17 +36,6 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        // 앱이 생성될 때 즉시 Firebase messaging token을 생성
-        FirebaseMessaging.getInstance().token
-            .addOnCompleteListener { task: Task<String> ->
-                if (!task.isSuccessful) {
-                    Log.w("FCM Log", "Fetching FCM registration token failed", task.exception)
-                    return@addOnCompleteListener
-                }
-                val token = task.result
-                Log.d("FCM Log", "Current token: $token")
-            }
-
 
     }
 }

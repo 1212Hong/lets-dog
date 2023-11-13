@@ -18,6 +18,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import com.dog.data.viewmodel.user.UserViewModel
 import com.dog.ui.navigation.AppNavigation
+import com.dog.util.common.DataStoreManager
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.MultiplePermissionsState
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
@@ -51,9 +52,11 @@ fun DogApp(onPermissionDenied: () -> Unit) {
 
     if (permissionsState.allPermissionsGranted) {
         val navController = rememberNavController()
+        val context = LocalContext.current
+        val store = DataStoreManager(context)
         val userViewModel: UserViewModel = hiltViewModel()
 
-        AppNavigation(navController, userViewModel)
+        AppNavigation(navController, userViewModel, store)
     } else {
 
         PermissionRequestDialog(permissionsState, openDialog) {
