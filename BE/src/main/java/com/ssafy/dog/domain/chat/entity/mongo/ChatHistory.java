@@ -33,18 +33,15 @@ public class ChatHistory {
 
 	private LocalDateTime sendDate;
 
-	private long readCount;
-
 	@Builder
 	public ChatHistory(Long roomId, Long senderId, String senderName, String contentType, String content,
-		LocalDateTime sendDate, long readCount) {
+		LocalDateTime sendDate) {
 		this.roomId = roomId;
 		this.senderId = senderId;
 		this.senderName = senderName;
 		this.contentType = contentType;
 		this.content = content;
 		this.sendDate = sendDate;
-		this.readCount = readCount;
 
 	}
 

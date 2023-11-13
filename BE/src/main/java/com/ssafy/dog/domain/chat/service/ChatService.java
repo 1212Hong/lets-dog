@@ -83,7 +83,7 @@ public class ChatService {
 	}
 
 	public Api<List<ChatHistoriesResDto>> getChatHistory(Long roomId, Long userId) {
-		
+
 		log.info("유저 PK : {}", userId);
 		// 채팅 내역 불러오기
 		List<ChatHistory> chatHistories = chatHistoryRepository.findAllByRoomId(roomId);
@@ -137,24 +137,20 @@ public class ChatService {
 		AccessToken 검증 후 userId로 보내주기
 		 */
 		// read 한 사람들 추가
+		LocalDateTime origTime = LocalDateTime.now();
 		message.setSendTimeAndSenderAndRead(LocalDateTime.now(), Long.parseLong(accessToken), message.getSenderName(),
-			10, chatRoomService.isConnected(message.getRoomId()));
-
+			chatRoomService.isConnected(message.getRoomId()));
+		log.info("채팅시간 : {}", message.getSendTime());
 		kafkaProducerService.send(KafkaConstants.KAFKA_CHAT_TOPIC, message);
 
 		// kafka producer -> consumer -> stomp converAndSend 까지 된 후 DB 저장로직
-		saveChat(message);
-	}
-
-	public ChatHistory getTest() {
-		List<ChatHistory> histories = chatHistoryRepository.findAll();
-		return histories.get(0);
+		saveChat(message, origTime);
 	}
 
 	// MongoDB ChatHistory 저장
-	public void saveChat(MessageDto message) {
+	public void saveChat(MessageDto message, LocalDateTime origTime) {
 
-		ChatHistory curChatHistory = message.convertEntity();
+		ChatHistory curChatHistory = message.convertEntity(origTime);
 		ChatHistory savedEntity = chatHistoryRepository.save(curChatHistory);
 		log.info("저장된 ChatHistory : {}", savedEntity.toString());
 		String historyId = savedEntity.getHistoryId();

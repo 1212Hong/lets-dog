@@ -1,9 +1,8 @@
 package com.ssafy.dog.domain.chat.dto;
 
 import java.io.Serializable;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
@@ -23,8 +22,6 @@ import lombok.ToString;
 @NoArgsConstructor
 public class MessageDto implements Serializable {
 
-	private String id;
-
 	@NotNull
 	private Long roomId;
 
@@ -38,34 +35,26 @@ public class MessageDto implements Serializable {
 
 	private Long senderId;
 
-	private long sendTime;
-
-	private Integer readCount;
+	private String sendTime;
 
 	private List<Long> readList;
 
-	public void setSendTimeAndSenderAndRead(LocalDateTime sendTime, Long senderId, String senderName, Integer readCount,
+	public void setSendTimeAndSenderAndRead(LocalDateTime sendTime, Long senderId, String senderName,
 		List<Long> readList) {
 		this.senderName = senderName;
-		this.sendTime = sendTime.atZone(ZoneId.of("Asia/Seoul")).toInstant().toEpochMilli();
+		this.sendTime = sendTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd-hh-mm-ss-a"));
 		this.senderId = senderId;
-		this.readCount = readCount;
 		this.readList = readList;
 	}
 
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public ChatHistory convertEntity() {
+	public ChatHistory convertEntity(LocalDateTime origTime) {
 		return ChatHistory.builder()
 			.senderName(senderName)
 			.senderId(senderId)
 			.roomId(roomId)
 			.contentType(contentType)
 			.content(content)
-			.sendDate(Instant.ofEpochMilli(sendTime).atZone(ZoneId.of("Asia/Seoul")).toLocalDateTime())
-			.readCount(readCount)
+			.sendDate(origTime)
 			.build();
 	}
 }

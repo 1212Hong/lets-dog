@@ -37,7 +37,6 @@ public class ChatHistoriesResDto {
 		this.contentType = history.getContentType();
 		this.content = history.getContent();
 		this.sendDate = history.getSendDate();
-		this.readCount = history.getReadCount();
 		this.readList = readList;
 
 	}
