@@ -1,6 +1,5 @@
 package com.dog.ui.screen.signin
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -45,20 +44,19 @@ fun LoginScreen(
     userViewModel: UserViewModel,
 ) {
     val context = LocalContext.current
-//    val loginState = false
-    // userViewModel에서 test 프로퍼티로 저장된 token 값을 읽어옵니다.
 
-
-    DisposableEffect(userViewModel.isLogin) {
+    DisposableEffect(userViewModel.message) {
         val token = userViewModel.jwtToken.value
         val isLogin = userViewModel.isLogin.value
-        if (isLogin) {
-            Toast.makeText(context, "Login Success!", Toast.LENGTH_LONG).show()
-            if (token != null) {
-                Log.d("tokentest", token)
-            }
+        if (!isLogin && !token.isNullOrEmpty()) {
+            Toast.makeText(context, "Login Failed!", Toast.LENGTH_LONG).show()
         }
-        onDispose { /* 정리 코드 (여기서는 필요 없음) */ }
+
+        onDispose {
+            if (isLogin)
+                Toast.makeText(context, "Login Success!", Toast.LENGTH_LONG).show()
+
+        }
     }
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
@@ -100,7 +98,7 @@ fun LoginScreen(
             Spacer(modifier = Modifier.padding(10.dp))
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
-                SigninItem(userViewModel)
+                SigninItem(userViewModel, context)
 
                 Box(
                     modifier = Modifier

@@ -2,7 +2,6 @@ package com.dog.data.model.user
 
 data class SignUpRequest(
     val userLoginId: String,
-    val userPhone: String,
     val userPw1: String,
     val userPw2: String,
     val userNickname: String,
