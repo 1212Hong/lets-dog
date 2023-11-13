@@ -87,9 +87,9 @@ public class MatchingServiceImp implements MatchingService {
 	}
 
 	private List<User> pickRandomUsers(List<User> users) {
-		if (users.size() > 5) {
+		if (users.size() > 7) {
 			Collections.shuffle(users);
-			return users.subList(0, 5);
+			return users.subList(0, 7);
 		}
 		return users;
 	}
