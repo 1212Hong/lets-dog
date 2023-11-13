@@ -439,14 +439,12 @@ fun CustomBottomSheet(
                             // Submit 버튼이 클릭되었을 때의 동작 처리
                             if (newCommentText.text.isNotEmpty()) {
                                 // Perform the asynchronous operation directly without coroutineScope
-                                GlobalScope.launch {
-                                    val commentAddRequest = AddCommentRequest(
-                                        boardId = feedItem.boardId,
-                                        commentContent = newCommentText.text,
-                                        userNickname = userName
-                                    )
-                                    homeViewModel.addComment(commentAddRequest)
-                                }
+                                val commentAddRequest = AddCommentRequest(
+                                    boardId = feedItem.boardId,
+                                    commentContent = newCommentText.text,
+                                    userNickname = userName
+                                )
+                                homeViewModel.addComment(commentAddRequest)
                                 newCommentText = TextFieldValue() // 입력 필드 초기화
                             }
                         }
