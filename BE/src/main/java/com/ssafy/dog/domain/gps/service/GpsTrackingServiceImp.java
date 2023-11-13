@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.ssafy.dog.common.error.ErrorCode;
 import com.ssafy.dog.common.exception.ApiException;
+import com.ssafy.dog.domain.gps.dto.GpsTrackingDataResponse;
 import com.ssafy.dog.domain.gps.dto.GpsTrackingDeleteRequest;
 import com.ssafy.dog.domain.gps.dto.GpsTrackingResponse;
 import com.ssafy.dog.domain.gps.dto.GpsTrackingSaveRequest;
@@ -28,9 +29,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class GpsTrackingServiceImp implements GpsTrackingService {
 
-	private static final int PAGE = 0;
-	private static final int SIZE = 5;
-
 	private final GpsTrackingRepository gpsTrackingRepository;
 
 	@Override
@@ -40,10 +38,11 @@ public class GpsTrackingServiceImp implements GpsTrackingService {
 	}
 
 	@Override
-	public List<GpsTrackingResponse> findTrackingDataByUserLoginId(String userLoginId, String order) {
+	public GpsTrackingDataResponse findTrackingDataByUserLoginId(String userLoginId, int page, int size,
+		String order) {
 		Sort sort = Sort.by("trackingDate");
 		sort = order.equalsIgnoreCase("asc") ? sort.ascending() : sort.descending();
-		Pageable pageable = PageRequest.of(PAGE, SIZE, sort);
+		Pageable pageable = PageRequest.of(page, size, sort);
 
 		if (userLoginId == null) {
 			userLoginId = SecurityUtils.getUserLoginId();
@@ -52,14 +51,15 @@ public class GpsTrackingServiceImp implements GpsTrackingService {
 		Page<GpsTracking> trackingList = gpsTrackingRepository.findAllByUserLoginIdAndStatus(
 			userLoginId, Status.AVAILABLE, pageable);
 
-		if (trackingList.isEmpty()) {
-			return java.util.Collections.emptyList();
-		}
-
-		return trackingList.getContent().stream()
+		List<GpsTrackingResponse> content = trackingList.getContent().stream()
 			.map(GpsTrackingResponse::toResponse)
 			.collect(Collectors.toList());
-
+		
+		return new GpsTrackingDataResponse(
+			content,
+			trackingList.getTotalPages(),
+			trackingList.getTotalElements()
+		);
 	}
 
 	@Override
