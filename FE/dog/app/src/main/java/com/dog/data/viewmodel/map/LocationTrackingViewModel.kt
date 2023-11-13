@@ -4,7 +4,11 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Looper
 import android.util.Log
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.location.LocationManagerCompat.getCurrentLocation
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dog.data.model.gps.GpsPoint
@@ -37,7 +41,6 @@ class LocationTrackingViewModel @Inject constructor(
     @ApplicationContext context: Context,
     private val dataStoreManager: DataStoreManager
 ) : ViewModel() {
-
     private val interceptor = RetrofitClient.RequestInterceptor(dataStoreManager)
     private val apiService: GpsRepository = RetrofitClient.getInstance(interceptor).create(GpsRepository::class.java)
 
@@ -58,15 +61,15 @@ class LocationTrackingViewModel @Inject constructor(
     private var timerJob: Job? = null
 
     private var fusedLocationClient: FusedLocationProviderClient =
-        LocationServices.getFusedLocationProviderClient(context)
+        LocationServices.getFusedLocationProviderClient(context.applicationContext)
     val locationRequest = com.google.android.gms.location.LocationRequest.Builder(
         Priority.PRIORITY_HIGH_ACCURACY, UPDATE_INTERVAL_IN_MILLISECONDS
     ).build()
 
-
     init {
         getCurrentLocation()
     }
+
 
     @SuppressLint("MissingPermission")
     fun getCurrentLocation() {
@@ -88,10 +91,32 @@ class LocationTrackingViewModel @Inject constructor(
                 val newLatLng = LatLng(location.latitude, location.longitude)
                 _userLocation.value = newLatLng
                 addPathPoint(newLatLng) // 상태 업데이트
+                Log.i("LocationTracking", "locationCallback 현재 위치: ${_userLocation.value}")
+
             }
         }
     }
 
+    @SuppressLint("MissingPermission")
+    fun updateLocationOnly() {
+        fusedLocationClient.requestLocationUpdates(
+            locationRequest,
+            locationCallbackOnlyLocation,
+            Looper.getMainLooper()
+        ).addOnFailureListener {
+            Log.e("LocationTracking", "Failed to start location updates", it)
+        }
+    }
+
+    private val locationCallbackOnlyLocation = object : LocationCallback() {
+        override fun onLocationResult(locationResult: LocationResult) {
+            locationResult.locations.forEach { location ->
+                val newLatLng = LatLng(location.latitude, location.longitude)
+                _userLocation.value = newLatLng
+                // 폴리라인을 그리지 않음
+            }
+        }
+    }
 
     @SuppressLint("MissingPermission")
     fun startLocationUpdates() {

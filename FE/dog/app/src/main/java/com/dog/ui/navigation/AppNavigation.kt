@@ -27,14 +27,14 @@ fun AppNavigation(
     Log.d("TokenInAppNavigation", tokenText.value)
     val isLogin = userViewModel.isLogin.value
 
-    if (isLogin) {
+    if (!isTokenEmpty) {
         // 로그인이 성공한 경우 홈 화면으로 이동
         startRoute = Screens.Home.route
     } else {
         // 로그인이 되어있지 않은 경우 로그인 또는 회원 가입 화면 표시
         startRoute = Screens.Signin.route
     }
-    if (!isLogin) {
+    if (isTokenEmpty) {
         // Token이 비어있는 경우: 로그인 또는 회원 가입 화면을 표시
         // 이후 Token을 저장하고 앱의 다음 단계로 이동합니다.
 //        SignIn()

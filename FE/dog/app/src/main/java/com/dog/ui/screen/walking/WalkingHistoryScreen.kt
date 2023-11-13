@@ -15,6 +15,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -44,13 +46,21 @@ import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
-fun WalkingHistoryScreen(navController: NavController, trackingViewModel: LocationTrackingViewModel) {
-    val viewModel: LocationTrackingHistoryViewModel = hiltViewModel()
+fun WalkingHistoryScreen(navController: NavController, trackingViewModel: LocationTrackingViewModel, locationTrackingHistoryViewModel: LocationTrackingHistoryViewModel) {
+
     var isMapDialogOpen by remember { mutableStateOf(false) }
     var polylinePoints by remember { mutableStateOf(emptyList<LatLng>()) }
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    val lifecycleOwner = LocalLifecycleOwner.current
 
+    DisposableEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.addObserver(locationTrackingHistoryViewModel)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(locationTrackingHistoryViewModel)
+        }
+    }
 
     DogTheme {
         Column {
@@ -69,7 +79,7 @@ fun WalkingHistoryScreen(navController: NavController, trackingViewModel: Locati
                     }
                 }
             }
-            TrackingHistoryPage(viewModel = viewModel) { gpsPoints ->
+            TrackingHistoryPage(viewModel = locationTrackingHistoryViewModel) { gpsPoints ->
                 polylinePoints = gpsPoints
                 isMapDialogOpen = true
             }
@@ -128,7 +138,7 @@ fun ShowMapDialog(isDialogOpen: Boolean, polylinePoints: List<LatLng>, onDismiss
             ) {
                 val cameraPositionState = rememberCameraPositionState {
                     position = CameraPosition.fromLatLngZoom(
-                        polylinePoints.firstOrNull() ?: polylinePoints[polylinePoints.size / 2], 15f
+                        polylinePoints.firstOrNull() ?: polylinePoints[polylinePoints.size / 2], 18f
                     )
                 }
 

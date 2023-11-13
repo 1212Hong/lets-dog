@@ -6,6 +6,9 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dog.data.model.common.Response
@@ -13,20 +16,19 @@ import com.dog.data.model.common.ResponseBodyResult
 import com.dog.data.model.matching.MatchingUserResponse
 import com.dog.data.repository.FriendRepository
 import com.dog.data.repository.MatchingRepository
-import com.dog.data.repository.UserRepository
 import com.dog.util.common.DataStoreManager
 import com.dog.util.common.RetrofitClient
-import com.dog.util.common.RetrofitLocalClient
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
 @HiltViewModel
 class MatchingViewModel@Inject constructor(
     private val dataStoreManager: DataStoreManager
-) : ViewModel() {
+) : ViewModel(), LifecycleEventObserver {
 
     private val interceptor = RetrofitClient.RequestInterceptor(dataStoreManager)
     private val MatchingApi: MatchingRepository = RetrofitClient.getInstance(interceptor).create(
@@ -117,6 +119,12 @@ class MatchingViewModel@Inject constructor(
 
     fun clearToastMessage() {
         _toastMessage.value = null
+    }
+
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+        if (event == Lifecycle.Event.ON_RESUME) {
+            loadUsersFromApi()
+        }
     }
 
 }

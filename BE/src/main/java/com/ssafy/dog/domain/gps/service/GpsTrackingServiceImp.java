@@ -1,10 +1,13 @@
 package com.ssafy.dog.domain.gps.service;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.ssafy.dog.common.error.ErrorCode;
@@ -17,7 +20,6 @@ import com.ssafy.dog.domain.gps.entity.enums.Status;
 import com.ssafy.dog.domain.gps.repository.GpsTrackingRepository;
 import com.ssafy.dog.util.SecurityUtils;
 
-import io.jsonwebtoken.lang.Collections;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,6 +27,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 public class GpsTrackingServiceImp implements GpsTrackingService {
+
+	private static final int PAGE = 0;
+	private static final int SIZE = 5;
+
 	private final GpsTrackingRepository gpsTrackingRepository;
 
 	@Override
@@ -35,31 +41,28 @@ public class GpsTrackingServiceImp implements GpsTrackingService {
 
 	@Override
 	public List<GpsTrackingResponse> findTrackingDataByUserLoginId(String userLoginId, String order) {
+		if (order != "asc" || order != "desc") {
+			throw new ApiException(ErrorCode.BAD_REQUEST, "올바른 정렬 기준을 요청해주세요. asc, desc");
+		}
+		Sort sort = Sort.by("trackingDate");
+		sort = order.equalsIgnoreCase("asc") ? sort.ascending() : sort.descending();
+		Pageable pageable = PageRequest.of(PAGE, SIZE, sort);
+
 		if (userLoginId == null) {
 			userLoginId = SecurityUtils.getUserLoginId();
 		}
-		List<GpsTracking> trackingList = gpsTrackingRepository.findAllByUserLoginIdAndStatus(userLoginId,
-			Status.AVAILABLE);
 
-		if (Collections.isEmpty(trackingList)) {
+		Page<GpsTracking> trackingList = gpsTrackingRepository.findAllByUserLoginIdAndStatus(
+			userLoginId, Status.AVAILABLE, pageable);
+
+		if (trackingList.isEmpty()) {
 			return java.util.Collections.emptyList();
 		}
-		// tmp 유저 email : test@mail.com;
-		if (order.equalsIgnoreCase("asc")) {
-			return trackingList.stream()
-				.sorted(Comparator.comparing(GpsTracking::getTrackingDate))
-				.map(GpsTrackingResponse::toResponse)
-				.collect(Collectors.toList());
-		}
 
-		if (order.equalsIgnoreCase("desc")) {
-			return trackingList.stream()
-				.sorted(Comparator.comparing(GpsTracking::getTrackingDate).reversed())
-				.map(GpsTrackingResponse::toResponse)
-				.collect(Collectors.toList());
-		}
+		return trackingList.getContent().stream()
+			.map(GpsTrackingResponse::toResponse)
+			.collect(Collectors.toList());
 
-		throw new ApiException(ErrorCode.BAD_REQUEST, "올바른 정렬 기준을 요청해주세요. asc, desc");
 	}
 
 	@Override

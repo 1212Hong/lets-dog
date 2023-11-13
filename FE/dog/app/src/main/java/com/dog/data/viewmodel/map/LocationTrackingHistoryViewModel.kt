@@ -2,6 +2,9 @@ package com.dog.data.viewmodel.map
 
 import android.content.Context
 import android.util.Log
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dog.data.model.gps.TrackingHistory
@@ -19,7 +22,7 @@ import javax.inject.Inject
 class LocationTrackingHistoryViewModel @Inject constructor(
     @ApplicationContext context: Context,
     private val dataStoreManager: DataStoreManager
-) : ViewModel() {
+) : ViewModel(), LifecycleEventObserver {
 
     private val interceptor = RetrofitClient.RequestInterceptor(dataStoreManager)
     private val apiService: GpsRepository = RetrofitClient.getInstance(interceptor).create(GpsRepository::class.java)
@@ -48,5 +51,11 @@ class LocationTrackingHistoryViewModel @Inject constructor(
     }
     init {
         getTrackingHistory()
+    }
+
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+        if (event == Lifecycle.Event.ON_RESUME) {
+            getTrackingHistory()
+        }
     }
 }

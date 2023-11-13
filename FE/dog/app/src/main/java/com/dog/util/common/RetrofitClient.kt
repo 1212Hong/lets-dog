@@ -1,8 +1,5 @@
 package com.dog.util.common
 
-import android.util.Log
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -14,7 +11,6 @@ import java.io.IOException
 object RetrofitClient {
     const val baseUrl = "http://k9c205.p.ssafy.io:8000/api/"
     const val JWT = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTczMTI0NzA1M30.KWmcTW4FJRjdEawfSD-_FfEnOshyyTAsXxXfdBNG6S4"
-
 
     fun getInstance(interceptor: RequestInterceptor): Retrofit {
         val interceptorClient = OkHttpClient().newBuilder().addInterceptor(interceptor)
