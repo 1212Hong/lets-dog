@@ -3,7 +3,7 @@ package com.dog.data.model.user
 import com.dog.data.model.common.ResponseBodyResult
 
 data class SignUpResponse(
-    val result: ResponseBodyResult,
+    val result: ResponseBodyResult?,
     val body: String? = null
 )
 

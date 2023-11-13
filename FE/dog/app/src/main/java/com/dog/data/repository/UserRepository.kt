@@ -22,4 +22,5 @@ interface UserRepository {
 
     @GET("user/get/{nickname}")
     suspend fun getUserInfo(@Path("nickname") nickname: String): Response<UserInfoResponse>
+
 }

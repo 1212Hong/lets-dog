@@ -53,7 +53,8 @@ fun LoginScreen(
         }
 
         onDispose {
-            Toast.makeText(context, "Login Success!", Toast.LENGTH_LONG).show()
+            if (isLogin)
+                Toast.makeText(context, "Login Success!", Toast.LENGTH_LONG).show()
 
         }
     }

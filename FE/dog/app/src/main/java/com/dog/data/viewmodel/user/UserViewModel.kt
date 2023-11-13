@@ -5,12 +5,17 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dog.data.model.common.Response
+import com.dog.data.model.common.ResponseBodyResult
 import com.dog.data.model.user.SignInRequest
 import com.dog.data.model.user.SignUpRequest
 import com.dog.data.model.user.UserBody
 import com.dog.data.repository.UserRepository
 import com.dog.util.common.DataStoreManager
 import com.dog.util.common.RetrofitClient
+import com.google.gson.Gson
+import com.google.gson.JsonSyntaxException
+import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -45,35 +50,41 @@ class UserViewModel @Inject constructor(
             try {
                 val response = userApi.login(SignInRequest(id, pw))
                 Log.d("api", response.toString())
-                if (response.isSuccessful && response.body() != null) {
+                if (response.isSuccessful) {
                     // 성공적으로 응답을 받았을 때의 처리
-                    val loginBody = response.body()?.body
-                    val token = loginBody?.jwt
-                    // 로그인이 성공한 경우
-                    // 여기에서 처리
-                    // 토큰 저장
-                    _jwtToken.value = token
-                    dataStoreManager.saveToken(token)
-                    _userState.value?.name = loginBody?.userNickname.toString()
-                    _isLogin.value = true
-                    Log.d("login", loginBody.toString())
                     _message.value = response.body()!!.result?.message.toString()
+                    val loginBody = response.body()?.body
+                    if (response.body()?.body != null) {
+                        val token = loginBody?.jwt
+                        _jwtToken.value = token
+                        dataStoreManager.saveToken(token)
+                        _userState.value?.name = loginBody?.userNickname.toString()
+                        _isLogin.value = true
+                        Log.d("login", loginBody.toString())
+                    }
                 } else {
                     // 서버에서 올바르지 않은 응답을 반환한 경우
-                    Log.e("login!", response.errorBody().toString())
-                    _isLogin.value = false
-                    _message.value = response.errorBody().toString()
-
+                    val errorBody = response.errorBody()?.string()
+                    val gson = Gson()
+                    val typeToken = object : TypeToken<Response<ResponseBodyResult>>() {}.type
+                    try {
+                        val errorResponse: Response<ResponseBodyResult> =
+                            gson.fromJson(errorBody, typeToken)
+                        Log.e("loginRequest", "${errorResponse.result.message}")
+                        _message.value = errorResponse.result.description
+                    } catch (e: JsonSyntaxException) {
+                        Log.e("loginRequest", "JSON 파싱 에러", e)
+                    }
                 }
             } catch (e: Exception) {
-                // 네트워크 오류 처리
+                Log.e("loginRequest", "네트워크 요청 에러", e)
+                _message.value = "로그인 중 오류가 발생했습니다."
             }
         }
     }
 
     suspend fun signup(
         id: String,
-        phoneNum: String,
         pw: String,
         checkPw: String,
         nickName: String,
@@ -82,46 +93,53 @@ class UserViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val response =
-                    userApi.signup(SignUpRequest(id, phoneNum, pw, checkPw, nickName, agreement))
+                    userApi.signup(SignUpRequest(id, pw, checkPw, nickName, agreement))
                 Log.d("api", response.toString())
-                if (response.isSuccessful && response.body() != null) {
+                if (response.isSuccessful) {
                     val signupBody = response.body()?.body
+                    _message.value = signupBody.toString()
                     Log.d("signup", signupBody.toString())
-                    _message.value = response.body()!!.result.message
                 } else {
                     // 서버에서 올바르지 않은 응답을 반환한 경우
-                    Log.e("!signup", response.errorBody().toString())
+                    val errorBody = response.errorBody()?.string()
+                    val gson = Gson()
+                    val typeToken = object : TypeToken<Response<ResponseBodyResult>>() {}.type
+                    try {
+                        val errorResponse: Response<ResponseBodyResult> =
+                            gson.fromJson(errorBody, typeToken)
+                        Log.e("signupRequest", "${errorResponse.result.message}")
+                        _message.value = errorResponse.result.description
+                    } catch (e: JsonSyntaxException) {
+                        Log.e("signupRequest", "JSON 파싱 에러", e)
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("signupRequest", "네트워크 요청 에러", e)
+                _message.value = "로그인 중 오류가 발생했습니다."
+            }
+        }
+    }
+
+    suspend fun getUser() {
+        viewModelScope.launch {
+            try {
+                val response =
+                    userApi.getUserInfo(_userState.value!!.name)
+                if (response.isSuccessful && response.body() != null) {
+                    val getUserBody = response.body()?.body
+                    _userInfo.value = getUserBody
+                    Log.d("userInfo_success", getUserBody.toString())
+                } else {
+                    // 서버에서 올바르지 않은 응답을 반환한 경우
+                    Log.e("userInfo_fail", response.errorBody().toString())
 
                     _message.value = response.errorBody().toString()
                 }
 
             } catch (e: Exception) {
                 // 네트워크 오류 처리
+                Log.d("api_err", e.message.toString())
             }
         }
     }
-
-    suspend fun getUser() {
-//        viewModelScope.launch {
-        try {
-            val response =
-                userApi.getUserInfo(_userState.value!!.name)
-            if (response.isSuccessful && response.body() != null) {
-                val getUserBody = response.body()?.body
-                _userInfo.value = getUserBody
-                Log.d("userInfo_success", getUserBody.toString())
-            } else {
-                // 서버에서 올바르지 않은 응답을 반환한 경우
-                Log.e("userInfo_fail", response.errorBody().toString())
-
-                _message.value = response.errorBody().toString()
-            }
-
-        } catch (e: Exception) {
-            // 네트워크 오류 처리
-            Log.d("api_err", e.message.toString())
-        }
-    }
-//    }
-
 }
