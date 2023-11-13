@@ -11,5 +11,6 @@ import lombok.NoArgsConstructor;
 @Getter
 public class FCMTestDto {
 	private String token;
+	private String title;
 	private String content;
 }
