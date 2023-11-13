@@ -5,3 +5,7 @@ data class EmailValidationRequest(
     val token: String
 )
 
+data class EmailRequest(
+    val email: String
+)
+

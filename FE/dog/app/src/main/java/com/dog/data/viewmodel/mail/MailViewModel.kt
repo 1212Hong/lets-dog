@@ -5,6 +5,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dog.data.model.email.EmailRequest
 import com.dog.data.model.email.EmailValidationRequest
 import com.dog.data.repository.MailRepository
 import com.dog.util.common.DataStoreManager
@@ -27,11 +28,11 @@ class MailViewModel @Inject constructor(
     suspend fun sendMailCode(email: String) {
         viewModelScope.launch {
             try {
-                val response = mailApi.sendEmailCode(email)
+                val response = mailApi.sendEmailCode(EmailRequest(email))
 
                 if (response.isSuccessful) {
-                    response.body()?.body?.let { mail ->
-                        if (mail === email) _message.value = "메일 전송이 완료되었습니다."
+                    response.body()?.body?.let { body ->
+                        if (body.email === email) _message.value = "메일 전송이 완료되었습니다."
                     }
                 } else {
                     Log.e("MailViewModel", "Error: ${response.errorBody()?.string()}")

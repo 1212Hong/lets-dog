@@ -9,5 +9,9 @@ data class EmailValidationResponse(
 
 data class EmailCodeResponse(
     val result: ResponseBodyResult,
-    val body: String
+    val body: Email
+)
+
+data class Email(
+    val email: String
 )
