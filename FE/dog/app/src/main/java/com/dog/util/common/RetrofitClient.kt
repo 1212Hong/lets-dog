@@ -1,7 +1,9 @@
 package com.dog.util.common
 
+import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
@@ -11,25 +13,29 @@ import java.io.IOException
 
 object RetrofitClient {
     const val baseUrl = "http://k9c205.p.ssafy.io:8000/api/"
-    const val JWT = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2IiwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTczMTAzMTEzNn0.GcaLvP5NZ21NCllmYLu1VOQiRk3P3RdwtXfUrByDBRs"
-    private val interceptorClient = OkHttpClient().newBuilder().addInterceptor(RequestInterceptor())
-        .addInterceptor(ResponseInterceptor()).build()
+    const val JWT = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTczMTI0NzA1M30.KWmcTW4FJRjdEawfSD-_FfEnOshyyTAsXxXfdBNG6S4"
 
-    fun getInstance(): Retrofit {
+
+    fun getInstance(interceptor: RequestInterceptor): Retrofit {
+        val interceptorClient = OkHttpClient().newBuilder().addInterceptor(interceptor)
+            .addInterceptor(ResponseInterceptor()).build()
+
         return Retrofit.Builder().baseUrl(baseUrl).client(interceptorClient)
             .addConverterFactory(GsonConverterFactory.create())
-            .build();
+            .build()
     }
 
-    class RequestInterceptor : Interceptor {
+    class RequestInterceptor(private val dataStoreManager: DataStoreManager) : Interceptor {
         @Throws(IOException::class)
         override fun intercept(chain: Interceptor.Chain): Response {
-            val builder = chain.request().newBuilder()
-            var auth = JWT // get from localStorage
+            val authToken = runBlocking { dataStoreManager.getToken() }
+            val requestBuilder = chain.request().newBuilder()
 
-            builder.addHeader("Authorization", auth)
+            if (authToken.isNotEmpty()) {
+                requestBuilder.addHeader("Authorization", "Bearer $authToken")
+            }
 
-            return chain.proceed(builder.build())
+            return chain.proceed(requestBuilder.build())
         }
     }
 

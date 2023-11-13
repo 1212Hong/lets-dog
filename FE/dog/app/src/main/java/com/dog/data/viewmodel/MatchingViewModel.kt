@@ -13,14 +13,26 @@ import com.dog.data.model.common.ResponseBodyResult
 import com.dog.data.model.matching.MatchingUserResponse
 import com.dog.data.repository.FriendRepository
 import com.dog.data.repository.MatchingRepository
+import com.dog.data.repository.UserRepository
+import com.dog.util.common.DataStoreManager
 import com.dog.util.common.RetrofitClient
 import com.dog.util.common.RetrofitLocalClient
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import com.google.gson.reflect.TypeToken
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
+@HiltViewModel
+class MatchingViewModel@Inject constructor(
+    private val dataStoreManager: DataStoreManager
+) : ViewModel() {
 
-class MatchingViewModel : ViewModel() {
+    private val interceptor = RetrofitClient.RequestInterceptor(dataStoreManager)
+    private val MatchingApi: MatchingRepository = RetrofitClient.getInstance(interceptor).create(
+        MatchingRepository::class.java)
+    private val FriendApi: FriendRepository = RetrofitClient.getInstance(interceptor).create(
+        FriendRepository::class.java)
 
     private val _users = mutableStateListOf<MatchingUserResponse>()
     val users: List<MatchingUserResponse> get() = _users
@@ -40,8 +52,7 @@ class MatchingViewModel : ViewModel() {
     private fun loadUsersFromApi() {
         viewModelScope.launch {
             try {
-                val apiService = RetrofitClient.getInstance().create(MatchingRepository::class.java)
-                val response = apiService.getMatchingApiResponse()
+                val response = MatchingApi.getMatchingApiResponse()
 
                 if (response.isSuccessful) {
                     response.body()?.body?.let { usersFromApi ->
@@ -79,8 +90,7 @@ class MatchingViewModel : ViewModel() {
     fun senFriendRequest(receiverNickname: String) {
         viewModelScope.launch {
             try {
-                val apiService = RetrofitClient.getInstance().create(FriendRepository::class.java)
-                val retrofitResponse = apiService.sendFriendRequest(receiverNickname)
+                val retrofitResponse = FriendApi.sendFriendRequest(receiverNickname)
                 if (retrofitResponse.isSuccessful) {
                     val responseBody = retrofitResponse.body()
                     _toastMessage.value = "친구 신청이 성공적으로 전송되었습니다."

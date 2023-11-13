@@ -11,6 +11,7 @@ import com.dog.data.model.gps.GpsPoint
 import com.dog.data.model.gps.GpsRequest
 import com.dog.data.repository.FriendRepository
 import com.dog.data.repository.GpsRepository
+import com.dog.util.common.DataStoreManager
 import com.dog.util.common.RetrofitClient
 import com.dog.util.common.RetrofitLocalClient
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -19,6 +20,8 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,12 +29,19 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import retrofit2.Response
+import javax.inject.Inject
 
 private const val UPDATE_INTERVAL_IN_MILLISECONDS: Long = 5000
-
-class LocationTrackingViewModel(
-    private val context: Context
+@HiltViewModel
+class LocationTrackingViewModel @Inject constructor(
+    @ApplicationContext context: Context,
+    private val dataStoreManager: DataStoreManager
 ) : ViewModel() {
+
+    private val interceptor = RetrofitClient.RequestInterceptor(dataStoreManager)
+    private val apiService: GpsRepository = RetrofitClient.getInstance(interceptor).create(GpsRepository::class.java)
+
+
     private val _userLocation = MutableStateFlow<LatLng?>(null)
     val userLocation = _userLocation.asStateFlow()
     private val _pathPoints = MutableStateFlow<MutableList<LatLng>>(mutableListOf())
@@ -137,8 +147,7 @@ class LocationTrackingViewModel(
             val formattedTimeToSend = _formattedTime.value
             val gpsPointsWrapper = GpsRequest(formattedTimeToSend,mapOf("gps_points" to gpsPoints.map { listOf(it.latitude, it.longitude) }))
             try {
-//                val apiService = RetrofitClient.getInstance().create(GpsRepository::class.java)
-                val apiService = RetrofitLocalClient.instance.create(GpsRepository::class.java)
+//                val apiService = RetrofitLocalClient.instance.create(GpsRepository::class.java)
                 Log.i("LocationTracking", "전송 데이터 : ${gpsPointsWrapper}")
                 val retrofitResponse = apiService.sendGpsTrackingData(gpsPointsWrapper)
                 if (retrofitResponse.isSuccessful) {

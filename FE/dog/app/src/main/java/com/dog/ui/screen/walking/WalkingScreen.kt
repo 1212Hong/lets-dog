@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,7 +24,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.dog.data.Screens
 import com.dog.data.viewmodel.map.LocationTrackingViewModel
 import com.dog.ui.theme.DogTheme
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -39,11 +45,30 @@ import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
-fun WalkingScreen(navController: NavController) {
-    val context = LocalContext.current
-    val viewModel = LocationTrackingViewModel(context = context)
+fun WalkingScreen(navController: NavController, viewModel: LocationTrackingViewModel) {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+
     DogTheme {
-        WalkingPage(viewModel = viewModel)
+        Column(modifier = Modifier.fillMaxSize()) {//TODO: Box로 해야하는데 안보이는 버그
+            Row(
+                modifier = Modifier
+//                    .align(Alignment.TopCenter)
+                    .padding(top = 16.dp)
+            ) {
+                if (currentRoute == Screens.WalkingHistory.route) {
+                    Button(onClick = { navController.navigate(Screens.Walking.route) }) {
+                        Text("트래킹")
+                    }
+                } else {
+                    Button(onClick = { navController.navigate(Screens.WalkingHistory.route) }) {
+                        Text("기록")
+                    }
+                }
+            }
+            WalkingPage(viewModel = viewModel)
+        }
     }
 }
 
@@ -53,7 +78,7 @@ fun WalkingPage(viewModel: LocationTrackingViewModel) {
     val pathPoints by viewModel.pathPoints.collectAsState()
     val initialPosition = userLocation ?: LatLng(0.0, 0.0)
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(initialPosition, 15f)
+        position = CameraPosition.fromLatLngZoom(initialPosition, 17f)
     }
 
     UpdateCameraPosition(userLocation, cameraPositionState)
@@ -182,11 +207,3 @@ private fun ControlButtons(viewModel: LocationTrackingViewModel, isRunning: Bool
     }
 }
 
-
-//@Preview(showBackground = true)
-//@Composable
-//fun DefaultPreview() {
-//    val context = LocalContext.current
-//    val viewModel = LocationTrackingViewModel(context)
-//    WalkingPage(viewModel = viewModel)
-//}

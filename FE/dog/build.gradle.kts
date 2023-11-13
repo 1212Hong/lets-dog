@@ -1,6 +1,7 @@
 buildscript {
     dependencies {
         classpath("com.google.gms:google-services:4.4.0")
+        classpath("com.google.dagger:hilt-android-gradle-plugin:2.44")
     }
 }
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
@@ -10,4 +11,6 @@ plugins {
 
     // FCM 관련 안드로이드 설정
     id("com.google.gms.google-services") version "4.3.15" apply false
+
+    kotlin("kapt") version "1.8.10"
 }

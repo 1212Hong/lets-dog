@@ -12,13 +12,25 @@ import com.dog.data.local.chatList
 import com.dog.data.model.Chat
 import com.dog.data.model.chat.ChatroomInfo
 import com.dog.data.repository.ChatRepository
+import com.dog.data.repository.GpsRepository
+import com.dog.util.common.DataStoreManager
 import com.dog.util.common.RetrofitClient
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class ChatViewModel : ViewModel() {
+@HiltViewModel
+class ChatViewModel @Inject constructor(
+    private val dataStoreManager: DataStoreManager
+)  : ViewModel() {
+
+    private val interceptor = RetrofitClient.RequestInterceptor(dataStoreManager)
+    private val chatApi: ChatRepository = RetrofitClient.getInstance(interceptor).create(
+        ChatRepository::class.java)
+
     // 채팅 정보 저장
     private val _chatState = MutableStateFlow(chatList)
     val chatState: StateFlow<List<Chat>> = _chatState.asStateFlow()
@@ -28,8 +40,7 @@ class ChatViewModel : ViewModel() {
     val loading: State<Boolean> get() = _loading
 
     // Retrofit 인터페이스를 사용하려면 여기서 인스턴스를 생성합니다.
-    private val chatApi: ChatRepository =
-        RetrofitClient.getInstance().create(ChatRepository::class.java)
+
     var curMessage by mutableStateOf("")
 
 

@@ -7,11 +7,22 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dog.data.model.user.SignInRequest
 import com.dog.data.model.user.SignUpRequest
+import com.dog.data.repository.MatchingRepository
 import com.dog.data.repository.UserRepository
+import com.dog.util.common.DataStoreManager
 import com.dog.util.common.RetrofitClient
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class UserViewModel : ViewModel() {
+@HiltViewModel
+class UserViewModel @Inject constructor(
+    private val dataStoreManager: DataStoreManager
+) : ViewModel() {
+    private val interceptor = RetrofitClient.RequestInterceptor(dataStoreManager)
+    private val userApi: UserRepository = RetrofitClient.getInstance(interceptor).create(
+        UserRepository::class.java)
+
     // 유저 정보 저장
     private
     val _userState = mutableStateOf(UserState())
@@ -24,9 +35,6 @@ class UserViewModel : ViewModel() {
     val errMsg: State<String> get() = _errMsg
 
 
-    // Retrofit 인터페이스를 사용하려면 여기서 인스턴스를 생성합니다.
-    private val userApi: UserRepository =
-        RetrofitClient.getInstance().create(UserRepository::class.java)
 
     suspend fun login(id: String, pw: String) {
         viewModelScope.launch {
@@ -44,6 +52,7 @@ class UserViewModel : ViewModel() {
                         // 여기에서 처리
                         // 토큰 저장
                         _jwtToken.value = token
+                        dataStoreManager.saveToken(token)
                         _isLogin.value = true
                         Log.d("login", signInResponse.toString())
                         if (_isLogin.value) {

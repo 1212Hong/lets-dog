@@ -15,6 +15,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.window.DialogProperties
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.dog.data.viewmodel.user.UserViewModel
@@ -56,8 +57,7 @@ fun DogApp(onPermissionDenied: () -> Unit) {
         val context = LocalContext.current
         val store = DataStoreManager(context)
         val tokenText = store.getAccessToken.collectAsState(initial = "test").value
-        val isTokenEmpty = tokenText.isEmpty()
-        val userViewModel: UserViewModel = viewModel()
+        val userViewModel: UserViewModel = hiltViewModel()
 
         AppNavigation(navController, userViewModel, store)
     } else {

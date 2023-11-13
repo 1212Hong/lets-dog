@@ -2,6 +2,7 @@ package com.dog.data.repository
 
 import com.dog.data.model.gps.GpsRequest
 import com.dog.data.model.gps.TrackingHistory
+import com.dog.data.model.gps.TrackingHistoryResponse
 import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.Body
@@ -14,6 +15,6 @@ interface GpsRepository {
     suspend fun sendGpsTrackingData(@Body gpsRequest: GpsRequest): Response<Unit>
 
     @GET("gps")
-    suspend fun getTrackingHistory(): Response<List<TrackingHistory>>
+    suspend fun getTrackingHistory(): Response<TrackingHistoryResponse>
 
 }
