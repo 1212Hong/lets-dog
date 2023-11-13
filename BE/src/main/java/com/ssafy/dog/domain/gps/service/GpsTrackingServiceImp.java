@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.ssafy.dog.common.error.ErrorCode;
@@ -40,6 +41,7 @@ public class GpsTrackingServiceImp implements GpsTrackingService {
 
 	@Override
 	public List<GpsTrackingResponse> findTrackingDataByUserLoginId(String userLoginId, String order) {
+		Sort sort = Sort.by("trackingDate");
 		sort = order.equalsIgnoreCase("asc") ? sort.ascending() : sort.descending();
 		Pageable pageable = PageRequest.of(PAGE, SIZE, sort);
 
