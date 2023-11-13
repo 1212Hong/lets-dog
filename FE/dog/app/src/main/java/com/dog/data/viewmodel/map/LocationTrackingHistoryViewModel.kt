@@ -8,13 +8,13 @@ import com.dog.data.model.gps.TrackingHistory
 import com.dog.data.repository.GpsRepository
 import com.dog.util.common.DataStoreManager
 import com.dog.util.common.RetrofitClient
-import com.dog.util.common.RetrofitLocalClient
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
 @HiltViewModel
 class LocationTrackingHistoryViewModel @Inject constructor(
     @ApplicationContext context: Context,
@@ -22,7 +22,8 @@ class LocationTrackingHistoryViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val interceptor = RetrofitClient.RequestInterceptor(dataStoreManager)
-    private val apiService: GpsRepository = RetrofitClient.getInstance(interceptor).create(GpsRepository::class.java)
+    private val apiService: GpsRepository =
+        RetrofitClient.getInstance(interceptor).create(GpsRepository::class.java)
 
 
     private val _trackingHistory = MutableStateFlow<List<TrackingHistory>>(emptyList())
@@ -46,6 +47,7 @@ class LocationTrackingHistoryViewModel @Inject constructor(
             }
         }
     }
+
     init {
         getTrackingHistory()
     }

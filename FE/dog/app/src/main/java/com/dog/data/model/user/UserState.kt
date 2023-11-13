@@ -17,3 +17,17 @@ data class LoginBody(
     val userPicture: String,
     val jwt: String
 )
+
+data class UserBody(
+    val userId: Int,
+    val userLoginId: String,
+    val userNickname: String,
+    val userPhone: String,
+    val userPicture: String,
+    val userAboutMe: String?,
+    val userGender: String?,
+    val userLatitude: Double,
+    val userLongitude: Double,
+    val userAddress: String,
+    val userIsRemoved: Boolean
+)

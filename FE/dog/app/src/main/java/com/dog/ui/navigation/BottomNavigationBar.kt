@@ -2,7 +2,6 @@ package com.dog.ui.navigation
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -11,10 +10,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
@@ -24,26 +21,25 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.dog.data.Screens
-import com.dog.data.viewmodel.map.LocationTrackingHistoryViewModel
 import com.dog.data.viewmodel.map.LocationTrackingViewModel
+import com.dog.data.viewmodel.user.UserViewModel
 import com.dog.ui.screen.HomeScreen
 import com.dog.ui.screen.MatchingScreen
 import com.dog.ui.screen.MypageScreen
-import com.dog.ui.screen.walking.WalkingScreen
 import com.dog.ui.screen.chat.ChatListScreen
 import com.dog.ui.screen.chat.ChattingScreen
 import com.dog.ui.screen.walking.WalkingHistoryScreen
+import com.dog.ui.screen.walking.WalkingScreen
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BottomNavigationBar(startRoute: String) {
+fun BottomNavigationBar(startRoute: String, userViewModel: UserViewModel) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
     var shouldShowBottomBar = rememberSaveable { (mutableStateOf(true)) }
-    val LocalTrackingViewModel:LocationTrackingViewModel = hiltViewModel()
+    val LocalTrackingViewModel: LocationTrackingViewModel = hiltViewModel()
 
     when (navBackStackEntry?.destination?.route) {
         // "roomId" 값이 1이 아닌 경우에 대한 조건을 추가합니다.
@@ -107,7 +103,8 @@ fun BottomNavigationBar(startRoute: String) {
         ) {
             composable(Screens.Home.route) {
                 HomeScreen(
-                    navController
+                    navController,
+                    userViewModel
                 )
             }
             composable(Screens.Walking.route) {
@@ -118,8 +115,7 @@ fun BottomNavigationBar(startRoute: String) {
             }
             composable(Screens.WalkingHistory.route) {
                 WalkingHistoryScreen(
-                    navController
-                    ,LocalTrackingViewModel
+                    navController, LocalTrackingViewModel
                 )
             }
 
@@ -135,7 +131,8 @@ fun BottomNavigationBar(startRoute: String) {
             }
             composable(Screens.Mypage.route) {
                 MypageScreen(
-                    navController
+                    navController,
+                    userViewModel
                 )
             }
             composable(

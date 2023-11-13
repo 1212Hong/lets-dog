@@ -13,26 +13,27 @@ import com.dog.data.model.common.ResponseBodyResult
 import com.dog.data.model.matching.MatchingUserResponse
 import com.dog.data.repository.FriendRepository
 import com.dog.data.repository.MatchingRepository
-import com.dog.data.repository.UserRepository
 import com.dog.util.common.DataStoreManager
 import com.dog.util.common.RetrofitClient
-import com.dog.util.common.RetrofitLocalClient
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
 @HiltViewModel
-class MatchingViewModel@Inject constructor(
+class MatchingViewModel @Inject constructor(
     private val dataStoreManager: DataStoreManager
 ) : ViewModel() {
 
     private val interceptor = RetrofitClient.RequestInterceptor(dataStoreManager)
     private val MatchingApi: MatchingRepository = RetrofitClient.getInstance(interceptor).create(
-        MatchingRepository::class.java)
+        MatchingRepository::class.java
+    )
     private val FriendApi: FriendRepository = RetrofitClient.getInstance(interceptor).create(
-        FriendRepository::class.java)
+        FriendRepository::class.java
+    )
 
     private val _users = mutableStateListOf<MatchingUserResponse>()
     val users: List<MatchingUserResponse> get() = _users
@@ -100,7 +101,8 @@ class MatchingViewModel@Inject constructor(
                     val gson = Gson()
                     val typeToken = object : TypeToken<Response<ResponseBodyResult>>() {}.type
                     try {
-                        val errorResponse: Response<ResponseBodyResult> = gson.fromJson(errorBody, typeToken)
+                        val errorResponse: Response<ResponseBodyResult> =
+                            gson.fromJson(errorBody, typeToken)
                         Log.e("senFriendRequest", "${errorResponse.result.message}")
                         _toastMessage.value = errorResponse.result.description
                     } catch (e: JsonSyntaxException) {

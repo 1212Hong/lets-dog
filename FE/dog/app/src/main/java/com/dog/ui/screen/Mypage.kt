@@ -19,6 +19,8 @@ import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -28,18 +30,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.dog.data.local.person
-import com.dog.data.model.Person
-import com.dog.ui.components.MainButton
+import com.dog.data.model.user.UserBody
+import com.dog.data.viewmodel.user.UserViewModel
 import com.dog.ui.theme.DogTheme
 import com.dog.ui.theme.Pink400
 import com.dog.ui.theme.Purple400
 import com.dog.ui.theme.Purple500
 
 @Composable
-fun MypageScreen(navController: NavController) {
+fun MypageScreen(navController: NavController, userViewModel: UserViewModel) {
     var selectedTabIndex by remember { mutableIntStateOf(0) }
-    var user = person
+    val user by userViewModel.userInfo.collectAsState()
+    LaunchedEffect(Unit) {
+        userViewModel.getUser()
+    }
     var images = listOf(
         // List of image URLs or resource IDs
         "test1",
@@ -71,7 +75,7 @@ fun MypageScreen(navController: NavController) {
                     text = "#귀여움 #소형견",
                     style = MaterialTheme.typography.bodySmall
                 )
-                UserInfo(user)
+                user?.let { UserInfo(it) }
                 EditProfileButton(navController) // 본인이면 내정보를 편집할 페이지로
                 FriendButtons()
 
@@ -156,9 +160,10 @@ fun ProfileImage() {
 }
 
 @Composable
-fun UserInfo(user: Person) {
+fun UserInfo(user: UserBody) {
+
     Text(
-        text = user.name,
+        text = user.userNickname,
         style = MaterialTheme.typography.headlineMedium,
         modifier = Modifier.padding(vertical = 8.dp)
     )
@@ -225,6 +230,16 @@ fun EditProfileButton(navController: NavController) {
     ) {
         Text(text = "프로필 편집")
     }
+    Button(
+        onClick = {
+            // navController.navigate("edit_dog")
+        },
+        modifier = Modifier
+            .padding(vertical = 16.dp)
+            .fillMaxWidth()
+    ) {
+        Text(text = "내 강아지 편집")
+    }
 }
 
 @Composable
@@ -233,7 +248,16 @@ fun FriendButtons() {
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceAround
     ) {
-        MainButton(onClick = {}, text = "친구 신청")
-        MainButton(onClick = {}, text = "차단")
+        Button(
+            onClick = {
+                // 친구 신청
+            },
+            modifier = Modifier
+                .padding(vertical = 16.dp)
+                .fillMaxWidth()
+        ) {
+            Text(text = "친구 신청")
+        }
+
     }
 }

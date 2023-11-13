@@ -1,5 +1,6 @@
 package com.dog.ui.components.signin
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -17,7 +18,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -31,13 +31,13 @@ import showCustomToast
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SigninItem(userViewModel: UserViewModel) {
+fun SigninItem(userViewModel: UserViewModel, context: Context) {
 
     val passwordVector = painterResource(id = R.drawable.password_eye)
     val emailValue = remember { mutableStateOf("") }
     val passwordValue = remember { mutableStateOf("") }
     val passwordVisibility = remember { mutableStateOf(false) }
-    val context = LocalContext.current
+//    val context = LocalContext.current
 
     val loginAction = suspend {
         coroutineScope {
