@@ -50,11 +50,11 @@ public class GpsTrackingServiceImp implements GpsTrackingService {
 
 		Page<GpsTracking> trackingList = gpsTrackingRepository.findAllByUserLoginIdAndStatus(
 			userLoginId, Status.AVAILABLE, pageable);
-
+		
 		List<GpsTrackingResponse> content = trackingList.getContent().stream()
 			.map(GpsTrackingResponse::toResponse)
 			.collect(Collectors.toList());
-		
+
 		return new GpsTrackingDataResponse(
 			content,
 			trackingList.getTotalPages(),

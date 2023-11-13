@@ -8,6 +8,7 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Query
 
 interface GpsRepository {
 
@@ -15,6 +16,6 @@ interface GpsRepository {
     suspend fun sendGpsTrackingData(@Body gpsRequest: GpsRequest): Response<Unit>
 
     @GET("gps")
-    suspend fun getTrackingHistory(): Response<TrackingHistoryResponse>
+    suspend fun getTrackingHistory(@Query("page") page: Int, @Query("size") size: Int = 6): Response<TrackingHistoryResponse>
 
 }

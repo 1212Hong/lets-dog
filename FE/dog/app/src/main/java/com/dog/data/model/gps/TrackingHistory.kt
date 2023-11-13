@@ -4,10 +4,14 @@ import com.dog.data.model.common.ResponseBodyResult
 
 data class TrackingHistoryResponse(
     val result: ResponseBodyResult,
-    val body: List<TrackingHistory>
+    val body: Body,
 )
 
-
+data class Body(
+    val contents: List<TrackingHistory>,
+    val totalPages: Int,
+    val totalElements: Long
+)
 data class TrackingHistory(
     val id: String,
     val trackingDate: String,
