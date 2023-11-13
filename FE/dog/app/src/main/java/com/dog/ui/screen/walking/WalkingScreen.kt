@@ -13,6 +13,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -21,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -49,13 +51,14 @@ fun WalkingScreen(navController: NavController, viewModel: LocationTrackingViewM
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-
     DogTheme {
-        Column(modifier = Modifier.fillMaxSize()) {//TODO: Box로 해야하는데 안보이는 버그
+        Box(modifier = Modifier.fillMaxSize()) {
+            WalkingPage(viewModel = viewModel)
             Row(
                 modifier = Modifier
-//                    .align(Alignment.TopCenter)
+                    .align(Alignment.TopCenter)
                     .padding(top = 16.dp)
+                    .zIndex(1f)
             ) {
                 if (currentRoute == Screens.WalkingHistory.route) {
                     Button(onClick = { navController.navigate(Screens.Walking.route) }) {
@@ -67,7 +70,6 @@ fun WalkingScreen(navController: NavController, viewModel: LocationTrackingViewM
                     }
                 }
             }
-            WalkingPage(viewModel = viewModel)
         }
     }
 }
@@ -78,7 +80,11 @@ fun WalkingPage(viewModel: LocationTrackingViewModel) {
     val pathPoints by viewModel.pathPoints.collectAsState()
     val initialPosition = userLocation ?: LatLng(0.0, 0.0)
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(initialPosition, 17f)
+        position = CameraPosition.fromLatLngZoom(initialPosition, 18f)
+    }
+
+    LaunchedEffect(key1 = true) {
+        viewModel.updateLocationOnly()
     }
 
     UpdateCameraPosition(userLocation, cameraPositionState)
@@ -98,7 +104,7 @@ private fun UpdateCameraPosition(
                     .zoom(cameraPositionState.position.zoom)
                     .build()
             )
-            cameraPositionState.animate(update, 2000)
+            cameraPositionState.animate(update, 1000)
         }
     }
 }

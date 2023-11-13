@@ -1,8 +1,5 @@
 package com.dog.util.common
 
-import android.util.Log
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient

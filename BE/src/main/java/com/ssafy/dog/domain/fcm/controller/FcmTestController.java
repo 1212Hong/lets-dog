@@ -23,7 +23,7 @@ public class FcmTestController {
 	@PostMapping
 	public Api<String> createNotification(@RequestBody FCMTestDto fcmTestDto) {
 		log.info("시작");
-		String response = firebaseService.sendNotification(fcmTestDto.getContent(), fcmTestDto.getToken());
+		String response = firebaseService.sendNotification(fcmTestDto);
 		log.info(response);
 		return Api.ok(response);
 	}

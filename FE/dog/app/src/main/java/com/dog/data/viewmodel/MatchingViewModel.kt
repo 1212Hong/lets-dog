@@ -6,6 +6,9 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dog.data.model.common.Response
@@ -23,17 +26,15 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MatchingViewModel @Inject constructor(
+class MatchingViewModel@Inject constructor(
     private val dataStoreManager: DataStoreManager
-) : ViewModel() {
+) : ViewModel(), LifecycleEventObserver {
 
     private val interceptor = RetrofitClient.RequestInterceptor(dataStoreManager)
     private val MatchingApi: MatchingRepository = RetrofitClient.getInstance(interceptor).create(
-        MatchingRepository::class.java
-    )
+        MatchingRepository::class.java)
     private val FriendApi: FriendRepository = RetrofitClient.getInstance(interceptor).create(
-        FriendRepository::class.java
-    )
+        FriendRepository::class.java)
 
     private val _users = mutableStateListOf<MatchingUserResponse>()
     val users: List<MatchingUserResponse> get() = _users
@@ -101,8 +102,7 @@ class MatchingViewModel @Inject constructor(
                     val gson = Gson()
                     val typeToken = object : TypeToken<Response<ResponseBodyResult>>() {}.type
                     try {
-                        val errorResponse: Response<ResponseBodyResult> =
-                            gson.fromJson(errorBody, typeToken)
+                        val errorResponse: Response<ResponseBodyResult> = gson.fromJson(errorBody, typeToken)
                         Log.e("senFriendRequest", "${errorResponse.result.message}")
                         _toastMessage.value = errorResponse.result.description
                     } catch (e: JsonSyntaxException) {
@@ -119,6 +119,12 @@ class MatchingViewModel @Inject constructor(
 
     fun clearToastMessage() {
         _toastMessage.value = null
+    }
+
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+        if (event == Lifecycle.Event.ON_RESUME) {
+            loadUsersFromApi()
+        }
     }
 
 }

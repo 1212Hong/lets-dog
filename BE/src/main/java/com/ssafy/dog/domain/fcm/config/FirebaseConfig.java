@@ -18,7 +18,7 @@ public class FirebaseConfig {
 	@PostConstruct
 	public void initialize() {
 		try {
-
+			// resources에서 json 조회
 			FirebaseOptions options = new FirebaseOptions.Builder()
 				.setCredentials(GoogleCredentials.fromStream(
 					new ClassPathResource("firebase-adminsdk.json").getInputStream())).build();

@@ -21,6 +21,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.dog.data.Screens
+import com.dog.data.viewmodel.map.LocationTrackingHistoryViewModel
 import com.dog.data.viewmodel.map.LocationTrackingViewModel
 import com.dog.data.viewmodel.user.UserViewModel
 import com.dog.ui.screen.HomeScreen
@@ -39,7 +40,8 @@ fun BottomNavigationBar(startRoute: String, userViewModel: UserViewModel) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
     var shouldShowBottomBar = rememberSaveable { (mutableStateOf(true)) }
-    val LocalTrackingViewModel: LocationTrackingViewModel = hiltViewModel()
+    val locationTrackingViewModel: LocationTrackingViewModel = hiltViewModel()
+    val locationTrackingHistoryViewModel: LocationTrackingHistoryViewModel = hiltViewModel()
 
     when (navBackStackEntry?.destination?.route) {
         // "roomId" 값이 1이 아닌 경우에 대한 조건을 추가합니다.
@@ -103,19 +105,19 @@ fun BottomNavigationBar(startRoute: String, userViewModel: UserViewModel) {
         ) {
             composable(Screens.Home.route) {
                 HomeScreen(
-                    navController,
-                    userViewModel
+                    navController
                 )
             }
             composable(Screens.Walking.route) {
                 WalkingScreen(
                     navController,
-                    LocalTrackingViewModel
+                    locationTrackingViewModel
                 )
             }
             composable(Screens.WalkingHistory.route) {
                 WalkingHistoryScreen(
-                    navController, LocalTrackingViewModel
+                    navController, locationTrackingViewModel,
+                    locationTrackingHistoryViewModel
                 )
             }
 

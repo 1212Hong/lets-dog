@@ -16,22 +16,12 @@ fun AppNavigation(
     userViewModel: UserViewModel = hiltViewModel(),
 ) {
     var startRoute = Screens.Home.route
-    // Token이 비어있으면 로그인 화면을 표시하고, 그렇지 않으면 BottomNavigationBar를 표시합니다.
-
     val isLogin = userViewModel.isLogin.value
-
-    if (isLogin) {
-        // 로그인이 성공한 경우 홈 화면으로 이동
-        startRoute = Screens.Home.route
-    } else {
-        // 로그인이 되어있지 않은 경우 로그인 또는 회원 가입 화면 표시
-        startRoute = Screens.Signin.route
-    }
     if (!isLogin) {
-        // Token이 비어있는 경우: 로그인 또는 회원 가입 화면을 표시
+        // Token이 비어있는 경우(로그인 안된 경우) : 로그인 또는 회원 가입 화면을 표시
         // 이후 Token을 저장하고 앱의 다음 단계로 이동합니다.
         NavHost(
-            navController = navController, startDestination = startRoute
+            navController = navController, startDestination = Screens.Signin.route
         ) {
             composable(Screens.Signup.route) {
                 SignupScreen(navController, userViewModel)
@@ -44,6 +34,4 @@ fun AppNavigation(
         // Token이 있는 경우: BottomNavigationBar를 표시
         BottomNavigationBar(startRoute, userViewModel)
     }
-
-
 }

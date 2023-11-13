@@ -1,7 +1,5 @@
 package com.ssafy.dog.domain.gps.controller;
 
-import java.util.List;
-
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ssafy.dog.common.api.Api;
+import com.ssafy.dog.domain.gps.dto.GpsTrackingDataResponse;
 import com.ssafy.dog.domain.gps.dto.GpsTrackingDeleteRequest;
 import com.ssafy.dog.domain.gps.dto.GpsTrackingResponse;
 import com.ssafy.dog.domain.gps.dto.GpsTrackingSaveRequest;
@@ -33,20 +32,24 @@ public class GpsTrackingController {
 	}
 
 	@GetMapping("/gps/{userLoginId}")
-	public Api<List<GpsTrackingResponse>> getAllGpsTrackingData(
+	public Api<GpsTrackingDataResponse> getAllGpsTrackingData(
 		@PathVariable(name = "userLoginId") String userLoginId,
-		@RequestParam(name = "order", defaultValue = "desc") String order) {
-		List<GpsTrackingResponse> gpsTrackingResponseList = gpsTrackingService.findTrackingDataByUserLoginId(
-			userLoginId, order);
-		return Api.ok(gpsTrackingResponseList);
+		@RequestParam(name = "order", defaultValue = "desc") String order,
+		@RequestParam(name = "page", defaultValue = "0") int page,
+		@RequestParam(name = "size", defaultValue = "5") int size) {
+		GpsTrackingDataResponse gpsTrackingResponse = gpsTrackingService.findTrackingDataByUserLoginId(
+			userLoginId, page, size, order);
+		return Api.ok(gpsTrackingResponse);
 	}
 
 	@GetMapping("/gps")
-	public Api<List<GpsTrackingResponse>> getAllMyGpsTrackingData(
-		@RequestParam(name = "order", defaultValue = "desc") String order) {
-		List<GpsTrackingResponse> gpsTrackingResponseList = gpsTrackingService.findTrackingDataByUserLoginId(
-			null, order);
-		return Api.ok(gpsTrackingResponseList);
+	public Api<GpsTrackingDataResponse> getAllMyGpsTrackingData(
+		@RequestParam(name = "order", defaultValue = "desc") String order,
+		@RequestParam(name = "page", defaultValue = "0") int page,
+		@RequestParam(name = "size", defaultValue = "5") int size) {
+		GpsTrackingDataResponse gpsTrackingResponse = gpsTrackingService.findTrackingDataByUserLoginId(
+			null, page, size, order);
+		return Api.ok(gpsTrackingResponse);
 	}
 
 	@DeleteMapping("/gps")

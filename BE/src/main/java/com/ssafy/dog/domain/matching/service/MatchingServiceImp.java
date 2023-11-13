@@ -1,5 +1,6 @@
 package com.ssafy.dog.domain.matching.service;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -62,13 +63,17 @@ public class MatchingServiceImp implements MatchingService {
 		}
 		// List<User> filteredByDistance3kmUsers = filteredByDistance3km(user.get(), matchingCandidates);
 
-		return sortByDogDisposition(user.get(), matchingCandidates);
+		return pickRandomUsers(sortByDogDisposition(user.get(), matchingCandidates));
 	}
 
 	private List<User> sortByDogDisposition(User user, List<User> candidates) {
 		List<Dog> dogs = user.getDogs();
 		Set<DogDisposition> userDogDispositionSet = createDogDispositionSet(dogs);
 		return candidates.stream()
+			.filter(candidate -> {
+				Set<DogDisposition> candidateDispositionSet = createDogDispositionSet(candidate.getDogs());
+				return !Collections.disjoint(userDogDispositionSet, candidateDispositionSet);
+			})
 			.sorted((user1, user2) -> {
 				Set<DogDisposition> user1DispositionSet = createDogDispositionSet(user1.getDogs());
 				Set<DogDisposition> user2DispositionSet = createDogDispositionSet(user2.getDogs());
@@ -79,6 +84,14 @@ public class MatchingServiceImp implements MatchingService {
 				return Integer.compare(count2, count1);
 			})
 			.collect(Collectors.toList());
+	}
+
+	private List<User> pickRandomUsers(List<User> users) {
+		if (users.size() > 7) {
+			Collections.shuffle(users);
+			return users.subList(0, 7);
+		}
+		return users;
 	}
 
 	private int countIntersection(Set<DogDisposition> dog1, Set<DogDisposition> dog2) {
