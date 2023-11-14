@@ -112,7 +112,7 @@ fun SignupScreen(navController: NavController, userViewModel: UserViewModel) {
             }
         }
 
-        navController.navigate(Screens.Home.route)
+        navController.navigate(Screens.Signin.route)
     }
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
@@ -186,7 +186,7 @@ fun SignupScreen(navController: NavController, userViewModel: UserViewModel) {
                 )
                 MainButton(
                     modifier = Modifier.fillMaxWidth(),
-                    text = "인증", onClick = validateEmail
+                    text = "인증", onClick = checkCode
                 )
             }
 
