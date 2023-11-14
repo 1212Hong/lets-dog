@@ -25,12 +25,8 @@ import com.dog.R
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun ImageLoader(imageUrl: String, modifier: Modifier = Modifier, type:String = "") {
-    val JWT_TOKEN =
-        "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMDEiLCJhdXRoIjoiUk9MRV9VU0VSIiwiZXhwIjoxNzMwOTQwMTgyfQ.K0cFACWvETHE4yZwyNB3ebDgMwGI2_RIC--Sc8MD8jw"
-
     val glideUrl = GlideUrl(
         imageUrl, LazyHeaders.Builder()
-            .addHeader("Authorization", "Bearer $JWT_TOKEN")
             .build()
     )
     if (type == "thumbnail") {

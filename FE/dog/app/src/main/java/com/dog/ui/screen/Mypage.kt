@@ -38,9 +38,13 @@ import com.dog.ui.theme.Purple400
 import com.dog.ui.theme.Purple500
 
 @Composable
-fun MypageScreen(navController: NavController, userViewModel: UserViewModel) {
+fun MypageScreen(
+    navController: NavController, userViewModel: UserViewModel,
+    userNickname: String
+) {
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val user by userViewModel.userInfo.collectAsState()
+    val nickname = user?.userNickname
     LaunchedEffect(Unit) {
         userViewModel.getUser()
     }
@@ -77,7 +81,9 @@ fun MypageScreen(navController: NavController, userViewModel: UserViewModel) {
                 )
                 user?.let { UserInfo(it) }
                 EditProfileButton(navController) // 본인이면 내정보를 편집할 페이지로
-                FriendButtons()
+                if (nickname != null) {
+                    FriendButtons(nickname)
+                }
 
                 // 탭 선택
                 TabRow(
@@ -243,7 +249,7 @@ fun EditProfileButton(navController: NavController) {
 }
 
 @Composable
-fun FriendButtons() {
+fun FriendButtons(nickname: String) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceAround

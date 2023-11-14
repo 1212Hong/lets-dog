@@ -5,12 +5,16 @@ import com.dog.data.model.matching.Dog
 
 data class FriendApiResponse(
     val result: ResponseBodyResult,
-    val body: List<FriendResponse>
+    val body: FriendResponse
 )
 
 data class FriendResponse(
     val senderNickname: String,
     val receiverNickname: String,
     val status: String,
+)
 
+data class FriendRequestResponse(
+    val result: ResponseBodyResult,
+    val body: List<UserBody>
 )

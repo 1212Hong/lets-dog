@@ -61,8 +61,12 @@ class UserViewModel @Inject constructor(
                     val loginBody = response.body()?.body
                     if (response.body()?.body != null) {
                         val token = loginBody?.jwt
+                        val userNickname = loginBody?.userNickname
+                        val userLoginId = loginBody?.userLoginId
+
                         _jwtToken.value = token
                         dataStoreManager.saveToken(token)
+                        dataStoreManager.saveUserDetails(userNickname, userLoginId)
                         _userState.value?.name = loginBody?.userNickname.toString()
                         _isLogin.value = true
                         Log.d("login", loginBody.toString())
@@ -125,18 +129,21 @@ class UserViewModel @Inject constructor(
         }
     }
 
+
+
     suspend fun getUser() {
         viewModelScope.launch {
             try {
                 val response =
                     userApi.getUserInfo(_userState.value!!.name)
+                Log.i("getuser", "저장된 유저 이름 ${_userState.value!!.name}")
                 if (response.isSuccessful && response.body() != null) {
                     val getUserBody = response.body()?.body
                     _userInfo.value = getUserBody
-                    Log.d("userInfo_success", getUserBody.toString())
+                    Log.d("getuser", "리턴 유저 정보 : $getUserBody")
                 } else {
                     // 서버에서 올바르지 않은 응답을 반환한 경우
-                    Log.e("userInfo_fail", response.errorBody().toString())
+                    Log.e("getuser", response.errorBody().toString())
 
                     _message.value = response.errorBody().toString()
                 }
