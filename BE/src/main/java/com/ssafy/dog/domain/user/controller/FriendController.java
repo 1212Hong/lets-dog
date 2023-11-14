@@ -2,6 +2,7 @@ package com.ssafy.dog.domain.user.controller;
 
 import com.ssafy.dog.common.api.Api;
 import com.ssafy.dog.domain.user.dto.response.FriendRequestResDto;
+import com.ssafy.dog.domain.user.dto.response.FriendUnfriendRes;
 import com.ssafy.dog.domain.user.dto.response.UserReadRes;
 import com.ssafy.dog.domain.user.service.FriendService;
 import com.ssafy.dog.domain.user.service.UserService;
@@ -12,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RequestMapping("/api/friend")
 @RequiredArgsConstructor
@@ -30,7 +32,7 @@ public class FriendController {
 
     @PostMapping("/decline/{requesterNickname}")
     @Operation(summary = "친구 신청 거절")
-    public Api<FriendRequestResDto> declineFriendRequest(@PathVariable String requesterNickname) {
+    public Api<FriendUnfriendRes> declineFriendRequest(@PathVariable String requesterNickname) {
 
         return friendService.declineFriendRequest(SecurityUtils.getUserId(), requesterNickname);
     }
@@ -44,7 +46,7 @@ public class FriendController {
 
     @DeleteMapping("/unfriend/{friendNickname}")
     @Operation(summary = "친구 끊기")
-    public Api<String> unfriend(@PathVariable String friendNickname) {
+    public Api<Map<String, String>> unfriend(@PathVariable String friendNickname) {
         return friendService.unfriend(SecurityUtils.getUserId(), friendNickname);
     }
 
@@ -60,7 +62,7 @@ public class FriendController {
         return friendService.getUsersReceivedFriendRequests(SecurityUtils.getUserId());
     }
 
-    @GetMapping("/friendlist")
+    @GetMapping("/friend-list")
     @Operation(summary = "친구 목록 불러오기")
     public Api<List<UserReadRes>> getFriendsList() {
         return friendService.getFriendsList(SecurityUtils.getUserId());
