@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ssafy.dog.common.api.Api;
 import com.ssafy.dog.domain.board.dto.BoardDto;
-import com.ssafy.dog.domain.board.dto.BoardIdReqDto;
 import com.ssafy.dog.domain.board.dto.BoardReqDto;
 import com.ssafy.dog.domain.board.service.BoardService;
 
@@ -39,8 +38,8 @@ public class BoardController {
 
 	@DeleteMapping("/board")
 	@Operation(summary = "BoardId 로 게시글 삭제 하기")
-	public Api<String> deleteBoard(@RequestBody BoardIdReqDto boardIdReqDto) {
-		return boardService.deleteBoard(boardIdReqDto);
+	public Api<String> deleteBoard(@RequestParam Long boardId) {
+		return boardService.deleteBoard(boardId);
 	}
 
 	@GetMapping("/boardnear")

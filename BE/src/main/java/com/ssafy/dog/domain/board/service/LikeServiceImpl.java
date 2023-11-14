@@ -70,9 +70,9 @@ public class LikeServiceImpl implements LikeService {
 	}
 
 	@Transactional
-	public Api<String> deleteLike(BoardIdReqDto boardIdReqDto) {
+	public Api<String> deleteLike(Long boardId) {
 		String userNickname = SecurityUtils.getUser().getUserNickname();
-		Optional<Board> curBoard = boardRepository.findById(boardIdReqDto.getBoardId());
+		Optional<Board> curBoard = boardRepository.findById(boardId);
 		if (curBoard.isEmpty()) {
 			throw new ApiException(BoardErrorCode.BOARD_LIST_IS_EMPTY);
 		}
@@ -90,7 +90,7 @@ public class LikeServiceImpl implements LikeService {
 			if (likelist.getLikeStatus() == FileStatus.DELETE) {
 				continue;
 			}
-			if (Objects.equals(likelist.getBoard().getBoardId(), boardIdReqDto.getBoardId())) {
+			if (Objects.equals(likelist.getBoard().getBoardId(), boardId)) {
 				likelist.changeLikeStatus();
 				likelist.getBoard().decreaseBoardLikes();
 				return Api.ok("좋아요 취소 완료");

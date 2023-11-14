@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ssafy.dog.common.api.Api;
@@ -28,8 +29,8 @@ public class LikeController {
 
 	@DeleteMapping("/like")
 	@Operation(summary = "좋아요 삭제 할 BoardId")
-	public Api<String> deleteLike(@RequestBody BoardIdReqDto boardIdReqDto) {
-		return likeService.deleteLike(boardIdReqDto);
+	public Api<String> deleteLike(@RequestParam Long boardId) {
+		return likeService.deleteLike(boardId);
 	}
 
 }

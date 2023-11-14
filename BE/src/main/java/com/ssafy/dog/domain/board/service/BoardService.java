@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.ssafy.dog.common.api.Api;
 import com.ssafy.dog.domain.board.dto.BoardDto;
-import com.ssafy.dog.domain.board.dto.BoardIdReqDto;
 import com.ssafy.dog.domain.board.dto.BoardReqDto;
 
 public interface BoardService {
@@ -14,6 +13,6 @@ public interface BoardService {
 
 	public Api<List<BoardDto>> findBoardNeararea(double userLatitude, double userLongitude);
 
-	public Api<String> deleteBoard(BoardIdReqDto boardIdReqDto);
+	public Api<String> deleteBoard(Long boardId);
 
 }

@@ -18,7 +18,6 @@ import com.ssafy.dog.common.error.GpsErrorCode;
 import com.ssafy.dog.common.error.UserErrorCode;
 import com.ssafy.dog.common.exception.ApiException;
 import com.ssafy.dog.domain.board.dto.BoardDto;
-import com.ssafy.dog.domain.board.dto.BoardIdReqDto;
 import com.ssafy.dog.domain.board.dto.BoardReqDto;
 import com.ssafy.dog.domain.board.entity.Board;
 import com.ssafy.dog.domain.board.entity.Comment;
@@ -62,7 +61,8 @@ public class BoardServiceImpl implements BoardService {
 
 	@Transactional
 	public Api<String> createBoard(BoardReqDto boardDto) {
-		Optional<User> curUser = userRepository.findByUserNickname(boardDto.getUserNickname());
+		String userNickname = SecurityUtils.getUser().getUserNickname();
+		Optional<User> curUser = userRepository.findByUserNickname(userNickname);
 		if (curUser.isEmpty()) {
 			throw new ApiException(UserErrorCode.USER_NOT_FOUND);
 		}
@@ -132,9 +132,9 @@ public class BoardServiceImpl implements BoardService {
 	}
 
 	@Transactional
-	public Api<String> deleteBoard(BoardIdReqDto boardIdReqDto) {
+	public Api<String> deleteBoard(Long boardId) {
 		Long userId = SecurityUtils.getUserId();
-		Optional<Board> boardOptional = boardRepository.findById(boardIdReqDto.getBoardId());
+		Optional<Board> boardOptional = boardRepository.findById(boardId);
 		Board board = boardOptional.orElseThrow(() -> new ApiException(BoardErrorCode.BOARD_LIST_IS_EMPTY));
 		if (board.getBoardStatus() == FileStatus.DELETE) {
 			throw new ApiException(BoardErrorCode.BOARD_LIST_IS_EMPTY);
@@ -154,7 +154,7 @@ public class BoardServiceImpl implements BoardService {
 
 		// 게시글을 삭제한다.
 		board.removeBoard();
-		return Api.ok(boardIdReqDto.getBoardId() + " 번 게시글 삭제 완료");
+		return Api.ok(boardId + " 번 게시글 삭제 완료");
 	}
 
 	@Transactional
