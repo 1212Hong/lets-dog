@@ -12,7 +12,6 @@ import lombok.Getter;
 
 @Getter
 public class BoardReqDto {
-	private String userNickname;
 	@NotBlank(message = "내용을 입력해주세요")
 	@Max(value = 200, message = "게시글은 200자 이내여야 합니다")
 	private String boardContent;
@@ -20,9 +19,8 @@ public class BoardReqDto {
 	private List<String> fileUrlLists;
 
 	@Builder
-	public BoardReqDto(String userNickname, String boardContent, Scope boardScope,
+	public BoardReqDto(String boardContent, Scope boardScope,
 		List<String> fileUrlLists) {
-		this.userNickname = userNickname;
 		this.boardContent = boardContent;
 		this.boardScope = boardScope;
 		this.fileUrlLists = fileUrlLists;

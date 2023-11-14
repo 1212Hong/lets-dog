@@ -62,7 +62,8 @@ public class BoardServiceImpl implements BoardService {
 
 	@Transactional
 	public Api<String> createBoard(BoardReqDto boardDto) {
-		Optional<User> curUser = userRepository.findByUserNickname(boardDto.getUserNickname());
+		String userNickname = SecurityUtils.getUser().getUserNickname();
+		Optional<User> curUser = userRepository.findByUserNickname(userNickname);
 		if (curUser.isEmpty()) {
 			throw new ApiException(UserErrorCode.USER_NOT_FOUND);
 		}
