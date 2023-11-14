@@ -19,7 +19,6 @@ public class ChatRoomUsers {
 
 	@Indexed
 	private Long userId;
-	// private String email;
 
 	@Builder
 	public ChatRoomUsers(Long chatRoomId, Long userId) {

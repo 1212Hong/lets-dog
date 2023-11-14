@@ -9,7 +9,7 @@ import lombok.Getter;
  */
 @AllArgsConstructor
 @Getter
-public enum ChatErrorCode implements ErrorCodeIfs {
+public enum JWTErrorCode implements ErrorCodeIfs {
 	/*
 	200 OK - 요청 성공
 	201 Created - 요청에 따른 새로운 리소스 생성 성공
@@ -21,10 +21,8 @@ public enum ChatErrorCode implements ErrorCodeIfs {
 	500 Internal Server Error - 서버 에러
 	503 Service Unavailable - 서비스가 이용 불가능함
 	 */
-	CHATROOM_NOT_FOUND(404, 2404, "해당 채팅방이 존재하지 않습니다"),
 
-	ROOM_USER_NOT_FOUND(404, 2404, "채팅방의 접속자가 아닙니다"),
-	JWT_NOT_FOUND(401, 2401, "JWT 토큰이 없습니다");
+	JWT_TOKEN_NOT_VALID(403, 4, "JWT 유효성 검증 실패");
 
 	private final Integer httpStatusCode;
 	private final Integer errorCode;

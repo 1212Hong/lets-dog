@@ -2,7 +2,6 @@ package com.ssafy.dog.domain.chat.filter;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ThreadLocalRandom;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -13,8 +12,11 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.stereotype.Component;
 
+import com.ssafy.dog.common.error.JWTErrorCode;
+import com.ssafy.dog.common.exception.ApiException;
 import com.ssafy.dog.domain.chat.service.ChatRoomService;
 import com.ssafy.dog.domain.chat.service.ChatService;
+import com.ssafy.dog.security.JwtTokenProvider;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,8 +29,7 @@ public class StompHandler implements ChannelInterceptor {
 
 	private final ChatService chatService;
 	private final ChatRoomService chatRoomService;
-
-	// private final JwtUtil jwtUtil;
+	private final JwtTokenProvider jwtTokenProvider;
 
 	/*
 	WebSocket을 통해 들어온 요청이 처리되기 전에 실행된다.
@@ -38,28 +39,9 @@ public class StompHandler implements ChannelInterceptor {
 	@Override
 	public Message<?> preSend(Message<?> message, MessageChannel channel) {
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-		// AccessToken 유효성 검증
-		// Long userId = verifyAccessToken(getAccessToken(accessor));
-		// log.info("StompAccessor = {}", accessor);
-		// StompCommand에 따라서 로직을 분기해서 처리하는 메서드를 호출
-		// handleMessage(Objects.requireNonNull(accessor.getCommand()), accessor, userId);
+
 		handleMessage(Objects.requireNonNull(accessor.getCommand()), accessor);
 
-		// // websocket 연결시 헤더의 jwt token 유효성 검증
-		// if (StompCommand.CONNECT == accessor.getCommand()) {
-		// 	log.info("jwt token 유효성 메소드 진입");
-		// 	// if (StompCommand.CONNECT == accessor.getCommand()) {
-		// 	// 	String authorization = jwtUtil.extractJwt(accessor.getFirstNativeHeader("Authorization"));
-		// 	// 	jwtUtil.parseClaims(authorization);
-		// 	// }
-		//
-		// 	String authToken = accessor.getFirstNativeHeader("Authorization");
-		// 	// if (authToken == null || !jwtProvider.validateJwt(authToken)) {
-		//
-		// 	if (authToken == null) {
-		// 		throw new ApiException(ChatErrorCode.JWT_NOT_FOUND);
-		// 	}
-		// }
 		return message;
 	}
 
@@ -68,62 +50,57 @@ public class StompHandler implements ChannelInterceptor {
 		switch (stompCommand) {
 			case CONNECT:
 				// AccessToken 유효성 검증
-				// Long userId = verifyAccessToken(getAccessToken(accessor));
+				Long userId = verifyAccessToken(getAccessToken(accessor));
 				// 임시로 랜덤생성
-				Long userId = Long.valueOf(ThreadLocalRandom.current().nextInt(1, 4));
+				// Long userId = Long.valueOf(ThreadLocalRandom.current().nextInt(1, 4));
+				// Long userId = Long.valueOf(7);
+
 				connectToChatRoom(accessor, userId);
 				break;
 			case SUBSCRIBE:
 				break;
 			case SEND:
-				// verifyAccessToken(getAccessToken(accessor));
 				break;
 		}
 	}
 
 	private void connectToChatRoom(StompHeaderAccessor accessor, Long userId) {
-		// 채팅방 번호를 가져온다.
-		// Long chatRoomId = getChatRoomId(accessor);
 
-		//임시 구현
-		Long chatRoomId = Long.valueOf(1);
+		// 채팅방 번호를 가져온다.
+		Long chatRoomId = getChatRoomId(accessor);
+
+		// 임시 구현
+		// Long chatRoomId = Long.valueOf(1);
 		log.info("채팅방 접속 성공 : {}, 유저Id : {}", chatRoomId, userId);
 
 		// 채팅방 입장 처리 -> Redis에 입장 내역 저장
 		chatRoomService.connectChatRoom(chatRoomId, userId);
 
-		// 읽지 않은 채팅을 전부 읽음 처리
-		// chatService.updateCountAllZero(chatRoomNo, email);
-
 		// 현재 채팅방에 접속중인 인원이 있는지 확인한다.
 		List<Long> connectedList = chatRoomService.isConnected(chatRoomId);
+		log.info("접속중인 채팅방 유저 목록 : {}", connectedList);
 		int headCnt = connectedList.size();
 
-		// 나 자신을 제외하고 1명보다 많을경우에 Notice 알림
+		// 나 자신을 제외 했을때 1명보다 많은 경우 Notice 알림
 		if (headCnt > 1) {
 			chatService.sendNotice(chatRoomId, userId);
 		}
-		// if (isConnected) {
-		// 	chatService.updateMessage(email, chatRoomNo);
-		// }
+
 	}
 
 	private Long verifyAccessToken(String accessToken) {
+		String jwt = accessToken.substring(7);
 
-		// if (!jwtUtil.verifyToken(accessToken)) {
-		// 	throw new IllegalStateException("토큰이 만료되었습니다.");
-		// }
-		//
-		// return jwtUtil.getUid(accessToken);
-		return Long.parseLong(accessToken);
-		// return Long.valueOf(1);
+		if (!jwtTokenProvider.validateToken(jwt)) {
+			throw new ApiException(JWTErrorCode.JWT_TOKEN_NOT_VALID);
+		}
+		return jwtTokenProvider.getJwtUserId(jwt);
 
 	}
 
 	private String getAccessToken(StompHeaderAccessor accessor) {
 		String authToken = accessor.getFirstNativeHeader("Authorization");
 		log.info("토큰 추출 : {}", authToken);
-		// if (authToken == null || !jwtProvider.validateJwt(authToken)) {
 
 		return authToken;
 	}

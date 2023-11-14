@@ -57,6 +57,6 @@ public class KafkaConsumerService {
 
 		// /sub/chatroom/{roomId} - 구독
 		// 메시지객체 내부의 채팅방번호를 참조하여, 해당 채팅방 구독자에게 메시지를 발송한다.
-		template.convertAndSend("/sub/notice/" + notice.getRoomId(), notice);
+		template.convertAndSend("/sub/notice/" + notice.getRoomId(), notice.getUserId());
 	}
 }
