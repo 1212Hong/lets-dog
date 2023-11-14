@@ -1,138 +1,24 @@
 package com.dog.data.local
 
-import com.dog.R
-import com.dog.data.model.Chat
-import com.dog.data.model.Person
-
-
-val personList = listOf(
-    Person(
-        1,
-        "Pranav",
-        R.drawable.ic_launcher
-    ),
-    Person(
-        2,
-        "Ayesha",
-        R.drawable.ic_launcher
-    ),
-    Person(
-        3,
-        "Roshini",
-        R.drawable.ic_launcher
-    ),
-    Person(
-        4,
-        "Kaushik",
-        R.drawable.ic_launcher
-    ),
-    Person(
-        5,
-        "Dad",
-        R.drawable.ic_launcher
-    ),
-    Person(
-        6,
-        "Pranav",
-        R.drawable.ic_launcher
-    ),
-    Person(
-        7,
-        "Ayesha",
-        R.drawable.ic_launcher
-    ),
-    Person(
-        8,
-        "Roshini",
-        R.drawable.ic_launcher
-    ),
-    Person(
-        9,
-        "Kaushik",
-        R.drawable.ic_launcher
-    ),
-    Person(
-        10,
-        "Dad",
-        R.drawable.ic_launcher
-    ),
-)
+import com.dog.data.model.chat.ChatState
 
 val chatList = listOf(
-    Chat(
+    ChatState(
         1,
-        "Hey! How have you been?",
+        147,
         "소영섭",
-        "12:15 PM",
-        true
+        "글",
+        "안녕하세요",
+        "2023-11-14-12-02-05-AM",
+        intArrayOf(2, 2, 3)
     ),
-    Chat(
-        2,
-        "Wanna catch up for a beer?",
-        "소영섭",
-        "12:17 PM",
-        true
+    ChatState(
+        1,
+        142,
+        "test",
+        "글",
+        "안녕하세요",
+        "2023-11-14-12-02-05-AM",
+        intArrayOf(2, 2, 3)
     ),
-    Chat(
-        3,
-        "Awesome! Let’s meet up",
-        "권영재",
-        "12:19 PM",
-        false
-    ),
-    Chat(
-        4,
-        "Can I also get my cousin along? Will that be okay?",
-        "권영재",
-        "12:20 PM",
-        false
-    ),
-    Chat(
-        5,
-        "Yeah sure! get him too.",
-        "소영섭",
-        "12:21 PM",
-        true
-    ),
-    Chat(
-        6,
-        "Hey! How have you been?",
-        "권영재",
-        "12:15 PM",
-        false
-    ),
-    Chat(
-        7,
-        "Wanna catch up for a beer?",
-        "소영섭",
-        "12:17 PM",
-        true
-    ),
-    Chat(
-        8,
-        "Awesome! Let’s meet up",
-        "권영재",
-        "12:19 PM",
-        false
-    ),
-    Chat(
-        9,
-        "Can I also get my cousin along? Will that be okay?",
-        "권영재",
-        "12:20 PM",
-        false
-    ),
-    Chat(
-        10,
-        "Yeah sure! get him too.",
-        "소영섭",
-        "12:21 PM",
-        true
-    ),
-)
-
-val person = Person(
-    99,
-    "소영섭",
-    icon = R.drawable.zerosub
 )

@@ -1,7 +1,7 @@
 package com.dog.util.common
 
 import android.util.Log
-import com.dog.data.model.Chat
+import com.dog.data.model.chat.ChatState
 import com.dog.data.viewmodel.chat.ChatViewModel
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -90,7 +90,7 @@ class StompManager(chatViewModel: ChatViewModel) {
                 chatViewModel.updateChatState(
                     mGson.fromJson(
                         topicMessage.payload,
-                        Chat::class.java
+                        ChatState::class.java
                     )
                 )
             }
@@ -107,7 +107,7 @@ class StompManager(chatViewModel: ChatViewModel) {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ topicMessage: StompMessage ->
                 Log.d(TAG, "Received " + topicMessage.payload)
-//                addItem(mGson.fromJson(topicMessage.payload, EchoModel::class.java))
+//                Log.d(TAG, mGson.fromJson(topicMessage.payload, EchoModel::class.java))
             }
             ) { throwable: Throwable? ->
                 Log.e(

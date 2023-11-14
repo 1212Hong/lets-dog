@@ -1,5 +1,6 @@
 package com.dog.ui.screen.signin
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -18,7 +19,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,20 +46,23 @@ fun LoginScreen(
     userViewModel: UserViewModel,
 ) {
     val context = LocalContext.current
-
-    DisposableEffect(userViewModel.message) {
+    val toastMessage = userViewModel.message.collectAsState()
+    LaunchedEffect(toastMessage.value) {
         val token = userViewModel.jwtToken.value
         val isLogin = userViewModel.isLogin.value
-        if (!isLogin && !token.isNullOrEmpty()) {
-            Toast.makeText(context, "Login Failed!", Toast.LENGTH_LONG).show()
+        Log.d("login", toastMessage.toString())
+        if (toastMessage.value != null) {
+            Log.d("login", toastMessage.toString())
+            Toast.makeText(context, toastMessage.value, Toast.LENGTH_LONG).show()
         }
 
-        onDispose {
-            if (isLogin)
-                Toast.makeText(context, "Login Success!", Toast.LENGTH_LONG).show()
-
-        }
+//        if (!isLogin && token.isNullOrEmpty()) {
+//            Toast.makeText(context, "Login Failed!", Toast.LENGTH_LONG).show()
+//        }
+//            if (isLogin)
+//                Toast.makeText(context, "Login Success!", Toast.LENGTH_LONG).show()
     }
+
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
         Box(

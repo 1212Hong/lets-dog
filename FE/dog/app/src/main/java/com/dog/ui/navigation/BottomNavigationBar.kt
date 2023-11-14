@@ -142,7 +142,7 @@ fun BottomNavigationBar(startRoute: String, userViewModel: UserViewModel) {
                 arguments = listOf(navArgument("roomId") { type = NavType.IntType })
             ) { backStackEntry ->
                 val roomId = backStackEntry.arguments?.getInt("roomId") ?: -1
-                ChattingScreen(navController, roomId)
+                ChattingScreen(navController, roomId, userViewModel)
             }
         }
     }

@@ -40,8 +40,8 @@ class UserViewModel @Inject constructor(
     val jwtToken: State<String?> get() = _jwtToken
     private val _isLogin = MutableStateFlow<Boolean>(false)
     val isLogin = _isLogin.asStateFlow()
-    private val _message = MutableStateFlow("")
-    val message: StateFlow<String> = _message.asStateFlow()
+    private val _message = MutableStateFlow<String?>(null)
+    val message: StateFlow<String?> = _message.asStateFlow()
     private val _userInfo = MutableStateFlow<UserBody?>(null)
     val userInfo = _userInfo.asStateFlow()
 
@@ -59,11 +59,11 @@ class UserViewModel @Inject constructor(
                     // 성공적으로 응답을 받았을 때의 처리
                     _message.value = response.body()!!.result?.message.toString()
                     val loginBody = response.body()?.body
-                    if (response.body()?.body != null) {
+                    if (loginBody != null) {
                         val token = loginBody?.jwt
                         _jwtToken.value = token
                         dataStoreManager.saveToken(token)
-                        _userState.value?.name = loginBody?.userNickname.toString()
+                        _userState.value = UserState(loginBody.userNickname, loginBody.userPicture)
                         _isLogin.value = true
                         Log.d("login", loginBody.toString())
                     }
@@ -76,7 +76,8 @@ class UserViewModel @Inject constructor(
                         val errorResponse: Response<ResponseBodyResult> =
                             gson.fromJson(errorBody, typeToken)
                         Log.e("loginRequest", "${errorResponse.result.message}")
-                        _message.value = errorResponse.result.description
+                        _message.value = errorResponse.result.message
+                        Log.d("loginRequest", _message.value.toString())
                     } catch (e: JsonSyntaxException) {
                         Log.e("loginRequest", "JSON 파싱 에러", e)
                     }

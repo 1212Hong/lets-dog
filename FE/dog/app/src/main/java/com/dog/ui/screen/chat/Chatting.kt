@@ -39,6 +39,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
@@ -53,14 +54,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.dog.R
 import com.dog.data.Screens
-import com.dog.data.model.Chat
 import com.dog.data.model.Person
+import com.dog.data.model.chat.ChatState
 import com.dog.data.viewmodel.chat.ChatViewModel
+import com.dog.data.viewmodel.user.UserState
+import com.dog.data.viewmodel.user.UserViewModel
 import com.dog.ui.components.IconComponentDrawable
 import com.dog.ui.components.IconComponentImageVector
 import com.dog.ui.theme.DogTheme
@@ -76,9 +78,11 @@ import kotlinx.coroutines.launch
 
 
 @Composable
-fun ChattingScreen(navController: NavHostController, roomId: Int) {
+fun ChattingScreen(navController: NavHostController, roomId: Int, userViewModel: UserViewModel) {
     val chatViewModel: ChatViewModel = hiltViewModel()
     val chatState by chatViewModel.chatState.collectAsState()
+    val userState by userViewModel.userState.collectAsState()
+    Log.d("chat", userState.toString())
     val coroutineScope = rememberCoroutineScope()
     val stompManager: StompManager by lazy { StompManager(chatViewModel) }
 
@@ -104,7 +108,15 @@ fun ChattingScreen(navController: NavHostController, roomId: Int) {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            ChatScreen(chatViewModel, chatState, coroutineScope, navController, stompManager)
+            userState?.let {
+                ChatScreen(
+                    chatViewModel,
+                    chatState,
+                    coroutineScope,
+                    navController,
+                    stompManager, it
+                )
+            }
         }
     }
 
@@ -113,9 +125,12 @@ fun ChattingScreen(navController: NavHostController, roomId: Int) {
 @Composable
 fun UserNameRow(
     modifier: Modifier = Modifier,
-    person: Person,
+    userState: UserState,
     navController: NavHostController
 ) {
+    var person =
+        rememberNavController().previousBackStackEntry?.savedStateHandle?.get<Person>("data")
+            ?: Person()
     val clickGoBack = {
         Log.d("clicked?", navController.currentBackStackEntry?.destination?.route ?: "null")
 //        navController.navigateUp()
@@ -162,30 +177,28 @@ fun UserNameRow(
 
 @Composable
 fun ChatRow(
-    chat: Chat,
-    person: Person
+    chat: ChatState,
+    user: UserState
 ) {
+    val name = user.name
     Column(
         modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = if (chat.direction) Alignment.Start else Alignment.End
+        horizontalAlignment = if (chat.senderName == name) Alignment.Start else Alignment.End
     ) {
         Row {
-            if (chat.direction) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    IconComponentDrawable(icon = person.icon, size = 30.dp)
-                    Text(
-                        text = chat.senderName, style = TextStyle(
-                            color = Color.Black,
-                            fontSize = 14.sp
-                        )
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                IconComponentDrawable(icon = R.drawable.person_icon, size = 30.dp)
+                Text(
+                    text = chat.senderName, style = TextStyle(
+                        color = Color.Black,
+                        fontSize = 14.sp
                     )
-                }
-
+                )
             }
             Box(
                 modifier = Modifier
                     .background(
-                        if (chat.direction) Orange300 else Yellow300,
+                        if (chat.senderName == name) Orange300 else Yellow300,
                         RoundedCornerShape(100.dp)
                     ),
                 contentAlignment = Center
@@ -216,14 +229,12 @@ fun ChatRow(
 @Composable
 fun ChatScreen(
     chatViewModel: ChatViewModel,
-    chatState: List<Chat>,
+    chatState: List<ChatState>,
     coroutineScope: CoroutineScope,
     navController: NavHostController,
-    stompManager: StompManager
+    stompManager: StompManager,
+    userState: UserState
 ) {
-    var data =
-        rememberNavController().previousBackStackEntry?.savedStateHandle?.get<Person>("data")
-            ?: Person()
     val listState = rememberLazyListState()
 
     // 스크롤 위치를 최하단으로 이동
@@ -244,13 +255,13 @@ fun ChatScreen(
                 .fillMaxSize()
         ) {
             UserNameRow(
-                person = data,
                 modifier = Modifier.padding(
                     top = 20.dp,
                     start = 20.dp,
                     end = 20.dp,
                     bottom = 20.dp
                 ),
+                userState,
                 navController = navController
             )
             Divider(
@@ -274,8 +285,14 @@ fun ChatScreen(
                     ),
                     state = listState, // LazyListState를 사용
                 ) {
-                    items(chatState, key = { it.id }) {
-                        ChatRow(chat = it, person = data)
+                    if (chatState.isNotEmpty()) {
+                        items(chatState) { chat ->
+                            key(chat.roomId.toString() + (chat.senderId * chat.content.length)) {
+                                userState?.let { user ->
+                                    ChatRow(chat = chat, user = user)
+                                }
+                            }
+                        }
                     }
                 }
             }
