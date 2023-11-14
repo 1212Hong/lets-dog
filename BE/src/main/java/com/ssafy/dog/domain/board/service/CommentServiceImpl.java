@@ -14,7 +14,6 @@ import com.ssafy.dog.common.error.CommentErrorCode;
 import com.ssafy.dog.common.error.UserErrorCode;
 import com.ssafy.dog.common.exception.ApiException;
 import com.ssafy.dog.domain.board.dto.CommentDto;
-import com.ssafy.dog.domain.board.dto.CommentIdDto;
 import com.ssafy.dog.domain.board.dto.CommentResDto;
 import com.ssafy.dog.domain.board.entity.Board;
 import com.ssafy.dog.domain.board.entity.Comment;
@@ -103,9 +102,9 @@ public class CommentServiceImpl implements CommentService {
 	}
 
 	@Transactional
-	public Api<String> deleteComment(CommentIdDto commentIdDto) {
+	public Api<String> deleteComment(Long commentId) {
 		Long userId = SecurityUtils.getUserId();
-		Optional<Comment> comment = commentRepository.findById(commentIdDto.getCommentId());
+		Optional<Comment> comment = commentRepository.findById(commentId);
 		if (comment.isEmpty()) {
 			throw new ApiException(BoardErrorCode.COMMENT_NOT_FOUND);
 		}

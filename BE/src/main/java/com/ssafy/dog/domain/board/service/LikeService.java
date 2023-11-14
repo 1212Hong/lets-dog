@@ -6,5 +6,5 @@ import com.ssafy.dog.domain.board.dto.BoardIdReqDto;
 public interface LikeService {
 	public Api<String> likeChange(BoardIdReqDto boardIdReqDto);
 
-	public Api<String> deleteLike(BoardIdReqDto boardIdReqDto);
+	public Api<String> deleteLike(Long boardId);
 }

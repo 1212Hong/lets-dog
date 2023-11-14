@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.ssafy.dog.common.api.Api;
 import com.ssafy.dog.domain.board.dto.CommentDto;
-import com.ssafy.dog.domain.board.dto.CommentIdDto;
 import com.ssafy.dog.domain.board.dto.CommentResDto;
 
 public interface CommentService {
@@ -12,5 +11,5 @@ public interface CommentService {
 
 	public Api<List<CommentResDto>> findCommentsbyBoardId(Long boardId);
 
-	public Api<String> deleteComment(CommentIdDto commentIdDto);
+	public Api<String> deleteComment(Long commentId);
 }
