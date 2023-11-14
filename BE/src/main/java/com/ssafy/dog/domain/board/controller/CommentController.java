@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ssafy.dog.common.api.Api;
 import com.ssafy.dog.domain.board.dto.CommentDto;
+import com.ssafy.dog.domain.board.dto.CommentIdDto;
 import com.ssafy.dog.domain.board.dto.CommentResDto;
 import com.ssafy.dog.domain.board.service.CommentService;
 
@@ -38,7 +39,7 @@ public class CommentController {
 
 	@DeleteMapping("/comment")
 	@Operation(summary = "댓글 id로 댓글 삭제")
-	public Api<String> deleteComment(@RequestParam Long commentId) {
-		return commentService.deleteComment(commentId);
+	public Api<String> deleteComment(@RequestBody CommentIdDto commentIdDto) {
+		return commentService.deleteComment(commentIdDto);
 	}
 }

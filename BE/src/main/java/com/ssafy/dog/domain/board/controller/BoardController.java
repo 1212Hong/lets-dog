@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ssafy.dog.common.api.Api;
 import com.ssafy.dog.domain.board.dto.BoardDto;
+import com.ssafy.dog.domain.board.dto.BoardIdReqDto;
 import com.ssafy.dog.domain.board.dto.BoardReqDto;
 import com.ssafy.dog.domain.board.service.BoardService;
 
@@ -31,21 +32,21 @@ public class BoardController {
 	}
 
 	@GetMapping("/board")
-	@Operation(summary = "UserNickname이 작성한 게시글 목록 불러오기 viewUser = 보는사람")
-	public Api<List<BoardDto>> getBoardList(@RequestParam String userNickname, @RequestParam String viewUserNickname) {
-		return boardService.findBoardbyNickname(userNickname, viewUserNickname);
+	@Operation(summary = "UserNickname이 작성한 게시글 목록 불러오기")
+	public Api<List<BoardDto>> getBoardList(@RequestParam String userNickname) {
+		return boardService.findBoardbyNickname(userNickname);
 	}
 
 	@DeleteMapping("/board")
-	@Operation(summary = "BoardId 로 게시글 삭제하기")
-	public Api<String> deleteBoard(@RequestParam Long boardId) {
-		return boardService.deleteBoard(boardId);
+	@Operation(summary = "BoardId 로 게시글 삭제 하기")
+	public Api<String> deleteBoard(@RequestBody BoardIdReqDto boardIdReqDto) {
+		return boardService.deleteBoard(boardIdReqDto);
 	}
 
 	@GetMapping("/boardnear")
-	@Operation(summary = "내 주변 사용자들 게시글목록 가져오기")
+	@Operation(summary = "내 주변 사용자들 게시글 목록 가져오기")
 	public Api<List<BoardDto>> getBoardListNearby(@RequestParam double userLatitude,
-		@RequestParam double userLongitude, @RequestParam String userNickname) {
-		return boardService.findBoardNeararea(userLatitude, userLongitude, userNickname);
+		@RequestParam double userLongitude) {
+		return boardService.findBoardNeararea(userLatitude, userLongitude);
 	}
 }

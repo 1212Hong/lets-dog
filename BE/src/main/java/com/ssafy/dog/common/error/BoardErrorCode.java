@@ -13,7 +13,8 @@ public enum BoardErrorCode implements ErrorCodeIfs {
 	CONTENT_TOO_LONG(400, 1504, "게시글 내용은 200자를 초과할 수 없습니다."),
 
 	BOARD_LIST_IS_EMPTY(400, 1504, "게시글이 존재하지 않습니다"),
-	COMMENT_NOT_FOUND(400, 1505, "존재하지 않는 댓글입니다");
+	COMMENT_NOT_FOUND(400, 1505, "존재하지 않는 댓글입니다"),
+	USER_NOT_MATCH(400, 1506, "작성자가 일치하지 않습니다");
 
 	private final Integer httpStatusCode;
 	private final Integer errorCode;
