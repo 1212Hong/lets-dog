@@ -21,6 +21,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.dog.data.Screens
+import com.dog.data.viewmodel.chat.ChatViewModel
 import com.dog.data.viewmodel.map.LocationTrackingHistoryViewModel
 import com.dog.data.viewmodel.map.LocationTrackingViewModel
 import com.dog.data.viewmodel.user.UserViewModel
@@ -29,6 +30,7 @@ import com.dog.ui.screen.MatchingScreen
 import com.dog.ui.screen.MypageScreen
 import com.dog.ui.screen.chat.ChatListScreen
 import com.dog.ui.screen.chat.ChattingScreen
+import com.dog.ui.screen.chat.CreateChatting
 import com.dog.ui.screen.walking.WalkingHistoryScreen
 import com.dog.ui.screen.walking.WalkingScreen
 
@@ -42,6 +44,7 @@ fun BottomNavigationBar(startRoute: String, userViewModel: UserViewModel) {
     var shouldShowBottomBar = rememberSaveable { (mutableStateOf(true)) }
     val locationTrackingViewModel: LocationTrackingViewModel = hiltViewModel()
     val locationTrackingHistoryViewModel: LocationTrackingHistoryViewModel = hiltViewModel()
+    val chatViewModel: ChatViewModel = hiltViewModel()
 
     when (navBackStackEntry?.destination?.route) {
         // "roomId" 값이 1이 아닌 경우에 대한 조건을 추가합니다.
@@ -128,7 +131,8 @@ fun BottomNavigationBar(startRoute: String, userViewModel: UserViewModel) {
             }
             composable(Screens.ChatList.route) {
                 ChatListScreen(
-                    navController
+                    navController,
+                    chatViewModel
                 )
             }
             composable(Screens.Mypage.route) {
@@ -141,8 +145,14 @@ fun BottomNavigationBar(startRoute: String, userViewModel: UserViewModel) {
                 route = "chatroom/{roomId}",
                 arguments = listOf(navArgument("roomId") { type = NavType.IntType })
             ) { backStackEntry ->
-                val roomId = backStackEntry.arguments?.getInt("roomId") ?: -1
+                val roomId = backStackEntry.arguments?.getLong("roomId") ?: -1
                 ChattingScreen(navController, roomId, userViewModel)
+            }
+            composable("newChatting") {
+                CreateChatting(
+                    navController,
+                    chatViewModel
+                )
             }
         }
     }

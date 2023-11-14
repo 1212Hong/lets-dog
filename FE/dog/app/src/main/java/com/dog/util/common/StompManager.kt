@@ -3,6 +3,7 @@ package com.dog.util.common
 import android.util.Log
 import com.dog.data.model.chat.ChatState
 import com.dog.data.viewmodel.chat.ChatViewModel
+import com.dog.data.viewmodel.user.UserViewModel
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import io.reactivex.Completable
@@ -20,7 +21,7 @@ import ua.naiksoftware.stomp.dto.StompMessage
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class StompManager(chatViewModel: ChatViewModel) {
+class StompManager(chatViewModel: ChatViewModel, userViewModel: UserViewModel) {
 
     private val TAG = "StompManager"
 
@@ -31,6 +32,7 @@ class StompManager(chatViewModel: ChatViewModel) {
     private var compositeDisposable: CompositeDisposable = CompositeDisposable()
 
     private val chatViewModel = chatViewModel
+    private val userViewModel = userViewModel
 
     fun initializeStompClient() {
         mStompClient = Stomp.over(
@@ -42,15 +44,15 @@ class StompManager(chatViewModel: ChatViewModel) {
         mStompClient!!.disconnect()
     }
 
-    fun connectStomp() {
+    fun connectStomp(roomId: Long) {
         // Check if the StompClient is already connected
         if (mStompClient?.isConnected == true) {
             return
         }
 
         val headers: MutableList<StompHeader> = ArrayList()
-        headers.add(StompHeader("Authorization", "1"))
-        headers.add(StompHeader("Chatroom-no", "1"))
+        headers.add(StompHeader("Authorization", "Bearer ${userViewModel.jwtToken.value}"))
+        headers.add(StompHeader("Chatroom-no", roomId.toString()))
 
         val disposableLifecycle: Disposable? = mStompClient?.lifecycle()
             ?.subscribeOn(Schedulers.io())
@@ -82,17 +84,16 @@ class StompManager(chatViewModel: ChatViewModel) {
         }
 
         // Receive greetings
-        val disposableTopic = mStompClient!!.topic("/sub/chatroom/1")
+        val disposableTopic = mStompClient!!.topic("/sub/chatroom/$roomId")
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ topicMessage: StompMessage ->
                 Log.d(TAG, "Received " + topicMessage.payload)
-                chatViewModel.updateChatState(
-                    mGson.fromJson(
-                        topicMessage.payload,
-                        ChatState::class.java
-                    )
+                val newChatLog = mGson.fromJson(
+                    topicMessage.payload,
+                    ChatState::class.java
                 )
+                chatViewModel.sendMessage(newChatLog)
             }
             ) { throwable: Throwable? ->
                 Log.e(
@@ -102,12 +103,14 @@ class StompManager(chatViewModel: ChatViewModel) {
                 )
             }
 
-        val disposableNoticeTopic = mStompClient!!.topic("/sub/notice/1")
+        val disposableNoticeTopic = mStompClient!!.topic("/sub/notice/$roomId")
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ topicMessage: StompMessage ->
                 Log.d(TAG, "Received " + topicMessage.payload)
-//                Log.d(TAG, mGson.fromJson(topicMessage.payload, EchoModel::class.java))
+                chatViewModel.updateReadList(
+                    topicMessage.payload
+                )
             }
             ) { throwable: Throwable? ->
                 Log.e(
@@ -123,14 +126,13 @@ class StompManager(chatViewModel: ChatViewModel) {
         mStompClient?.connect(headers)
     }
 
-    fun sendStomp(message: String) {
+    fun sendStomp(roomId: Long, nickName: String, message: String) {
         Log.d("compositeDisposable", compositeDisposable.toString())
         if (mStompClient?.isConnected == true && compositeDisposable != null) {
             val jsonObject = JSONObject()
-            jsonObject.put("room_id", "1");
-            jsonObject.put("sender_id", "2");
-            jsonObject.put("sender_name", "머홍");
-            jsonObject.put("content_type", "글");
+            jsonObject.put("roomId", roomId);
+            jsonObject.put("senderName", nickName);
+            jsonObject.put("contentType", "글");
             jsonObject.put("content", message);
             Log.d("jsonTest", jsonObject.toString())
 

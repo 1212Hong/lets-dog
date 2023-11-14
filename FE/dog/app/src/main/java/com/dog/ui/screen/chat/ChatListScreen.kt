@@ -12,8 +12,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -27,7 +31,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.dog.R
 import com.dog.data.model.chat.ChatroomInfo
@@ -37,10 +40,9 @@ import com.dog.ui.theme.Pink400
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChatListScreen(navController: NavController) {
+fun ChatListScreen(navController: NavController, chatViewModel: ChatViewModel) {
     // Chat 목록 데이터를 가져오는 함수 또는 ViewModel을 사용하여 데이터를 로드합니다.
     var listState = rememberLazyListState()
-    val chatViewModel: ChatViewModel = hiltViewModel()
     val chatList = chatViewModel.chatListState
 
     LaunchedEffect(Unit) {
@@ -56,8 +58,12 @@ fun ChatListScreen(navController: NavController) {
             modifier = Modifier.fillMaxSize(),
         ) {
             TopAppBar(
+                modifier = Modifier.background(Pink400),
                 title = { Text(text = "채팅 목록") },
-                Modifier.background(Pink400)
+                actions = {
+                    // 여기에 새로운 채팅방을 만드는 버튼 추가
+                    NewChatButton(navController)
+                }
             )
             if (chatViewModel.loading.value && chatViewModel.chatListState.isNotEmpty()) {
                 LazyColumn(
@@ -114,4 +120,16 @@ fun ChatItem(chatroom: ChatroomInfo, navController: NavController) {
 //            )
         }
     }
+}
+
+@Composable
+fun NewChatButton(navController: NavController) {
+    FloatingActionButton(
+        onClick = { navController.navigate("newChatting") },
+        modifier = Modifier.padding(16.dp),
+        contentColor = Color.White,
+        content = {
+            Icon(imageVector = Icons.Default.Add, contentDescription = null)
+        }
+    )
 }

@@ -2,8 +2,8 @@ package com.dog.data.repository
 
 import com.dog.data.model.chat.ChatHistoryResponse
 import com.dog.data.model.chat.ChatListResponse
+import com.dog.data.model.chat.CreateChatroomResponse
 import com.dog.data.model.chat.ExitChatroomResponse
-import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -15,14 +15,14 @@ import retrofit2.http.Path
 interface ChatRepository {
 
     @POST("chatroom")
-    suspend fun createChatroom(@Body roomID: Int): Call<Response<ChatListResponse>>
+    suspend fun createChatroom(@Body userNicks: List<String>): Response<CreateChatroomResponse>
 
     @GET("chatroom")
     suspend fun getChatroomList(): Response<ChatListResponse>
 
     @GET("chatroom/{roomId}")
-    suspend fun getChatroomHistory(@Path("roomId") roomID: Int): Response<ChatHistoryResponse>
+    suspend fun getChatroomHistory(@Path("roomId") roomID: Long): Response<ChatHistoryResponse>
 
     @DELETE("chatroom/{roomId}")
-    suspend fun disconnectChatroom(@Path("roomId") roomID: Int): Response<ExitChatroomResponse>
+    suspend fun disconnectChatroom(@Path("roomId") roomID: Long): Response<ExitChatroomResponse>
 }

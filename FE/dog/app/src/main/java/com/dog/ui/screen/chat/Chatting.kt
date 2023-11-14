@@ -75,16 +75,17 @@ import com.dog.ui.theme.Yellow300
 import com.dog.util.common.StompManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 
 @Composable
-fun ChattingScreen(navController: NavHostController, roomId: Int, userViewModel: UserViewModel) {
+fun ChattingScreen(navController: NavHostController, roomId: Long, userViewModel: UserViewModel) {
     val chatViewModel: ChatViewModel = hiltViewModel()
     val chatState by chatViewModel.chatState.collectAsState()
     val userState by userViewModel.userState.collectAsState()
     Log.d("chat", userState.toString())
     val coroutineScope = rememberCoroutineScope()
-    val stompManager: StompManager by lazy { StompManager(chatViewModel) }
+    val stompManager: StompManager by lazy { StompManager(chatViewModel, userViewModel) }
 
     LaunchedEffect(roomId) {
         chatViewModel.getChatHistory(roomId)
@@ -94,7 +95,7 @@ fun ChattingScreen(navController: NavHostController, roomId: Int, userViewModel:
     // Use LaunchedEffect to initialize and connect StompManager
     DisposableEffect(Unit) {
         stompManager.initializeStompClient()
-        stompManager.connectStomp()
+        stompManager.connectStomp(roomId)
 
         onDispose {
             // Composable 함수가 사라질 때, 여기에서 Stomp 연결을 해제합니다.
@@ -114,7 +115,9 @@ fun ChattingScreen(navController: NavHostController, roomId: Int, userViewModel:
                     chatState,
                     coroutineScope,
                     navController,
-                    stompManager, it
+                    stompManager,
+                    roomId,
+                    it
                 )
             }
         }
@@ -223,6 +226,14 @@ fun ChatRow(
             ),
             modifier = Modifier.padding(vertical = 7.dp, horizontal = 14.dp),
         )
+        Text(
+            text = chat.readList.size.toString(),
+            style = TextStyle(
+                color = Color.Gray,
+                fontSize = 12.sp
+            ),
+            modifier = Modifier.padding(vertical = 7.dp, horizontal = 14.dp),
+        )
     }
 }
 
@@ -233,15 +244,18 @@ fun ChatScreen(
     coroutineScope: CoroutineScope,
     navController: NavHostController,
     stompManager: StompManager,
+    roomId: Long,
     userState: UserState
+
 ) {
     val listState = rememberLazyListState()
 
     // 스크롤 위치를 최하단으로 이동
     DisposableEffect(listState, chatState) {
         coroutineScope.launch {
-            listState.scrollToItem(chatState.size - 1) // 리스트 아이템의 가장 아래로 이동
-
+            if (listState != null && chatState != null && chatState.isNotEmpty()) {
+                listState.scrollToItem(chatState.size - 1)
+            }
         }
         onDispose { /* 생명주기가 종료될 때 정리 작업을 수행하거나 해제할 수 있음 */ }
     }
@@ -287,7 +301,8 @@ fun ChatScreen(
                 ) {
                     if (chatState.isNotEmpty()) {
                         items(chatState) { chat ->
-                            key(chat.roomId.toString() + (chat.senderId * chat.content.length)) {
+                            val key = UUID.randomUUID().toString()
+                            key(key) {
                                 userState?.let { user ->
                                     ChatRow(chat = chat, user = user)
                                 }
@@ -303,7 +318,9 @@ fun ChatScreen(
                 .padding(horizontal = 20.dp, vertical = 20.dp)
                 .align(Alignment.BottomCenter),
             chatViewModel = chatViewModel,
-            stompManager = stompManager
+            stompManager = stompManager,
+            nickName = userState.name,
+            roomId = roomId
         )
     }
 }
@@ -326,11 +343,12 @@ fun CommonIconButtonDrawable(
     @DrawableRes icon: Int,
     message: String,
     chatViewModel: ChatViewModel,
-    stompManager: StompManager
+    stompManager: StompManager,
+    roomId: Long,
+    nickName: String
 ) {
     val combinedClickActions = {
-        chatViewModel.sendMessage(1, 1, "test")
-        stompManager.sendStomp(message)
+        stompManager.sendStomp(roomId, nickName, message)
     }
     Box(
         modifier = Modifier
@@ -357,7 +375,9 @@ fun CustomTextField(
     modifier: Modifier = Modifier,
     onValueChange: (String) -> Unit,
     chatViewModel: ChatViewModel,
-    stompManager: StompManager
+    stompManager: StompManager,
+    nickName: String,
+    roomId: Long
 ) {
     TextField(
         value = text, onValueChange = { onValueChange(it) },
@@ -383,7 +403,9 @@ fun CustomTextField(
                 icon = R.drawable.ic_launcher,
                 message = text,
                 chatViewModel = chatViewModel,
-                stompManager = stompManager
+                stompManager = stompManager,
+                roomId = roomId,
+                nickName = nickName,
             )
         },
         keyboardOptions = KeyboardOptions.Default.copy(
@@ -392,8 +414,7 @@ fun CustomTextField(
         keyboardActions = KeyboardActions(
             onDone = {
                 // 엔터 키를 눌렀을 때 수행할 작업을 여기에 추가
-                chatViewModel.sendMessage(1, 1, "test")
-                stompManager.sendStomp(text)
+                stompManager.sendStomp(roomId, nickName, text)
             }
         ),
 
