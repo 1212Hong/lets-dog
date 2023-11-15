@@ -135,6 +135,18 @@ public class DogServiceImpl implements DogService {
         return dogRepository.save(dog);
     }
 
+    @Transactional
+    public void deleteDog(Long dogId, Long userId) {
+        Dog dog = dogRepository.findById(dogId)
+                .orElseThrow(() -> new ApiException(DogErrorCode.DOG_NOT_FOUND));
+
+        if (!dog.getUser().getUserId().equals(userId)) {
+            throw new ApiException(DogErrorCode.NOT_DOG_OWNER);
+        }
+
+        dogRepository.delete(dog);
+    }
+
     // 유효성 체크
     @Transactional(readOnly = true)
     public Map<String, String> validateHandling(Errors errors) {

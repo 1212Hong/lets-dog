@@ -71,4 +71,14 @@ public class DogController {
         ret.put("dogId", newDog.getDogId());
         return Api.ok(ret);
     }
+
+    @DeleteMapping("/{dogId}")
+    @Operation(summary = "개 정보 삭제")
+    public Api<?> deleteDog(@Valid @PathVariable("dogId") Long dogId) {
+        dogService.deleteDog(dogId, SecurityUtils.getUserId());
+
+        Map<String, Long> ret = new HashMap<>();
+        ret.put("dogId", dogId);
+        return Api.ok(ret);
+    }
 }

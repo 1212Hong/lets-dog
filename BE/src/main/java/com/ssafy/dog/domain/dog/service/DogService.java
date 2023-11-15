@@ -18,4 +18,6 @@ public interface DogService {
     Api<List<DogGetRes>> getDogs(Long userId);
 
     Api<DogGetRes> getDogByDogId(Long dogId);
+
+    void deleteDog(Long dogId, Long userId);
 }
