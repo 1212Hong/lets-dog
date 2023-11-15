@@ -23,7 +23,7 @@ public interface FileStorageService {
 
     Mono<FileInfo> saveFileInfo(FileInfo info);
 
-    Mono<?> deleteFile(Long filePk);
+    Mono<?> deleteFile(String url);
 
     Mono<Api<FileResponse>> updateArticlePk(UpdateRequest request);
 

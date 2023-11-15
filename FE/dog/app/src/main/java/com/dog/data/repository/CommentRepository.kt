@@ -3,8 +3,10 @@ package com.dog.data.repository
 import com.dog.data.model.comment.AddCommentRequest
 import com.dog.data.model.comment.CommentAddResponse
 import com.dog.data.model.comment.CommentResponse
+import com.dog.data.model.comment.DeleteCommentResponse
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Query
@@ -18,4 +20,7 @@ interface CommentRepository {
 
     @POST("comment")
     suspend fun addCommentApiResponse(@Body request: AddCommentRequest): Response<CommentAddResponse>
+    
+    @DELETE("comment")
+    suspend fun deleteCommentApiResponse(@Query("commentId") commentId: Long): Response<DeleteCommentResponse>
 }

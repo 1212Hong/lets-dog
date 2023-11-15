@@ -22,15 +22,20 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.dog.data.Screens
+import com.dog.data.viewmodel.ImageUploadViewModel
 import com.dog.data.viewmodel.chat.ChatViewModel
 import com.dog.data.viewmodel.map.LocationTrackingHistoryViewModel
 import com.dog.data.viewmodel.map.LocationTrackingViewModel
+import com.dog.data.viewmodel.user.MyPageViewModel
 import com.dog.data.viewmodel.user.UserViewModel
 import com.dog.ui.screen.HomeScreen
 import com.dog.ui.screen.MatchingScreen
-import com.dog.ui.screen.MypageScreen
+import com.dog.ui.screen.PostFeedScreen
 import com.dog.ui.screen.chat.ChatListScreen
 import com.dog.ui.screen.chat.ChattingScreen
+import com.dog.ui.screen.profile.EditDogProfileScreen
+import com.dog.ui.screen.profile.EditUserProfileScreen
+import com.dog.ui.screen.profile.MypageScreen
 import com.dog.ui.screen.chat.CreateChatting
 import com.dog.ui.screen.walking.WalkingHistoryScreen
 import com.dog.ui.screen.walking.WalkingScreen
@@ -45,6 +50,8 @@ fun BottomNavigationBar(startRoute: String, userViewModel: UserViewModel) {
     var shouldShowBottomBar = rememberSaveable { (mutableStateOf(true)) }
     val locationTrackingViewModel: LocationTrackingViewModel = hiltViewModel()
     val locationTrackingHistoryViewModel: LocationTrackingHistoryViewModel = hiltViewModel()
+    val myPageViewModel: MyPageViewModel = hiltViewModel()
+    val imageUploadViewModel: ImageUploadViewModel = hiltViewModel()
     val chatViewModel: ChatViewModel = hiltViewModel()
 
     when (navBackStackEntry?.destination?.route) {
@@ -60,14 +67,12 @@ fun BottomNavigationBar(startRoute: String, userViewModel: UserViewModel) {
                 }
             }
         }
+    }
 
-        "Walking_screen" -> {
-            shouldShowBottomBar.value = false
-        }
-
-        else -> {
-            shouldShowBottomBar.value = true
-        }
+    shouldShowBottomBar.value = when (navBackStackEntry?.destination?.route) {
+        "profile/{userNickname}" -> false
+        "edit_profile", "edit_dog" -> false
+        else -> true
     }
 
     Scaffold(
@@ -137,9 +142,14 @@ fun BottomNavigationBar(startRoute: String, userViewModel: UserViewModel) {
                 )
             }
             composable(Screens.Mypage.route) {
+                myPageViewModel.getUser(null)
                 MypageScreen(
+                    navController, myPageViewModel, userNickname = null
+                )
+            }
+            composable(Screens.PostFeed.route){
+                PostFeedScreen(
                     navController,
-                    userViewModel
                 )
             }
             composable(
@@ -155,6 +165,21 @@ fun BottomNavigationBar(startRoute: String, userViewModel: UserViewModel) {
                     navController,
                     chatViewModel
                 )
+            }
+
+            composable("profile/{userNickname}") { backStackEntry ->
+                var userNickname = backStackEntry.arguments?.getString("userNickname")
+                Log.i("프로필 이동", "${userNickname}")
+                myPageViewModel.updateUserNickname(userNickname!!)
+                MypageScreen(navController, myPageViewModel, userNickname)
+            }
+
+            composable("edit_profile") {
+                EditUserProfileScreen(navController, myPageViewModel, imageUploadViewModel)
+            }
+
+            composable("edit_dog") {
+                EditDogProfileScreen(navController, myPageViewModel, imageUploadViewModel)
             }
         }
     }

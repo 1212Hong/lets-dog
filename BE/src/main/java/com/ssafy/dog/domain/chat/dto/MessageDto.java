@@ -42,7 +42,7 @@ public class MessageDto implements Serializable {
 	public void setSendTimeAndSenderAndRead(LocalDateTime sendTime, Long senderId, String senderName,
 		List<Long> readList) {
 		this.senderName = senderName;
-		this.sendTime = sendTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd-hh-mm-ss-a"));
+		this.sendTime = sendTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd-hh-mm-a"));
 		this.senderId = senderId;
 		this.readList = readList;
 	}

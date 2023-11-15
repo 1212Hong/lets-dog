@@ -1,6 +1,6 @@
 package com.ssafy.dog.domain.chat.dto.res;
 
-import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import com.ssafy.dog.domain.chat.entity.mongo.ChatHistory;
@@ -23,9 +23,7 @@ public class ChatHistoriesResDto {
 
 	private String content;
 
-	private LocalDateTime sendDate;
-
-	private long readCount;
+	private String sendTime;
 
 	private List<Long> readList;
 
@@ -36,7 +34,7 @@ public class ChatHistoriesResDto {
 		this.senderName = history.getSenderName();
 		this.contentType = history.getContentType();
 		this.content = history.getContent();
-		this.sendDate = history.getSendDate();
+		this.sendTime = history.getSendDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd-hh-mm-a"));
 		this.readList = readList;
 
 	}

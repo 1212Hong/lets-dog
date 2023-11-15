@@ -5,12 +5,14 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.datastore.dataStore
 import com.dog.data.Screens
+import com.dog.data.viewmodel.user.MyPageViewModel
 
 data class BottomNavigationItem(
     val label: String = "",
     val icon: ImageVector = Icons.Filled.Home,
-    val route: String = ""
+    val route: String = "",
 ) {
     fun bottomNavigationItems(): List<BottomNavigationItem> {
         return listOf(
@@ -37,7 +39,7 @@ data class BottomNavigationItem(
             BottomNavigationItem(
                 label = "Mypage",
                 icon = Icons.Filled.AccountCircle,
-                route = Screens.Mypage.route
+                route = Screens.Mypage.route,
             ),
         )
     }

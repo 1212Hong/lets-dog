@@ -26,8 +26,9 @@ data class UserBody(
     val userPicture: String,
     val userAboutMe: String?,
     val userGender: String?,
-    val userLatitude: Double,
-    val userLongitude: Double,
+    val userLatitude: Double?,
+    val userLongitude: Double?,
     val userAddress: String,
     val userIsRemoved: Boolean
 )
+

@@ -2,6 +2,7 @@ package com.ssafy.dog.security;
 
 import java.security.Key;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Optional;
@@ -9,6 +10,7 @@ import java.util.stream.Collectors;
 
 import javax.xml.bind.DatatypeConverter;
 
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -117,6 +119,23 @@ public class JwtTokenProvider {
 			log.info("JWT claims string is empty.", e);
 		}
 		return false;
+	}
+
+	public Long getJwtUserId(String jwt) {
+		String[] chunks = jwt.split("\\.");
+
+		Base64.Decoder decoder = Base64.getUrlDecoder();
+
+		String header = new String(decoder.decode(chunks[0]));
+		String payload = new String(decoder.decode(chunks[1]));
+
+		JSONObject parser = new JSONObject(payload);
+
+		Long userId = parser.getLong("sub");
+
+		log.info("DEBUG : Header == " + header + ", Payload == " + payload);
+
+		return userId;
 	}
 
 	private Claims parseClaims(String accessToken) {

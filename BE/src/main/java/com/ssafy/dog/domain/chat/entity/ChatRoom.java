@@ -25,12 +25,15 @@ public class ChatRoom extends BaseTimeEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long roomId;
 
+	private String roomTitle;
+
 	@OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL)
 	private List<ChatMembers> chatMembers;
 
 	@Builder
-	public ChatRoom(Long roomId, List<ChatMembers> chatMembers) {
+	public ChatRoom(Long roomId, String roomTitle, List<ChatMembers> chatMembers) {
 		this.roomId = roomId;
+		this.roomTitle = roomTitle;
 		this.chatMembers = chatMembers;
 	}
 

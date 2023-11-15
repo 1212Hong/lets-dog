@@ -169,9 +169,9 @@ public class FileStorageServiceImpl implements FileStorageService {
     }
 
     @Override
-    public Mono<Api<FileResponse>> deleteFile(Long filePk) {
+    public Mono<Api<FileResponse>> deleteFile(String url) {
         // TODO : 일정 기간이 지나면 deleted 상태의 파일 물리적 삭제
-        return fileInfoRepository.findById(filePk)
+        return fileInfoRepository.findByUrl(url)
                 .switchIfEmpty(Mono.error(new ApiException(ErrorCode.BAD_REQUEST, "존재하지 않는 파일입니다.")))
                 .flatMap(existingFileInfo -> {
                     if (existingFileInfo.getFileStatus() == FileStatus.DELETED) {
@@ -181,8 +181,8 @@ public class FileStorageServiceImpl implements FileStorageService {
                     return fileInfoRepository.save(existingFileInfo);
                 }).map(FileResponse::toResponse)
                 .map(Api::ok)
-                .doOnSuccess(info -> log.info("FilePk : {} 삭제", filePk))
-                .doOnError(e -> log.error("{} 파일 삭제시 {} 에러 발생", filePk, e.getMessage()));
+                .doOnSuccess(info -> log.info("url : {} 삭제", url))
+                .doOnError(e -> log.error("{} 파일 삭제시 {} 에러 발생", url, e.getMessage()));
     }
 
     @Override

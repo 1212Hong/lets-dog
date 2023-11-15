@@ -6,4 +6,6 @@ import reactor.core.publisher.Mono;
 
 public interface FileInfoRepository extends R2dbcRepository<FileInfo, Long> {
     Mono<FileInfo> findByEncodedName(String encodedName);
+
+    Mono<FileInfo> findByUrl(String url);
 }

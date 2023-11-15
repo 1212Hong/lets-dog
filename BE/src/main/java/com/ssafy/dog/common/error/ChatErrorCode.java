@@ -21,6 +21,7 @@ public enum ChatErrorCode implements ErrorCodeIfs {
 	500 Internal Server Error - 서버 에러
 	503 Service Unavailable - 서비스가 이용 불가능함
 	 */
+	CHATROOM_NOT_FOUND(404, 2404, "해당 채팅방이 존재하지 않습니다"),
 
 	ROOM_USER_NOT_FOUND(404, 2404, "채팅방의 접속자가 아닙니다"),
 	JWT_NOT_FOUND(401, 2401, "JWT 토큰이 없습니다");

@@ -4,6 +4,7 @@ import com.ssafy.dog.common.api.Api;
 import com.ssafy.dog.common.error.UserErrorCode;
 import com.ssafy.dog.common.exception.ApiException;
 import com.ssafy.dog.domain.dog.dto.request.DogCreateReq;
+import com.ssafy.dog.domain.dog.dto.request.DogUpdateReq;
 import com.ssafy.dog.domain.dog.dto.response.DogGetRes;
 import com.ssafy.dog.domain.dog.entity.Dog;
 import com.ssafy.dog.domain.dog.repository.DogRepository;
@@ -13,6 +14,7 @@ import com.ssafy.dog.domain.user.repository.UserRepository;
 import com.ssafy.dog.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -53,5 +55,30 @@ public class DogController {
             throw new ApiException(UserErrorCode.USER_NOT_FOUND);
         }
         return dogService.getDogs(user.get().getUserId());
+    }
+
+    @GetMapping("/bypk/{dogId}")
+    @Operation(summary = "dogId(PK)로 개 정보 불러오기")
+    public Api<DogGetRes> readDogByDogId(@PathVariable Long dogId) {
+        return dogService.getDogByDogId(dogId);
+    }
+
+    @PutMapping
+    @Operation(summary = "개 정보 업데이트")
+    public Api<Map<String, Long>> updateDog(@Valid @RequestBody DogUpdateReq dogUpdateReq, Errors errors) {
+        Dog newDog = dogService.update(dogUpdateReq, errors);
+        Map<String, Long> ret = new HashMap<>();
+        ret.put("dogId", newDog.getDogId());
+        return Api.ok(ret);
+    }
+
+    @DeleteMapping("/{dogId}")
+    @Operation(summary = "개 정보 삭제")
+    public Api<?> deleteDog(@Valid @PathVariable("dogId") Long dogId) {
+        dogService.deleteDog(dogId, SecurityUtils.getUserId());
+
+        Map<String, Long> ret = new HashMap<>();
+        ret.put("dogId", dogId);
+        return Api.ok(ret);
     }
 }

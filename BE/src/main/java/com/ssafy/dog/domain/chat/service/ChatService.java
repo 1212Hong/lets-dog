@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ssafy.dog.common.api.Api;
+import com.ssafy.dog.common.error.JWTErrorCode;
 import com.ssafy.dog.common.error.UserErrorCode;
 import com.ssafy.dog.common.exception.ApiException;
 import com.ssafy.dog.domain.chat.dto.MessageDto;
@@ -28,6 +29,7 @@ import com.ssafy.dog.domain.chat.repository.redis.ChatRoomUsersRepository;
 import com.ssafy.dog.domain.chat.util.KafkaConstants;
 import com.ssafy.dog.domain.user.entity.User;
 import com.ssafy.dog.domain.user.repository.UserRepository;
+import com.ssafy.dog.security.JwtTokenProvider;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +50,7 @@ public class ChatService {
 	private final ChatHistoryRepository chatHistoryRepository;
 	private final ChatRoomUsersRepository chatRoomUsersRepository;
 	private final ChatReadRepository chatReadRepository;
+	private final JwtTokenProvider jwtTokenProvider;
 
 	@Transactional
 	public Api<?> createChatRoom(ChatRoomReqDto chatRoomReqDto) {
@@ -58,7 +61,7 @@ public class ChatService {
 			users.add(user);
 		}
 
-		ChatRoom chatRoom = ChatRoom.builder().build();
+		ChatRoom chatRoom = ChatRoom.builder().roomTitle(chatRoomReqDto.getRoomTitle()).build();
 		chatRoomRepository.save(chatRoom);
 
 		List<ChatMembers> chatMembersList = new ArrayList<>();
@@ -76,7 +79,6 @@ public class ChatService {
 
 	public Api<List<ChatListResDto>> getChatList(Long curUserId) {
 		List<ChatListResDto> roomLists = chatRoomRepository.getUserChatRoomsAndUserNicknames(curUserId);
-		// log.info("RoomID :{}", (chatMembersList.get(0).getChatRoom().getRoomId()));
 		log.info("RoomID :{}", (roomLists.size()));
 
 		return Api.ok(roomLists);
@@ -129,18 +131,20 @@ public class ChatService {
 
 	@Transactional
 	public void sendMessage(MessageDto message, String accessToken) {
-		// 메시지 전송 요청 헤더에 포함된 Access Token에서 email로 회원을 조회한다.
-		// Member findMember = memberRepository.findByEmail(jwtUtil.getUid(accessToken))
-		// 	.orElseThrow(IllegalStateException::new);
-		log.info("채팅전송 토큰 : {}", accessToken);
 		/*
 		AccessToken 검증 후 userId로 보내주기
 		 */
+		String jwt = accessToken.substring(7);
+		if (!jwtTokenProvider.validateToken(jwt)) {
+			throw new ApiException(JWTErrorCode.JWT_TOKEN_NOT_VALID);
+		}
+		Long userId = jwtTokenProvider.getJwtUserId(jwt);
+		log.info("유저 PK : {}", userId);
+
 		// read 한 사람들 추가
 		LocalDateTime origTime = LocalDateTime.now();
-		message.setSendTimeAndSenderAndRead(LocalDateTime.now(), Long.parseLong(accessToken), message.getSenderName(),
+		message.setSendTimeAndSenderAndRead(LocalDateTime.now(), userId, message.getSenderName(),
 			chatRoomService.isConnected(message.getRoomId()));
-		log.info("채팅시간 : {}", message.getSendTime());
 		kafkaProducerService.send(KafkaConstants.KAFKA_CHAT_TOPIC, message);
 
 		// kafka producer -> consumer -> stomp converAndSend 까지 된 후 DB 저장로직
@@ -159,6 +163,7 @@ public class ChatService {
 		log.info("채팅 읽은 사람들 : {}", connectedList);
 		log.info("히스토리 PK 값 : {}", historyId);
 		ChatRead curRead = ChatRead.builder().
+			roomId(message.getRoomId()).
 			historyId(historyId).
 			readList(connectedList).build();
 
@@ -173,14 +178,6 @@ public class ChatService {
 
 		kafkaProducerService.sendNotice(KafkaConstants.KAFKA_NOTICE_TOPIC, curNotice);
 
-	}
-
-	public Api<List<ChatListResDto>> testSecurity(Long curUserId) {
-		log.info("userId : {}", curUserId);
-		List<ChatListResDto> roomLists = chatRoomRepository.getUserChatRoomsAndUserNicknames(curUserId);
-		log.info("RoomID :{}", (roomLists.size()));
-
-		return Api.ok(roomLists);
 	}
 
 }

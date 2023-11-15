@@ -60,6 +60,38 @@ public class Dog {
     @Enumerated(EnumType.STRING)
     private DogSize dogSize;
 
+    // Updater
+    public void updateName(String dogName) {
+        this.dogName = dogName;
+    }
+
+    public void updatePicture(String dogPicture) {
+        this.dogPicture = dogPicture;
+    }
+
+    public void updateBirthdate(LocalDateTime dogBirthdate) {
+        this.dogBirthdate = dogBirthdate;
+    }
+
+    public void updateBreed(String dogBreed) {
+        this.dogBreed = dogBreed;
+    }
+
+    public void updateDispositioinList(List<DogDisposition> dogDispositions) {
+        this.dogDispositionList = dogDispositions;
+    }
+
+    public void updateAboutMe(String dogAboutMe) {
+        this.dogAboutMe = dogAboutMe;
+    }
+
+    public void updateSize(DogSize dogSize) {
+        this.dogSize = dogSize;
+    }
+
+
+    // Builder
+
     public static final class DogBuilder {
         private Long dogId;
         private User user;

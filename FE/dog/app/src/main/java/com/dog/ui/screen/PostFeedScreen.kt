@@ -26,13 +26,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.dog.data.viewmodel.feed.FeedViewModel
-import com.dog.data.viewmodel.feed.HomeViewModel
+import com.dog.data.viewmodel.feed.PostFeedViewModel
 
 
 @Composable
-fun ForumScreen(viewModel: FeedViewModel = hiltViewModel()) {
+fun PostFeedScreen(navController: NavController, viewModel: FeedViewModel = hiltViewModel()) {
     val localContext = LocalContext.current
     val selectedImageUris = remember { mutableStateListOf<Uri>() }
 
@@ -105,3 +105,7 @@ fun ForumScreen(viewModel: FeedViewModel = hiltViewModel()) {
 
 
 
+@Composable
+fun PostFeedScreen2(postFeed: PostFeedViewModel = hiltViewModel()) {
+    Log.d("rest",postFeed.postFeedResult.toString())
+}

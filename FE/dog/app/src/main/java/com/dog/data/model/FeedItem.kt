@@ -5,19 +5,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.toMutableStateList
 
 data class Comment(
-    val id: Int,
+    val id: Long,
     val username: String,
     val text: String
 )
 
 data class FeedItem(
-    val id: Int,
+    val id: Long,
     val username: String,
     val userProfileImageUrl: String,
     val postImageUrl: List<String>,
     val content: String,
-    var likes: MutableState<Int>,
-    var comments: Int,
+    var likes: MutableState<Long>,
+    var comments: Long,
     var isLiked: MutableState<Boolean>,
     var commentsList: MutableState<MutableList<Comment>>,
 )

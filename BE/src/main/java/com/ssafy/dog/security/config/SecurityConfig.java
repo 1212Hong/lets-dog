@@ -19,6 +19,20 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @EnableWebSecurity
 public class SecurityConfig {
+	private static final String[] PERMIT_URL_ARRAY = {
+		/* swagger v3 */
+		"/v3/api-docs/**",
+		"/swagger-ui/**",
+
+		/* APIs */
+		"/api/email/**",
+		"/api/user/login",
+		"/api/user/signup",
+		"/jwt/valid",
+
+		/* WebSocket */
+		"/ws-stomp/**"
+	};
 
 	private final JwtTokenProvider jwtTokenProvider;
 
@@ -40,13 +54,8 @@ public class SecurityConfig {
 		http
 			// 1. 기본 설정
 			.authorizeRequests()
-			// .antMatchers("/**").permitAll()
-			// .antMatchers("/api/board/**").hasRole("USER")
-			// .antMatchers("/api/chatroom/**").hasRole("USER")
-
-			.antMatchers("/api/chatroom/test/**").hasRole("USER") // 임시 SecurityContext 확인 테스트
-			.anyRequest().permitAll() // 그 외 나머지 요청은 누구나 접근 가능
-
+			.antMatchers(PERMIT_URL_ARRAY).permitAll()
+			.anyRequest().hasRole("USER") // 위 API들 제외하고는 모두 "USER" 역할이 필요하도록 설정
 			.and()
 			.csrf().disable() // csrf 보안 토큰 disable 처리
 			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 토큰 기반이므로 세션 사용 X

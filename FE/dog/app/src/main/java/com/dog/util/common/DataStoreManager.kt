@@ -24,6 +24,8 @@ class DataStoreManager @Inject constructor(@ApplicationContext private val conte
     companion object {
         private val USER_TOKEN_KEY = stringPreferencesKey("user_token")
         private val FCM_TOKEN_KEY = stringPreferencesKey("fcm_token")
+        private val USER_NICKNAME_KEY = stringPreferencesKey("user_nickname")
+        private val USER_LOGIN_ID_KEY = stringPreferencesKey("user_login_id")
     }
 
     val getAccessToken: Flow<String> = context.dataStore.data.map { preferences ->
@@ -39,11 +41,31 @@ class DataStoreManager @Inject constructor(@ApplicationContext private val conte
         }
     }
 
+    suspend fun saveUserDetails(nickname: String?, loginId: String?) {
+        context.dataStore.edit { preferences ->
+            nickname?.let { preferences[USER_NICKNAME_KEY] = it }
+            loginId?.let { preferences[USER_LOGIN_ID_KEY] = it }
+        }
+    }
+
     suspend fun getToken(): String {
         return context.dataStore.data.map { preferences ->
             preferences[USER_TOKEN_KEY] ?: ""
         }.first()
     }
+
+    suspend fun getUserNickname(): String {
+        return context.dataStore.data.map { preferences ->
+            preferences[USER_NICKNAME_KEY] ?: ""
+        }.first()
+    }
+
+    suspend fun getUserLoginId(): String {
+        return context.dataStore.data.map { preferences ->
+            preferences[USER_LOGIN_ID_KEY] ?: ""
+        }.first()
+    }
+
 
     suspend fun saveFCM(token: String?) {
         if (token != null) {

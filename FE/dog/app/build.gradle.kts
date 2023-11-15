@@ -1,12 +1,10 @@
-
-
 plugins {
     id("com.android.application")
     id("kotlin-parcelize")
     id("org.jetbrains.kotlin.android")
     id("org.jlleitschuh.gradle.ktlint") version "9.1.0"
     id("com.google.gms.google-services")
-    id ("dagger.hilt.android.plugin")
+    id("dagger.hilt.android.plugin")
     kotlin("kapt") version "1.8.10"
 }
 
@@ -78,10 +76,10 @@ dependencies {
     implementation("javax.inject:javax.inject:1")
     //hilt
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
-    implementation ("com.google.dagger:hilt-android:2.44")
+    implementation("com.google.dagger:hilt-android:2.44")
 //    implementation ("androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03")
-    kapt ("com.google.dagger:hilt-compiler:2.44")
-    kapt ("androidx.hilt:hilt-compiler:1.0.0")
+    kapt("com.google.dagger:hilt-compiler:2.44")
+    kapt("androidx.hilt:hilt-compiler:1.0.0")
 
     // Lifecycle components
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.2.0")
@@ -152,6 +150,6 @@ dependencies {
 
     runtimeOnly("com.google.accompanist:accompanist-pager:0.32.0")
     runtimeOnly("com.google.accompanist:accompanist-flowlayout:0.32.0")
-    implementation ("com.google.accompanist:accompanist-pager-indicators:0.32.0")
-    implementation ("com.google.accompanist:accompanist-permissions:0.32.0")
+    implementation("com.google.accompanist:accompanist-pager-indicators:0.32.0")
+    implementation("com.google.accompanist:accompanist-permissions:0.32.0")
 }

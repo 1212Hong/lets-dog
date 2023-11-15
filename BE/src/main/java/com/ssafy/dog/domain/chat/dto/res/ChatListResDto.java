@@ -1,6 +1,6 @@
 package com.ssafy.dog.domain.chat.dto.res;
 
-import java.util.List;
+import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,5 +10,5 @@ import lombok.Getter;
 public class ChatListResDto {
 	private Long roomId;
 	// private String recentMsg;
-	private List<String> roomMembers;
+	private Map<String, String> roomMembers;
 }

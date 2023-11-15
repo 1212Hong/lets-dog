@@ -54,7 +54,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -229,7 +228,7 @@ fun UserInformation(user: MatchingUserResponse, viewModel: MatchingViewModel) {
                             Button(
                                 onClick = {
                                     showDialog = false
-                                    viewModel.senFriendRequest(user.userNickname)
+                                    viewModel.sendFriendRequest(user.userNickname)
                                 }
                             ) {
                                 Text("신청")

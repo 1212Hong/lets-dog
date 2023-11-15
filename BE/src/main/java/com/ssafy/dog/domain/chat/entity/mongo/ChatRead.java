@@ -19,12 +19,15 @@ public class ChatRead {
 	@Id
 	private String readId;
 
+	private Long roomId;
+
 	private String historyId;
 
 	private List<Long> readList;
 
 	@Builder
-	public ChatRead(String historyId, List<Long> readList) {
+	public ChatRead(Long roomId, String historyId, List<Long> readList) {
+		this.roomId = roomId;
 		this.historyId = historyId;
 		this.readList = readList;
 	}

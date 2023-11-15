@@ -45,7 +45,8 @@ fun AppNavigation(
     }
 
     val token = userViewModel.jwtToken
-    if (token.value.isNullOrEmpty()) {
+    if (false) {
+        //token.value.isNullOrEmpty() TODO:: 되돌리기
         // Token이 비어있는 경우(로그인 안된 경우) : 로그인 또는 회원 가입 화면을 표시
         // 이후 Token을 저장하고 앱의 다음 단계로 이동합니다.
         NavHost(

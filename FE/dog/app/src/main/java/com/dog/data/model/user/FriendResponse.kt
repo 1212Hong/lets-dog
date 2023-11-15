@@ -4,7 +4,7 @@ import com.dog.data.model.common.ResponseBodyResult
 
 data class FriendApiResponse(
     val result: ResponseBodyResult,
-    val body: List<FriendResponse>
+    val body: FriendResponse
 )
 
 data class FriendResponse(
@@ -36,4 +36,9 @@ data class FriendState(
 data class FriendListResponse(
     val result: ResponseBodyResult,
     val body: List<FriendInfo>
+)
+
+data class FriendRequestResponse(
+    val result: ResponseBodyResult,
+    val body: List<UserBody>
 )
