@@ -1,24 +1,17 @@
 package com.dog.data.viewmodel.user
 
-import android.provider.ContactsContract.CommonDataKinds.Nickname
 import android.util.Log
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bumptech.glide.Glide.init
 import com.dog.data.model.common.Response
 import com.dog.data.model.common.ResponseBodyResult
 import com.dog.data.model.dog.DogInfo
 import com.dog.data.model.feed.BoardItem
-import com.dog.data.model.feed.BoardRequest
-import com.dog.data.model.feed.BoardResponse
-import com.dog.data.model.matching.Dog
-import com.dog.data.model.matching.MatchingUserResponse
-import com.dog.data.model.user.SignInRequest
-import com.dog.data.model.user.SignUpRequest
 import com.dog.data.model.user.UserBody
 import com.dog.data.model.user.UserUpdateRequest
 import com.dog.data.repository.DogRepository
@@ -40,7 +33,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MyPageViewModel @Inject constructor(
     private val dataStoreManager: DataStoreManager
-) : ViewModel() {
+) : ViewModel(), LifecycleEventObserver {
     private val interceptor = RetrofitClient.RequestInterceptor(dataStoreManager)
     private val userApi: UserRepository = RetrofitClient.getInstance(interceptor).create(
         UserRepository::class.java
@@ -73,11 +66,20 @@ class MyPageViewModel @Inject constructor(
 
     private val _toastMessage = mutableStateOf<String?>(null)
     val toastMessage: State<String?> = _toastMessage
+
     // 유저 정보 저장
     init {
         getUser()
         getDog()
         getUserArticle()
+    }
+
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+        if (event == Lifecycle.Event.ON_RESUME) {
+            getUser(currentUserNickname.value)
+            getDog(currentUserNickname.value)
+            getUserArticle(currentUserNickname.value)
+        }
     }
 
 
@@ -86,7 +88,10 @@ class MyPageViewModel @Inject constructor(
             val loginUser = dataStoreManager.getUserNickname()
             val nickname = userNickname ?: loginUser
             loginUserNickname.value = loginUser
-            currentUserNickname.value = userNickname?:loginUser
+            currentUserNickname.value = userNickname ?: loginUser
+            if (currentUserNickname.value != null && loginUserNickname.value !== null && currentUserNickname.value != loginUserNickname.value) {
+                loginUserNickname.value = null
+            }
             try {
                 val response =
                     userApi.getUserInfo(nickname)
@@ -157,9 +162,6 @@ class MyPageViewModel @Inject constructor(
 
     fun updateUserNickname(nickName: String) {
         currentUserNickname.value = nickName
-        getUser(nickName)
-        getDog(nickName)
-        getUserArticle(nickName)
     }
 
     fun getFriendRequests() {
@@ -259,7 +261,8 @@ class MyPageViewModel @Inject constructor(
                     val gson = Gson()
                     val typeToken = object : TypeToken<Response<ResponseBodyResult>>() {}.type
                     try {
-                        val errorResponse: Response<ResponseBodyResult> = gson.fromJson(errorBody, typeToken)
+                        val errorResponse: Response<ResponseBodyResult> =
+                            gson.fromJson(errorBody, typeToken)
                         Log.e("sendFriendRequest", "${errorResponse.result.message}")
                         _toastMessage.value = errorResponse.result.description
                     } catch (e: JsonSyntaxException) {
@@ -279,5 +282,21 @@ class MyPageViewModel @Inject constructor(
 
     fun updateDogInfo(dog: DogInfo) {
         Log.i("updateDog", "$dog")
+        viewModelScope.launch {
+            try {
+                val response =
+                    dogApi.updateDog(dog)
+                if (response.isSuccessful && response.body() != null) {
+                    getDog(currentUserNickname.value)
+                    Log.i("updateDog", _dogs.value.toString())
+                } else {
+                    // 서버에서 올바르지 않은 응답을 반환한 경우
+                    Log.e("updateDog", response.errorBody().toString())
+                }
+            } catch (e: Exception) {
+                // 네트워크 오류 처리
+                Log.d("getDog", e.message.toString())
+            }
+        }
     }
 }

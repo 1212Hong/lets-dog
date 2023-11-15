@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ssafy.dog.common.api.Api;
+import com.ssafy.dog.common.error.ChatErrorCode;
 import com.ssafy.dog.common.error.JWTErrorCode;
 import com.ssafy.dog.common.error.UserErrorCode;
 import com.ssafy.dog.common.exception.ApiException;
@@ -55,6 +56,9 @@ public class ChatService {
 	@Transactional
 	public Api<?> createChatRoom(ChatRoomReqDto chatRoomReqDto) {
 		List<User> users = new ArrayList<>();
+		if (chatRoomReqDto.getUserNicks().isEmpty()) {
+			throw new ApiException(ChatErrorCode.CHATROOM_USER_NOT_SELECT);
+		}
 		for (String nickName : chatRoomReqDto.getUserNicks()) {
 			User user = userRepository.findByUserNickname(nickName)
 				.orElseThrow(() -> new ApiException(UserErrorCode.USER_NOT_FOUND));

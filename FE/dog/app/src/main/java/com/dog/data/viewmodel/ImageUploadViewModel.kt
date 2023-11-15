@@ -62,7 +62,6 @@ class ImageUploadViewModel @Inject constructor(
                     _uploadStatus.value = UploadStatus.COMPLETED
                     Log.d("ImageUpload", "업로드된 이미지 URL: ${uploadResponse!!.get(0).body.url}")
                 } else {
-                    // 실패했을 때의 처리
                     _uploadStatus.value = UploadStatus.FAILED
                     Log.e("ImageUpload", "업로드 실패: ${response.errorBody()?.string()}")
                 }

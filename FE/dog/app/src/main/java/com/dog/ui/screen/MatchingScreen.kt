@@ -67,7 +67,7 @@ import com.google.accompanist.pager.*
 
 @Composable
 fun MatchingScreen(navController: NavController) {
-    val viewModel :MatchingViewModel = hiltViewModel()
+    val viewModel: MatchingViewModel = hiltViewModel()
     val lifecycleOwner = LocalLifecycleOwner.current
 
     DisposableEffect(lifecycleOwner) {
@@ -108,7 +108,7 @@ fun MatchingPge(viewModel: MatchingViewModel) {
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        UserDetailsScreen(viewModel = viewModel, listState = listState,)
+        UserDetailsScreen(viewModel = viewModel, listState = listState)
 
         EmptyStateView(visible = users.isEmpty())
     }
@@ -256,7 +256,7 @@ fun UserInformation(user: MatchingUserResponse, viewModel: MatchingViewModel) {
 
         }
         Text(
-            text = user.userAboutMe?:"자기소개가 없습니다.",
+            text = user.userAboutMe ?: "자기소개가 없습니다.",
             style = MaterialTheme.typography.bodyMedium
         )
         Text(
@@ -265,7 +265,7 @@ fun UserInformation(user: MatchingUserResponse, viewModel: MatchingViewModel) {
         )
         user.userAddress?.let {
             Text(
-                text = it?:"주소가 없습니다.",
+                text = it ?: "주소가 없습니다.",
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
@@ -284,7 +284,10 @@ fun DogsListView(dogs: List<Dog>?) {
             ) {
                 dogList.size
             }
-            Column(modifier = Modifier.padding(start = 5.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(
+                modifier = Modifier.padding(start = 15.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 HorizontalPager(
                     state = pagerState,
                     modifier = Modifier.fillMaxWidth(),
@@ -295,7 +298,8 @@ fun DogsListView(dogs: List<Dog>?) {
                     }
                 }
 
-                HorizontalPagerIndicator(pagerState = pagerState,
+                HorizontalPagerIndicator(
+                    pagerState = pagerState,
                     pageCount = dogList.size,
                     modifier = Modifier
                         .padding(5.dp),

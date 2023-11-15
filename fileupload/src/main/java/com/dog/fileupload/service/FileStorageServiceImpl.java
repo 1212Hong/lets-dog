@@ -91,7 +91,8 @@ public class FileStorageServiceImpl implements FileStorageService {
         }
         return transferFile(filePart, originalFilePath)
                 .flatMap(path -> encodeAndDeleteOriginal(path, mimeType)
-                        .publishOn(Schedulers.boundedElastic()));
+                        .publishOn(Schedulers.boundedElastic())
+                    .subscribeOn(Schedulers.boundedElastic()));
     }
 
     private Mono<Path> transferFile(FilePart filePart, Path path) {
@@ -170,7 +171,6 @@ public class FileStorageServiceImpl implements FileStorageService {
 
     @Override
     public Mono<Api<FileResponse>> deleteFile(String url) {
-        // TODO : 일정 기간이 지나면 deleted 상태의 파일 물리적 삭제
         return fileInfoRepository.findByUrl(url)
                 .switchIfEmpty(Mono.error(new ApiException(ErrorCode.BAD_REQUEST, "존재하지 않는 파일입니다.")))
                 .flatMap(existingFileInfo -> {
