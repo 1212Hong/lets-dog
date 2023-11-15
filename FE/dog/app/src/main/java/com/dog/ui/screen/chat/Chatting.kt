@@ -39,6 +39,8 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
@@ -52,15 +54,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.dog.R
 import com.dog.data.Screens
-import com.dog.data.model.Chat
 import com.dog.data.model.Person
+import com.dog.data.model.chat.ChatState
 import com.dog.data.viewmodel.chat.ChatViewModel
+import com.dog.data.viewmodel.user.UserState
+import com.dog.data.viewmodel.user.UserViewModel
 import com.dog.ui.components.IconComponentDrawable
 import com.dog.ui.components.IconComponentImageVector
 import com.dog.ui.theme.DogTheme
@@ -73,24 +75,29 @@ import com.dog.ui.theme.Yellow300
 import com.dog.util.common.StompManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 
 @Composable
-fun ChattingScreen(navController: NavHostController, roomId: Int) {
-    val chatViewModel: ChatViewModel = hiltViewModel()
-    val chatState by chatViewModel.chatState.collectAsState()
+fun ChattingScreen(
+    navController: NavHostController,
+    roomId: Long,
+    userViewModel: UserViewModel,
+    chatViewModel: ChatViewModel
+) {
+    val chatState = chatViewModel.chatState
+    val userState by userViewModel.userState.collectAsState()
+    Log.d("chat", userState.toString())
     val coroutineScope = rememberCoroutineScope()
-    val stompManager: StompManager by lazy { StompManager(chatViewModel) }
+    val stompManager = remember { StompManager(chatViewModel, userViewModel) }
 
     LaunchedEffect(roomId) {
         chatViewModel.getChatHistory(roomId)
     }
 
-
     // Use LaunchedEffect to initialize and connect StompManager
     DisposableEffect(Unit) {
-        stompManager.initializeStompClient()
-        stompManager.connectStomp()
+        stompManager.connectStomp(roomId)
 
         onDispose {
             // Composable 함수가 사라질 때, 여기에서 Stomp 연결을 해제합니다.
@@ -104,7 +111,17 @@ fun ChattingScreen(navController: NavHostController, roomId: Int) {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            ChatScreen(chatViewModel, chatState, coroutineScope, navController, stompManager)
+            userState?.let {
+                ChatScreen(
+                    chatViewModel,
+                    chatState,
+                    coroutineScope,
+                    navController,
+                    stompManager,
+                    roomId,
+                    it
+                )
+            }
         }
     }
 
@@ -113,12 +130,13 @@ fun ChattingScreen(navController: NavHostController, roomId: Int) {
 @Composable
 fun UserNameRow(
     modifier: Modifier = Modifier,
-    person: Person,
+    userState: UserState,
     navController: NavHostController
 ) {
+    var person =
+        rememberNavController().previousBackStackEntry?.savedStateHandle?.get<Person>("data")
+            ?: Person()
     val clickGoBack = {
-        Log.d("clicked?", navController.currentBackStackEntry?.destination?.route ?: "null")
-//        navController.navigateUp()
         navController.navigate(Screens.ChatList.route)
     }
 
@@ -162,17 +180,19 @@ fun UserNameRow(
 
 @Composable
 fun ChatRow(
-    chat: Chat,
-    person: Person
+    chat: ChatState,
+    user: UserState,
+    totalCnt: Int
 ) {
+    val name = user.name
     Column(
         modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = if (chat.direction) Alignment.Start else Alignment.End
+        horizontalAlignment = if (chat.senderName != name) Alignment.Start else Alignment.End
     ) {
         Row {
-            if (chat.direction) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    IconComponentDrawable(icon = person.icon, size = 30.dp)
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                if (chat.senderName != name) {
+                    IconComponentDrawable(icon = R.drawable.person_icon, size = 30.dp)
                     Text(
                         text = chat.senderName, style = TextStyle(
                             color = Color.Black,
@@ -185,7 +205,7 @@ fun ChatRow(
             Box(
                 modifier = Modifier
                     .background(
-                        if (chat.direction) Orange300 else Yellow300,
+                        if (chat.senderName == name) Orange300 else Yellow300,
                         RoundedCornerShape(100.dp)
                     ),
                 contentAlignment = Center
@@ -210,27 +230,37 @@ fun ChatRow(
             ),
             modifier = Modifier.padding(vertical = 7.dp, horizontal = 14.dp),
         )
+        Text(
+            text = (totalCnt - chat.readList.size).toString(),
+            style = TextStyle(
+                color = Color.Gray,
+                fontSize = 12.sp
+            ),
+            modifier = Modifier.padding(vertical = 7.dp, horizontal = 14.dp),
+        )
     }
 }
 
 @Composable
 fun ChatScreen(
     chatViewModel: ChatViewModel,
-    chatState: List<Chat>,
+    chatState: List<ChatState>,
     coroutineScope: CoroutineScope,
     navController: NavHostController,
-    stompManager: StompManager
+    stompManager: StompManager,
+    roomId: Long,
+    userState: UserState
+
 ) {
-    var data =
-        rememberNavController().previousBackStackEntry?.savedStateHandle?.get<Person>("data")
-            ?: Person()
     val listState = rememberLazyListState()
+    val totalCnt = chatViewModel.curChatroomTotalCnt
 
     // 스크롤 위치를 최하단으로 이동
     DisposableEffect(listState, chatState) {
         coroutineScope.launch {
-            listState.scrollToItem(chatState.size - 1) // 리스트 아이템의 가장 아래로 이동
-
+            if (listState != null && chatState != null && chatState.isNotEmpty()) {
+                listState.scrollToItem(chatState.size - 1)
+            }
         }
         onDispose { /* 생명주기가 종료될 때 정리 작업을 수행하거나 해제할 수 있음 */ }
     }
@@ -244,13 +274,13 @@ fun ChatScreen(
                 .fillMaxSize()
         ) {
             UserNameRow(
-                person = data,
                 modifier = Modifier.padding(
                     top = 20.dp,
                     start = 20.dp,
                     end = 20.dp,
                     bottom = 20.dp
                 ),
+                userState,
                 navController = navController
             )
             Divider(
@@ -274,8 +304,15 @@ fun ChatScreen(
                     ),
                     state = listState, // LazyListState를 사용
                 ) {
-                    items(chatState, key = { it.id }) {
-                        ChatRow(chat = it, person = data)
+                    if (chatState.isNotEmpty()) {
+                        items(chatState) { chat ->
+                            val key = UUID.randomUUID().toString()
+                            key(key) {
+                                userState?.let { user ->
+                                    ChatRow(chat = chat, user = user, totalCnt)
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -286,7 +323,9 @@ fun ChatScreen(
                 .padding(horizontal = 20.dp, vertical = 20.dp)
                 .align(Alignment.BottomCenter),
             chatViewModel = chatViewModel,
-            stompManager = stompManager
+            stompManager = stompManager,
+            nickName = userState.name,
+            roomId = roomId
         )
     }
 }
@@ -309,11 +348,13 @@ fun CommonIconButtonDrawable(
     @DrawableRes icon: Int,
     message: String,
     chatViewModel: ChatViewModel,
-    stompManager: StompManager
+    stompManager: StompManager,
+    roomId: Long,
+    nickName: String
 ) {
     val combinedClickActions = {
-        chatViewModel.sendMessage(1, 1, "test")
-        stompManager.sendStomp(message)
+//        chatViewModel.sendTest(roomId, nickName)
+        stompManager.sendStomp(roomId, nickName, message)
     }
     Box(
         modifier = Modifier
@@ -340,7 +381,9 @@ fun CustomTextField(
     modifier: Modifier = Modifier,
     onValueChange: (String) -> Unit,
     chatViewModel: ChatViewModel,
-    stompManager: StompManager
+    stompManager: StompManager,
+    nickName: String,
+    roomId: Long
 ) {
     TextField(
         value = text, onValueChange = { onValueChange(it) },
@@ -366,7 +409,9 @@ fun CustomTextField(
                 icon = R.drawable.ic_launcher,
                 message = text,
                 chatViewModel = chatViewModel,
-                stompManager = stompManager
+                stompManager = stompManager,
+                roomId = roomId,
+                nickName = nickName,
             )
         },
         keyboardOptions = KeyboardOptions.Default.copy(
@@ -375,8 +420,7 @@ fun CustomTextField(
         keyboardActions = KeyboardActions(
             onDone = {
                 // 엔터 키를 눌렀을 때 수행할 작업을 여기에 추가
-                chatViewModel.sendMessage(1, 1, "test")
-                stompManager.sendStomp(text)
+                stompManager.sendStomp(roomId, nickName, text)
             }
         ),
 

@@ -18,7 +18,6 @@ import com.google.gson.JsonSyntaxException
 import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -40,13 +39,17 @@ class UserViewModel @Inject constructor(
     val jwtToken: State<String?> get() = _jwtToken
     private val _isLogin = MutableStateFlow<Boolean>(false)
     val isLogin = _isLogin.asStateFlow()
-    private val _message = MutableStateFlow("")
-    val message: StateFlow<String> = _message.asStateFlow()
+    private val _message = mutableStateOf<String?>(null)
+    val message: State<String?> = _message
     private val _userInfo = MutableStateFlow<UserBody?>(null)
     val userInfo = _userInfo.asStateFlow()
 
     fun renderLogin() {
         _isLogin.value = true
+    }
+
+    fun clearMessage() {
+        _message.value = null
     }
 
     suspend fun login(id: String, pw: String) {
@@ -59,7 +62,7 @@ class UserViewModel @Inject constructor(
                     // 성공적으로 응답을 받았을 때의 처리
                     _message.value = response.body()!!.result?.message.toString()
                     val loginBody = response.body()?.body
-                    if (response.body()?.body != null) {
+                    if (loginBody != null) {
                         val token = loginBody?.jwt
                         val userNickname = loginBody?.userNickname
                         val userLoginId = loginBody?.userLoginId
@@ -68,6 +71,7 @@ class UserViewModel @Inject constructor(
                         dataStoreManager.saveToken(token)
                         dataStoreManager.saveUserDetails(userNickname, userLoginId)
                         _userState.value?.name = loginBody?.userNickname.toString()
+                        _userState.value = UserState(loginBody.userNickname, loginBody.userPicture)
                         _isLogin.value = true
                         Log.d("login", loginBody.toString())
                     }
@@ -80,7 +84,8 @@ class UserViewModel @Inject constructor(
                         val errorResponse: Response<ResponseBodyResult> =
                             gson.fromJson(errorBody, typeToken)
                         Log.e("loginRequest", "${errorResponse.result.message}")
-                        _message.value = errorResponse.result.description
+                        _message.value = errorResponse.result.message
+                        Log.d("loginRequest", _message.value.toString())
                     } catch (e: JsonSyntaxException) {
                         Log.e("loginRequest", "JSON 파싱 에러", e)
                     }
@@ -128,8 +133,6 @@ class UserViewModel @Inject constructor(
             }
         }
     }
-
-
 
     suspend fun getUser() {
         viewModelScope.launch {

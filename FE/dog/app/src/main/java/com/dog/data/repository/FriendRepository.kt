@@ -2,13 +2,13 @@ package com.dog.data.repository
 
 import com.dog.data.model.user.FriendApiResponse
 import com.dog.data.model.user.FriendRequestResponse
+import com.dog.data.model.user.FriendListResponse
 import com.dog.data.model.user.FriendResponse
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
-import retrofit2.http.Query
 
 interface FriendRepository {
     @POST("friend/request/{receiverNickname}")
@@ -17,6 +17,8 @@ interface FriendRepository {
     @GET("friend/request/received")
     suspend fun getFriendRequest(): Response<FriendRequestResponse>
 
+    @GET("friend/friend-list")
+    suspend fun getFriendListRequest(): Response<FriendListResponse>
     @PUT("friend/accept/{requesterNickname}")
     suspend fun acceptFriendRequest(@Path("requesterNickname") requesterNickname: String): Response<FriendApiResponse>
 

@@ -23,6 +23,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.dog.data.Screens
 import com.dog.data.viewmodel.ImageUploadViewModel
+import com.dog.data.viewmodel.chat.ChatViewModel
 import com.dog.data.viewmodel.map.LocationTrackingHistoryViewModel
 import com.dog.data.viewmodel.map.LocationTrackingViewModel
 import com.dog.data.viewmodel.user.MyPageViewModel
@@ -35,6 +36,7 @@ import com.dog.ui.screen.chat.ChattingScreen
 import com.dog.ui.screen.profile.EditDogProfileScreen
 import com.dog.ui.screen.profile.EditUserProfileScreen
 import com.dog.ui.screen.profile.MypageScreen
+import com.dog.ui.screen.chat.CreateChatting
 import com.dog.ui.screen.walking.WalkingHistoryScreen
 import com.dog.ui.screen.walking.WalkingScreen
 
@@ -50,6 +52,7 @@ fun BottomNavigationBar(startRoute: String, userViewModel: UserViewModel) {
     val locationTrackingHistoryViewModel: LocationTrackingHistoryViewModel = hiltViewModel()
     val myPageViewModel: MyPageViewModel = hiltViewModel()
     val imageUploadViewModel: ImageUploadViewModel = hiltViewModel()
+    val chatViewModel: ChatViewModel = hiltViewModel()
 
     when (navBackStackEntry?.destination?.route) {
         // "roomId" 값이 1이 아닌 경우에 대한 조건을 추가합니다.
@@ -134,7 +137,8 @@ fun BottomNavigationBar(startRoute: String, userViewModel: UserViewModel) {
             }
             composable(Screens.ChatList.route) {
                 ChatListScreen(
-                    navController
+                    navController,
+                    chatViewModel
                 )
             }
             composable(Screens.Mypage.route) {
@@ -150,10 +154,17 @@ fun BottomNavigationBar(startRoute: String, userViewModel: UserViewModel) {
             }
             composable(
                 route = "chatroom/{roomId}",
-                arguments = listOf(navArgument("roomId") { type = NavType.IntType })
+                arguments = listOf(navArgument("roomId") { type = NavType.LongType })
             ) { backStackEntry ->
-                val roomId = backStackEntry.arguments?.getInt("roomId") ?: -1
-                ChattingScreen(navController, roomId)
+                val roomId = backStackEntry.arguments?.getLong("roomId") ?: -1
+                Log.d("roomId", roomId.toString())
+                ChattingScreen(navController, roomId, userViewModel, chatViewModel)
+            }
+            composable("newChatting") {
+                CreateChatting(
+                    navController,
+                    chatViewModel
+                )
             }
 
             composable("profile/{userNickname}") { backStackEntry ->
