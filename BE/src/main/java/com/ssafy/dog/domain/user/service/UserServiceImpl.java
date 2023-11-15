@@ -8,6 +8,7 @@ import com.ssafy.dog.domain.fcm.repository.FcmTokenRepository;
 import com.ssafy.dog.domain.user.dto.request.UserLoginReq;
 import com.ssafy.dog.domain.user.dto.request.UserSignupReq;
 import com.ssafy.dog.domain.user.dto.request.UserUpdateReq;
+import com.ssafy.dog.domain.user.dto.response.IsDuplicatedRes;
 import com.ssafy.dog.domain.user.dto.response.UserLoginRes;
 import com.ssafy.dog.domain.user.dto.response.UserReadRes;
 import com.ssafy.dog.domain.user.dto.response.UserUpdateRes;
@@ -29,10 +30,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 
 import javax.validation.Valid;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 
 @Slf4j
@@ -175,6 +173,36 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new ApiException(UserErrorCode.USER_NOT_FOUND));
 
         return Api.ok(user.toUserReadRes());
+    }
+
+    @Transactional
+    @Override
+    public Api<IsDuplicatedRes> isDuplicatedEmail(String email) {
+        Optional<User> user = userRepository.findByUserLoginId(email);
+        IsDuplicatedRes res = new IsDuplicatedRes();
+
+        if (user.isEmpty()) {
+            res.setIsDuplicated(false);
+        } else {
+            res.setIsDuplicated(true);
+        }
+
+        return Api.ok(res);
+    }
+
+    @Transactional
+    @Override
+    public Api<IsDuplicatedRes> isDuplicatedNickname(String nickname) {
+        Optional<User> user = userRepository.findByUserNickname(nickname);
+        IsDuplicatedRes res = new IsDuplicatedRes();
+
+        if (user.isEmpty()) {
+            res.setIsDuplicated(false);
+        } else {
+            res.setIsDuplicated(true);
+        }
+
+        return Api.ok(res);
     }
 
     // 회원가입 시, 유효성 체크
