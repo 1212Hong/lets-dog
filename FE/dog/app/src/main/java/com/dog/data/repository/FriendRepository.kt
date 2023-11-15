@@ -12,7 +12,7 @@ import retrofit2.http.Query
 
 interface FriendRepository {
     @POST("friend/request/{receiverNickname}")
-    suspend fun sendFriendRequest(@Query("receiverNickname") receiverNickname: String): Response<FriendResponse>
+    suspend fun sendFriendRequest(@Path("receiverNickname") receiverNickname: String): Response<FriendResponse>
 
     @GET("friend/request/received")
     suspend fun getFriendRequest(): Response<FriendRequestResponse>

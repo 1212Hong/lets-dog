@@ -69,9 +69,9 @@ public class FileController {
                 .body(file);
     }
 
-    @DeleteMapping("/file/{filePk}")
-    public Mono<?> deleteFile(@PathVariable Long filePk) {
-        return fileStorageService.deleteFile(filePk);
+    @DeleteMapping("/file/{url}")
+    public Mono<?> deleteFile(@PathVariable String url) {
+        return fileStorageService.deleteFile(url);
     }
 
     @PutMapping("/files")

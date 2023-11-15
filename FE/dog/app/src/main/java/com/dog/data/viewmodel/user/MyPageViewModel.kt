@@ -12,6 +12,9 @@ import com.bumptech.glide.Glide.init
 import com.dog.data.model.common.Response
 import com.dog.data.model.common.ResponseBodyResult
 import com.dog.data.model.dog.DogInfo
+import com.dog.data.model.feed.BoardItem
+import com.dog.data.model.feed.BoardRequest
+import com.dog.data.model.feed.BoardResponse
 import com.dog.data.model.matching.Dog
 import com.dog.data.model.matching.MatchingUserResponse
 import com.dog.data.model.user.SignInRequest
@@ -19,6 +22,7 @@ import com.dog.data.model.user.SignUpRequest
 import com.dog.data.model.user.UserBody
 import com.dog.data.model.user.UserUpdateRequest
 import com.dog.data.repository.DogRepository
+import com.dog.data.repository.FeedRepository
 import com.dog.data.repository.FriendRepository
 import com.dog.data.repository.UserRepository
 import com.dog.util.common.DataStoreManager
@@ -47,6 +51,9 @@ class MyPageViewModel @Inject constructor(
     private val dogApi: DogRepository = RetrofitClient.getInstance(interceptor).create(
         DogRepository::class.java
     )
+    private val feedApi: FeedRepository = RetrofitClient.getInstance(interceptor).create(
+        FeedRepository::class.java
+    )
 
     var loginUserNickname = mutableStateOf<String?>(null)
     var currentUserNickname = mutableStateOf<String?>(null)
@@ -61,10 +68,16 @@ class MyPageViewModel @Inject constructor(
     private val _dogs = MutableStateFlow<List<DogInfo>>(listOf())
     val dogs: StateFlow<List<DogInfo>> = _dogs.asStateFlow()
 
+    private val _articles = MutableStateFlow<List<BoardItem>>(listOf())
+    val articles: StateFlow<List<BoardItem>> = _articles.asStateFlow()
+
+    private val _toastMessage = mutableStateOf<String?>(null)
+    val toastMessage: State<String?> = _toastMessage
     // 유저 정보 저장
     init {
         getUser()
         getDog()
+        getUserArticle()
     }
 
 
@@ -125,11 +138,11 @@ class MyPageViewModel @Inject constructor(
             val nickname = userNickname ?: loginUser
             try {
                 val response =
-                    dogApi.getDogs(nickname)
+                    feedApi.getUserBoards(nickname)
                 Log.i("getDog", "저장된 유저 이름 ${nickname}")
                 if (response.isSuccessful && response.body() != null) {
-                    response.body()?.body?.let { dogs ->
-                        _dogs.value = dogs
+                    response.body()?.body?.let { articles ->
+                        _articles.value = articles
                     }
                 } else {
                     // 서버에서 올바르지 않은 응답을 반환한 경우
@@ -146,6 +159,7 @@ class MyPageViewModel @Inject constructor(
         currentUserNickname.value = nickName
         getUser(nickName)
         getDog(nickName)
+        getUserArticle(nickName)
     }
 
     fun getFriendRequests() {
@@ -230,5 +244,40 @@ class MyPageViewModel @Inject constructor(
                 Log.d("api_err", e.message.toString())
             }
         }
+    }
+
+    fun sendFriendRequest(receiverNickname: String) {
+        viewModelScope.launch {
+            try {
+                val retrofitResponse = friendApi.sendFriendRequest(receiverNickname)
+                if (retrofitResponse.isSuccessful) {
+                    val responseBody = retrofitResponse.body()
+                    _toastMessage.value = "${currentUserNickname.value}님에게 친구 신청이 성공적으로 전송되었습니다."
+                } else {
+                    // 처리 실패 시
+                    val errorBody = retrofitResponse.errorBody()?.string()
+                    val gson = Gson()
+                    val typeToken = object : TypeToken<Response<ResponseBodyResult>>() {}.type
+                    try {
+                        val errorResponse: Response<ResponseBodyResult> = gson.fromJson(errorBody, typeToken)
+                        Log.e("sendFriendRequest", "${errorResponse.result.message}")
+                        _toastMessage.value = errorResponse.result.description
+                    } catch (e: JsonSyntaxException) {
+                        Log.e("sendFriendRequest", "JSON 파싱 에러", e)
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("sendFriendRequest", "네트워크 요청 에러", e)
+                _toastMessage.value = "친구 신청 중 오류가 발생했습니다."
+            }
+        }
+    }
+
+    fun clearToastMessage() {
+        _toastMessage.value = null
+    }
+
+    fun updateDogInfo(dog: DogInfo) {
+        Log.i("updateDog", "$dog")
     }
 }

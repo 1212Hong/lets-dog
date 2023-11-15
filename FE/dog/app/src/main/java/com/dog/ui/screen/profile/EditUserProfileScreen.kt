@@ -1,32 +1,62 @@
 package com.dog.ui.screen.profile
 
+import android.annotation.SuppressLint
+import android.content.res.Resources.Theme
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRowScopeInstance.align
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.dog.data.model.user.UserBody
 import com.dog.data.model.user.UserUpdateRequest
 import com.dog.data.viewmodel.ImageUploadViewModel
 import com.dog.data.viewmodel.user.MyPageViewModel
+import com.dog.ui.theme.DogTheme
+import com.dog.util.common.ImageLoader
+import com.google.firebase.auth.UserInfo
 
+
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditUserProfileScreen(
     navController: NavController,
     myPageViewModel: MyPageViewModel,
     imageUploadViewModel: ImageUploadViewModel
 ) {
+    val uploadStatus by imageUploadViewModel.uploadStatus.collectAsState()
     val uploadedImageUrls by imageUploadViewModel.uploadedImageUrls.collectAsState()
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -35,64 +65,184 @@ fun EditUserProfileScreen(
             imageUploadViewModel.uploadImage(it)
         }
     }
-    //TODO: 수정한 이미지 썸네일로 표시 후 취소 버튼 추가
-    //TODO: UI 개선
+
     val userInfoState = myPageViewModel.userInfo.collectAsState().value!!
     var userNickname by remember { mutableStateOf(userInfoState.userNickname ?: "") }
     var userPhone by remember { mutableStateOf(userInfoState.userPhone ?: "") }
-    var userPicture by remember { mutableStateOf(userInfoState.userPicture ?: "1") }
     var userAboutMe by remember { mutableStateOf(userInfoState.userAboutMe ?: "") }
     var userAddress by remember { mutableStateOf(userInfoState.userAddress ?: "") }
+    var userPicture by remember { mutableStateOf(userInfoState.userPicture ?: "1") }
+    val originalUserPicture = userInfoState.userPicture ?: "1"
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        TextField(
-            value = userNickname,
-            onValueChange = { userNickname = it },
-            label = { Text("닉네임") }
-        )
-        TextField(
-            value = userPhone,
-            onValueChange = { newValue ->
-                if (newValue.length <= 11 && newValue.all { it.isDigit() }) {
-                    userPhone = newValue
-                }
-            },
-            label = { Text("전화번호") }
-        )
-        Text(
-            text = "전화번호를 11자리 숫자로 입력해주세요.",
-            style = MaterialTheme.typography.bodySmall
-        )
-        TextField(
-            value = userAboutMe,
-            onValueChange = { userAboutMe = it },
-            label = { Text("자기소개") }
-        )
-        TextField(
-            value = userAddress,
-            onValueChange = { userAddress = it },
-            label = { Text("주소") }
-        )
-        Button(onClick = { imagePickerLauncher.launch("image/*") }) {
-            Text("프로필 사진 수정")
+    LaunchedEffect(uploadedImageUrls) {
+        if (uploadedImageUrls.isNotEmpty()) {
+            userPicture = uploadedImageUrls.first()
         }
+    }
 
-        Button(onClick = {
-            val updatedUser = UserUpdateRequest(
-                userNickname = userNickname,
-                userPhone = userPhone,
-                userPicture = uploadedImageUrls.firstOrNull() ?: userPicture,
-                userAboutMe = userAboutMe,
-                userGender = userInfoState.userGender, // 변경하지 않는 필드
-                userLatitude = userInfoState.userLatitude, // 변경하지 않는 필드
-                userLongitude = userInfoState.userLongitude, // 변경하지 않는 필드
-                userAddress = userAddress
-            )
-            myPageViewModel.updateUserProfile(updatedUser)
-            navController.popBackStack()
-        }) {
-            Text("프로필 업데이트")
+    fun handleDeleteImage() {
+        if (uploadStatus == ImageUploadViewModel.UploadStatus.COMPLETED) {
+            uploadedImageUrls.firstOrNull()?.let { url ->
+                // Implement the deleteImage method in the imageUploadViewModel
+                imageUploadViewModel.deleteImage(url)
+                userPicture = userInfoState.userPicture ?: "1"
+            }
+        }
+    }
+    DogTheme {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text(text = "프로필 수정") },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(Icons.Filled.ArrowBack, "뒤로가기")
+                        }
+                    },
+                    modifier = Modifier.height(30.dp).padding(top=5.dp)
+                )
+            }
+        ) { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                TextField(
+                    value = userNickname,
+                    onValueChange = { userNickname = it },
+                    label = { Text("닉네임") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                TextField(
+                    value = userPhone,
+                    onValueChange = { newValue ->
+                        if (newValue.length <= 11 && newValue.all { it.isDigit() }) {
+                            userPhone = newValue
+                        }
+                    },
+                    label = { Text("휴대폰번호") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                TextField(
+                    value = userAboutMe,
+                    onValueChange = {
+                        if (it.length <= 200) { // 최대 길이 제한
+                            userAboutMe = it
+                        }
+                    },
+                    label = { Text("자기소개") },
+                    placeholder = { Text("자기소개를 입력해주세요 (최대 200자)") },
+                    singleLine = false,
+                    maxLines = 4,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 100.dp, max = 140.dp)
+                )
+                Button(onClick = { imagePickerLauncher.launch("image/*") }, modifier = Modifier.fillMaxWidth()) {
+                    Text("프로필 이미지 수정")
+                }
+                Spacer(modifier = Modifier.size(4.dp))
+
+                ProfileImageSection(
+                    uploadStatus = uploadStatus,
+                    userPicture = userPicture,
+                    originalUserPicture = originalUserPicture,
+                    handleDeleteImage = ::handleDeleteImage
+                )
+                Spacer(modifier = Modifier.size(4.dp))
+                ProfileUpdateButton(
+                    uploadStatus = uploadStatus,
+                    userNickname = userNickname,
+                    userPhone = userPhone,
+                    userPicture = userPicture,
+                    userAboutMe = userAboutMe,
+                    userBody = userInfoState,
+                    myPageViewModel = myPageViewModel,
+                    navController = navController
+                )
+            }
         }
     }
 }
 
+
+
+@Composable
+fun ProfileImageSection(
+    uploadStatus: ImageUploadViewModel.UploadStatus,
+    userPicture: String,
+    originalUserPicture: String,
+    handleDeleteImage: () -> Unit
+) {
+    when (uploadStatus) {
+        ImageUploadViewModel.UploadStatus.IDLE,
+        ImageUploadViewModel.UploadStatus.COMPLETED -> {
+            ProfileImageWithDeleteButton(
+                currentImageUrl = userPicture,
+                originalImageUrl = originalUserPicture,
+                onDelete = handleDeleteImage
+            )
+        }
+        ImageUploadViewModel.UploadStatus.UPLOADING -> CircularProgressIndicator()
+        ImageUploadViewModel.UploadStatus.FAILED -> {
+            Text("업로드에 실패했습니다. 다시 시도해주세요")
+        }
+    }
+}
+
+@Composable
+fun ProfileImageWithDeleteButton(
+    currentImageUrl: String,
+    originalImageUrl: String,
+    onDelete: () -> Unit
+) {
+    Box(
+        contentAlignment = Alignment.TopEnd,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(400.dp)
+    ) {
+        ImageLoader(imageUrl = currentImageUrl)
+        if (currentImageUrl != originalImageUrl) {
+            IconButton(onClick = onDelete) {
+                Icon(Icons.Default.Close, contentDescription = "Delete Image")
+            }
+        }
+    }
+}
+
+@Composable
+fun ProfileUpdateButton(
+    uploadStatus: ImageUploadViewModel.UploadStatus,
+    userNickname: String,
+    userPhone: String,
+    userPicture: String,
+    userAboutMe: String,
+    userBody: UserBody,
+    myPageViewModel: MyPageViewModel,
+    navController: NavController
+) {
+    Button(
+        onClick = {
+            val updatedUser = UserUpdateRequest(
+                userNickname = userNickname,
+                userPhone = userPhone,
+                userPicture = userPicture,
+                userAboutMe = userAboutMe,
+                userGender = userBody.userGender,
+                userLatitude = userBody.userLatitude,
+                userLongitude = userBody.userLongitude,
+                userAddress = userBody.userAddress
+            )
+            myPageViewModel.updateUserProfile(updatedUser)
+            navController.popBackStack()
+        },
+        enabled = uploadStatus != ImageUploadViewModel.UploadStatus.UPLOADING,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text("프로필 수정")
+    }
+}

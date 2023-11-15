@@ -33,7 +33,6 @@ interface FeedRepository {
     @POST("upload")
     suspend fun uploadImage(@Part image: List<MultipartBody.Part>): Response<UploadResponse>
 
-    suspend fun getUserBoards(
-
-    )
+    @GET("board")
+    suspend fun getUserBoards(@Query("userNickname") userNickname: String): Response<BoardResponse>
 }

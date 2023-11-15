@@ -89,7 +89,7 @@ class MatchingViewModel@Inject constructor(
         }
     }
 
-    fun senFriendRequest(receiverNickname: String) {
+    fun sendFriendRequest(receiverNickname: String) {
         viewModelScope.launch {
             try {
                 val retrofitResponse = FriendApi.sendFriendRequest(receiverNickname)
@@ -103,14 +103,14 @@ class MatchingViewModel@Inject constructor(
                     val typeToken = object : TypeToken<Response<ResponseBodyResult>>() {}.type
                     try {
                         val errorResponse: Response<ResponseBodyResult> = gson.fromJson(errorBody, typeToken)
-                        Log.e("senFriendRequest", "${errorResponse.result.message}")
+                        Log.e("sendFriendRequest", "${errorResponse.result.message}")
                         _toastMessage.value = errorResponse.result.description
                     } catch (e: JsonSyntaxException) {
-                        Log.e("senFriendRequest", "JSON 파싱 에러", e)
+                        Log.e("sendFriendRequest", "JSON 파싱 에러", e)
                     }
                 }
             } catch (e: Exception) {
-                Log.e("senFriendRequest", "네트워크 요청 에러", e)
+                Log.e("sendFriendRequest", "네트워크 요청 에러", e)
                 _toastMessage.value = "친구 신청 중 오류가 발생했습니다."
             }
         }

@@ -10,8 +10,7 @@ data class FriendApiResponse(
 
 data class FriendResponse(
     val senderNickname: String,
-    val receiverNickname: String,
-    val status: String,
+    val receiverNickname: String
 )
 
 data class FriendRequestResponse(

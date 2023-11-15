@@ -6,6 +6,7 @@ import com.dog.data.model.user.FriendRequestResponse
 import com.dog.data.model.user.FriendResponse
 import okhttp3.MultipartBody
 import retrofit2.Response
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.POST
@@ -18,4 +19,7 @@ interface UploadRepository {
     @Multipart
     @POST("upload")
     suspend fun uploadImage(@Part image: MultipartBody.Part): Response<List<ImageUploadResponse>>
+
+    @DELETE("file")
+    suspend fun deleteImage(@Path("url") url:String): Response<List<ImageUploadResponse>>
 }
