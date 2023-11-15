@@ -1,6 +1,7 @@
 package com.ssafy.dog.domain.user.controller;
 
 import com.ssafy.dog.common.api.Api;
+import com.ssafy.dog.domain.user.dto.response.FriendReadRes;
 import com.ssafy.dog.domain.user.dto.response.FriendRequestResDto;
 import com.ssafy.dog.domain.user.dto.response.FriendUnfriendRes;
 import com.ssafy.dog.domain.user.dto.response.UserReadRes;
@@ -64,7 +65,7 @@ public class FriendController {
 
     @GetMapping("/friend-list")
     @Operation(summary = "친구 목록 불러오기")
-    public Api<List<UserReadRes>> getFriendsList() {
+    public Api<List<FriendReadRes>> getFriendsList() {
         return friendService.getFriendsList(SecurityUtils.getUserId());
     }
 }

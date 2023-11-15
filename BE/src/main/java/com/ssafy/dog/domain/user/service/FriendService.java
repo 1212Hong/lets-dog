@@ -1,6 +1,7 @@
 package com.ssafy.dog.domain.user.service;
 
 import com.ssafy.dog.common.api.Api;
+import com.ssafy.dog.domain.user.dto.response.FriendReadRes;
 import com.ssafy.dog.domain.user.dto.response.FriendRequestResDto;
 import com.ssafy.dog.domain.user.dto.response.FriendUnfriendRes;
 import com.ssafy.dog.domain.user.dto.response.UserReadRes;
@@ -21,5 +22,5 @@ public interface FriendService {
 
     Api<List<UserReadRes>> getUsersReceivedFriendRequests(Long userId);
 
-    Api<List<UserReadRes>> getFriendsList(Long userId);
+    Api<List<FriendReadRes>> getFriendsList(Long userId);
 }
