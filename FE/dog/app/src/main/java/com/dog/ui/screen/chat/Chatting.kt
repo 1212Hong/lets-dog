@@ -185,13 +185,14 @@ fun ChatRow(
     totalCnt: Int
 ) {
     val name = user.name
+    var checkMine: Boolean = chat.senderName == name
     Column(
         modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = if (chat.senderName != name) Alignment.Start else Alignment.End
+        horizontalAlignment = if (!checkMine) Alignment.Start else Alignment.End
     ) {
         Row {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                if (chat.senderName != name) {
+                if (!checkMine) {
                     IconComponentDrawable(icon = R.drawable.person_icon, size = 30.dp)
                     Text(
                         text = chat.senderName, style = TextStyle(
@@ -200,44 +201,74 @@ fun ChatRow(
                         )
                     )
                 }
-
             }
-            Box(
-                modifier = Modifier
-                    .background(
-                        if (chat.senderName == name) Orange300 else Yellow300,
-                        RoundedCornerShape(100.dp)
-                    ),
-                contentAlignment = Center
-            ) {
-
+            if (checkMine) {
                 Text(
-                    text = chat.content, style = TextStyle(
-                        color = Color.Black,
-                        fontSize = 15.sp
+                    text = (totalCnt - chat.readList.size).toString(),
+                    style = TextStyle(
+                        color = Color.Gray,
+                        fontSize = 12.sp
                     ),
-                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 15.dp),
-                    textAlign = TextAlign.End
+                    modifier = Modifier.padding(vertical = 7.dp, horizontal = 14.dp),
+                )
+                Box(
+                    modifier = Modifier
+                        .background(
+                            if (chat.senderName == name) Orange300 else Yellow300,
+                            RoundedCornerShape(100.dp)
+                        ),
+                    contentAlignment = Center
+                ) {
+
+                    Text(
+                        text = chat.content, style = TextStyle(
+                            color = Color.Black,
+                            fontSize = 15.sp
+                        ),
+                        modifier = Modifier.padding(vertical = 8.dp, horizontal = 15.dp),
+                        textAlign = TextAlign.End
+                    )
+                }
+            } else {
+
+                Box(
+                    modifier = Modifier
+                        .background(
+                            if (chat.senderName == name) Orange300 else Yellow300,
+                            RoundedCornerShape(100.dp)
+                        ),
+                    contentAlignment = Center
+                ) {
+
+                    Text(
+                        text = chat.content, style = TextStyle(
+                            color = Color.Black,
+                            fontSize = 15.sp
+                        ),
+                        modifier = Modifier.padding(vertical = 8.dp, horizontal = 15.dp),
+                        textAlign = TextAlign.End
+                    )
+                }
+                Text(
+                    text = (totalCnt - chat.readList.size).toString(),
+                    style = TextStyle(
+                        color = Color.Gray,
+                        fontSize = 12.sp
+                    ),
+                    modifier = Modifier.padding(vertical = 7.dp, horizontal = 14.dp),
                 )
             }
-        }
 
-        Text(
-            text = chat.sendTime,
-            style = TextStyle(
-                color = Color.Gray,
-                fontSize = 12.sp
-            ),
-            modifier = Modifier.padding(vertical = 7.dp, horizontal = 14.dp),
-        )
-        Text(
-            text = (totalCnt - chat.readList.size).toString(),
-            style = TextStyle(
-                color = Color.Gray,
-                fontSize = 12.sp
-            ),
-            modifier = Modifier.padding(vertical = 7.dp, horizontal = 14.dp),
-        )
+            Text(
+                text = chat.sendTime,
+                style = TextStyle(
+                    color = Color.Gray,
+                    fontSize = 12.sp
+                ),
+                modifier = Modifier.padding(vertical = 7.dp, horizontal = 14.dp),
+            )
+
+        }
     }
 }
 
@@ -254,6 +285,13 @@ fun ChatScreen(
 ) {
     val listState = rememberLazyListState()
     val totalCnt = chatViewModel.curChatroomTotalCnt
+
+    // LaunchedEffect를 사용하여 최하단으로 스크롤
+    LaunchedEffect(chatState) {
+        if (listState != null && chatState != null && chatState.isNotEmpty()) {
+            listState.animateScrollToItem(chatState.size - 1)
+        }
+    }
 
     // 스크롤 위치를 최하단으로 이동
     DisposableEffect(listState, chatState) {

@@ -123,7 +123,7 @@ class ChatViewModel @Inject constructor(
         currentReadList.add(userId)
         _readList.clear()
         _readList.addAll(currentReadList)
-        Log.d("readList", _readList.toString())
+        Log.d("readList", _readList.toList().toString())
     }
 
     fun leaveChatroom(roomId: Long) {
