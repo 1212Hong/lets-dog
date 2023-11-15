@@ -18,7 +18,6 @@ import com.google.gson.JsonSyntaxException
 import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -40,13 +39,18 @@ class UserViewModel @Inject constructor(
     val jwtToken: State<String?> get() = _jwtToken
     private val _isLogin = MutableStateFlow<Boolean>(false)
     val isLogin = _isLogin.asStateFlow()
-    private val _message = MutableStateFlow<String?>(null)
-    val message: StateFlow<String?> = _message.asStateFlow()
+    private val _message = mutableStateOf<String?>(null)
+    val message: State<String?> = _message
     private val _userInfo = MutableStateFlow<UserBody?>(null)
     val userInfo = _userInfo.asStateFlow()
 
+
     fun renderLogin() {
         _isLogin.value = true
+    }
+
+    fun clearMessage() {
+        _message.value = null
     }
 
     suspend fun login(id: String, pw: String) {

@@ -1,6 +1,7 @@
 package com.dog.ui.navigation
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -143,10 +144,11 @@ fun BottomNavigationBar(startRoute: String, userViewModel: UserViewModel) {
             }
             composable(
                 route = "chatroom/{roomId}",
-                arguments = listOf(navArgument("roomId") { type = NavType.IntType })
+                arguments = listOf(navArgument("roomId") { type = NavType.LongType })
             ) { backStackEntry ->
                 val roomId = backStackEntry.arguments?.getLong("roomId") ?: -1
-                ChattingScreen(navController, roomId, userViewModel)
+                Log.d("roomId", roomId.toString())
+                ChattingScreen(navController, roomId, userViewModel, chatViewModel)
             }
             composable("newChatting") {
                 CreateChatting(

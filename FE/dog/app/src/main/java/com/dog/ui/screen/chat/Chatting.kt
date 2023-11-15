@@ -40,6 +40,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
@@ -53,7 +54,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.dog.R
@@ -79,13 +79,17 @@ import java.util.UUID
 
 
 @Composable
-fun ChattingScreen(navController: NavHostController, roomId: Long, userViewModel: UserViewModel) {
-    val chatViewModel: ChatViewModel = hiltViewModel()
-    val chatState by chatViewModel.chatState.collectAsState()
+fun ChattingScreen(
+    navController: NavHostController,
+    roomId: Long,
+    userViewModel: UserViewModel,
+    chatViewModel: ChatViewModel
+) {
+    val chatState = chatViewModel.chatState
     val userState by userViewModel.userState.collectAsState()
     Log.d("chat", userState.toString())
     val coroutineScope = rememberCoroutineScope()
-    val stompManager: StompManager by lazy { StompManager(chatViewModel, userViewModel) }
+    val stompManager = remember { StompManager(chatViewModel, userViewModel) }
 
     LaunchedEffect(roomId) {
         chatViewModel.getChatHistory(roomId)
@@ -94,7 +98,6 @@ fun ChattingScreen(navController: NavHostController, roomId: Long, userViewModel
 
     // Use LaunchedEffect to initialize and connect StompManager
     DisposableEffect(Unit) {
-        stompManager.initializeStompClient()
         stompManager.connectStomp(roomId)
 
         onDispose {
@@ -186,7 +189,7 @@ fun ChatRow(
     val name = user.name
     Column(
         modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = if (chat.senderName == name) Alignment.Start else Alignment.End
+        horizontalAlignment = if (chat.senderName != name) Alignment.Start else Alignment.End
     ) {
         Row {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -348,6 +351,7 @@ fun CommonIconButtonDrawable(
     nickName: String
 ) {
     val combinedClickActions = {
+//        chatViewModel.sendTest(roomId, nickName)
         stompManager.sendStomp(roomId, nickName, message)
     }
     Box(

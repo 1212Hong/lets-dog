@@ -16,6 +16,7 @@ import org.json.JSONObject
 import ua.naiksoftware.stomp.Stomp
 import ua.naiksoftware.stomp.StompClient
 import ua.naiksoftware.stomp.dto.LifecycleEvent
+import ua.naiksoftware.stomp.dto.StompCommand
 import ua.naiksoftware.stomp.dto.StompHeader
 import ua.naiksoftware.stomp.dto.StompMessage
 import java.text.SimpleDateFormat
@@ -34,6 +35,10 @@ class StompManager(chatViewModel: ChatViewModel, userViewModel: UserViewModel) {
     private val chatViewModel = chatViewModel
     private val userViewModel = userViewModel
 
+    init {
+        initializeStompClient()
+    }
+
     fun initializeStompClient() {
         mStompClient = Stomp.over(
             Stomp.ConnectionProvider.OKHTTP, "ws://k9c205.p.ssafy.io:8000/ws-stomp"
@@ -49,86 +54,99 @@ class StompManager(chatViewModel: ChatViewModel, userViewModel: UserViewModel) {
         if (mStompClient?.isConnected == true) {
             return
         }
-
-        val headers: MutableList<StompHeader> = ArrayList()
-        headers.add(StompHeader("Authorization", "Bearer ${userViewModel.jwtToken.value}"))
-        headers.add(StompHeader("Chatroom-no", roomId.toString()))
-
-        val disposableLifecycle: Disposable? = mStompClient?.lifecycle()
-            ?.subscribeOn(Schedulers.io())
-            ?.observeOn(AndroidSchedulers.mainThread())
-            ?.subscribe { lifecycleEvent: LifecycleEvent ->
-                when (lifecycleEvent.type) {
-                    LifecycleEvent.Type.OPENED -> Log.d(TAG, "stomp open")
-//                        toast("Stomp connection opened")
-                    LifecycleEvent.Type.ERROR -> {
-                        Log.e(TAG, "Stomp connection error", lifecycleEvent.exception)
-//                        toast("Stomp connection error")
-                    }
-
-                    LifecycleEvent.Type.CLOSED -> {
-//                        toast("Stomp connection closed")
-                        resetSubscriptions()
-                    }
-
-                    LifecycleEvent.Type.FAILED_SERVER_HEARTBEAT -> Log.d(
-                        TAG,
-                        "Stomp failed server heartbeat"
-                    )
-//                        toast("Stomp failed server heartbeat")
-                }
-            }
-
-        if (disposableLifecycle != null) {
-            compositeDisposable?.add(disposableLifecycle)
+        Log.d("stompClient-init", mStompClient.toString())
+        if (mStompClient == null) {
+            initializeStompClient()
+            Log.d("stompClient-afterNull", mStompClient.toString())
         }
 
-        // Receive greetings
-        val disposableTopic = mStompClient!!.topic("/sub/chatroom/$roomId")
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ topicMessage: StompMessage ->
-                Log.d(TAG, "Received " + topicMessage.payload)
-                val newChatLog = mGson.fromJson(
-                    topicMessage.payload,
-                    ChatState::class.java
-                )
-                chatViewModel.sendMessage(newChatLog)
-            }
-            ) { throwable: Throwable? ->
-                Log.e(
-                    TAG,
-                    "Error on subscribe topic",
-                    throwable
-                )
+
+        mStompClient?.let { stompClient ->
+            if (stompClient.isConnected) {
+                return
             }
 
-        val disposableNoticeTopic = mStompClient!!.topic("/sub/notice/$roomId")
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ topicMessage: StompMessage ->
-                Log.d(TAG, "Received " + topicMessage.payload)
-                chatViewModel.updateReadList(
-                    topicMessage.payload
-                )
-            }
-            ) { throwable: Throwable? ->
-                Log.e(
-                    TAG,
-                    "Error on subscribe topic",
-                    throwable
-                )
-            }
+            val headers: MutableList<StompHeader> = ArrayList()
+            Log.d("jwt", userViewModel.jwtToken.value.toString())
+            headers.add(StompHeader("Authorization", "Bearer ${userViewModel.jwtToken.value}"))
+            headers.add(StompHeader("Chatroom-no", roomId.toString()))
 
-        compositeDisposable?.add(disposableTopic)
-        compositeDisposable?.add(disposableNoticeTopic)
+            val disposableLifecycle: Disposable = stompClient.lifecycle()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { lifecycleEvent: LifecycleEvent ->
+                    when (lifecycleEvent.type) {
+                        LifecycleEvent.Type.OPENED -> Log.d(TAG, "stomp open")
+                        LifecycleEvent.Type.ERROR -> {
+                            Log.e(TAG, "Stomp connection error", lifecycleEvent.exception)
+                        }
 
-        mStompClient?.connect(headers)
+                        LifecycleEvent.Type.CLOSED -> {
+                            resetSubscriptions()
+                        }
+
+                        LifecycleEvent.Type.FAILED_SERVER_HEARTBEAT -> Log.d(
+                            TAG,
+                            "Stomp failed server heartbeat"
+                        )
+                    }
+                }
+
+            compositeDisposable.add(disposableLifecycle)
+
+            // Receive greetings
+            val disposableTopic = stompClient.topic("/sub/chatroom/$roomId")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ topicMessage: StompMessage ->
+                    Log.d(TAG, "Received " + topicMessage.payload)
+                    val newChatLog = mGson.fromJson(
+                        topicMessage.payload,
+                        ChatState::class.java
+                    )
+                    Log.d(TAG, newChatLog.toString())
+                    chatViewModel.sendMessage(newChatLog)
+                }) { throwable: Throwable? ->
+                    Log.e(
+                        TAG,
+                        "Error on subscribe topic",
+                        throwable
+                    )
+                }
+
+            val disposableNoticeTopic = stompClient.topic("/sub/notice/$roomId")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ topicMessage: StompMessage ->
+                    Log.d(TAG, "Received " + topicMessage.payload)
+                    chatViewModel.updateReadList(
+                        topicMessage.payload
+                    )
+                }) { throwable: Throwable? ->
+                    Log.e(
+                        TAG,
+                        "Error on subscribe topic",
+                        throwable
+                    )
+                }
+
+            compositeDisposable.add(disposableTopic)
+            compositeDisposable.add(disposableNoticeTopic)
+
+            stompClient.connect(headers)
+        }
     }
 
     fun sendStomp(roomId: Long, nickName: String, message: String) {
         Log.d("compositeDisposable", compositeDisposable.toString())
-        if (mStompClient?.isConnected == true && compositeDisposable != null) {
+        Log.d("connected", mStompClient?.isConnected.toString())
+        Log.d("stompClient-send", mStompClient.toString())
+        Log.d(
+            TAG,
+            "sendStomp - mStompClient: $mStompClient, isConnected: ${mStompClient?.isConnected}, compositeDisposable: $compositeDisposable"
+        )
+//        if (mStompClient?.isConnected == true && compositeDisposable != null) {
+        if (mStompClient != null && compositeDisposable != null) {
             val jsonObject = JSONObject()
             jsonObject.put("roomId", roomId);
             jsonObject.put("senderName", nickName);
@@ -136,11 +154,21 @@ class StompManager(chatViewModel: ChatViewModel, userViewModel: UserViewModel) {
             jsonObject.put("content", message);
             Log.d("jsonTest", jsonObject.toString())
 
+            val headers: MutableList<StompHeader> = ArrayList()
+            Log.d("jwt", userViewModel.jwtToken.value.toString())
+            headers.add(StompHeader("Authorization", "Bearer ${userViewModel.jwtToken.value}"))
+            headers.add(StompHeader("Chatroom-no", roomId.toString()))
+
+            val stompMessage = StompMessage(
+                StompCommand.SEND,
+                headers + listOf(StompHeader("destination", "/pub/message")),
+                jsonObject.toString()
+            )
+
 
             compositeDisposable!!.add(
                 mStompClient!!.send(
-                    "/pub/message",
-                    jsonObject.toString()
+                    stompMessage
                 )
                     .compose(applySchedulers())
                     .subscribe(

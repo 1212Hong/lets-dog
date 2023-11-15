@@ -20,7 +20,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,14 +45,14 @@ fun LoginScreen(
     userViewModel: UserViewModel,
 ) {
     val context = LocalContext.current
-    val toastMessage = userViewModel.message.collectAsState()
-    LaunchedEffect(toastMessage.value) {
-        val token = userViewModel.jwtToken.value
-        val isLogin = userViewModel.isLogin.value
+    val toastMessage = userViewModel.message.value
+    LaunchedEffect(toastMessage) {
+//        val token = userViewModel.jwtToken.value
+//        val isLogin = userViewModel.isLogin.value
         Log.d("login", toastMessage.toString())
-        if (toastMessage.value != null) {
-            Log.d("login", toastMessage.toString())
-            Toast.makeText(context, toastMessage.value, Toast.LENGTH_LONG).show()
+        toastMessage?.let {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            userViewModel.clearMessage()
         }
 
 //        if (!isLogin && token.isNullOrEmpty()) {
