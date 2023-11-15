@@ -3,6 +3,7 @@ package com.dog.data.viewmodel.chat
 import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,9 +11,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dog.data.model.chat.ChatState
 import com.dog.data.model.chat.ChatroomInfo
+import com.dog.data.model.chat.CreateChatroomRequest
 import com.dog.data.model.common.Response
 import com.dog.data.model.common.ResponseBodyResult
-import com.dog.data.model.user.FriendInfo
+import com.dog.data.model.user.FriendState
 import com.dog.data.repository.ChatRepository
 import com.dog.data.repository.FriendRepository
 import com.dog.util.common.DataStoreManager
@@ -57,14 +59,14 @@ class ChatViewModel @Inject constructor(
     val toastMessage: StateFlow<String> = _toastMessage.asStateFlow()
 
     // 대화방을 만들때 선택하기 위한 친구 목록
-    private val _friendList = mutableStateListOf<FriendInfo>()
-    val friendList: List<FriendInfo> get() = _friendList
+    private val _friendList = mutableStateListOf<FriendState>()
+    val friendList: List<FriendState> get() = _friendList
 
     // 읽음 처리를 위한 현재 채팅 접속자 리스트
     private val _readList = mutableStateListOf<String>()
     val readList: List<String> get() = _readList
 
-
+    var curChatroomTotalCnt by mutableIntStateOf(0)
     var curMessage by mutableStateOf("")
 
     suspend fun newChatroom(roomName: String, selectedFriends: List<String>) {
@@ -72,7 +74,7 @@ class ChatViewModel @Inject constructor(
             val friendNicknames = selectedFriends.map { it }
 
             try {
-                val res = chatApi.createChatroom(friendNicknames)
+                val res = chatApi.createChatroom(CreateChatroomRequest(roomName, friendNicknames))
 
                 if (res.isSuccessful) {
                     // Handle success, you might want to update UI or navigate to the created chatroom
@@ -99,22 +101,6 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    fun sendTest(
-        roomId: Long,
-        senderName: String,
-    ) {
-//        val chatState = ChatState(roomId, senderId, senderName, contentType, curMessage)
-//        val newId = chatState.value.size + 1;
-        val newChat = ChatState(
-            content = curMessage,
-            senderName = senderName,
-            sendTime = "현재시간",
-            readList = arrayListOf(3)
-        )
-        updateChatState(newChat)
-        curMessage = ""
-    }
-
     fun sendMessage(
         newChatLog: ChatState
     ) {
@@ -123,7 +109,7 @@ class ChatViewModel @Inject constructor(
         curMessage = ""
     }
 
-    fun updateChatState(chat: ChatState) {
+    private fun updateChatState(chat: ChatState) {
 //        val currentChatState = chatState.value.toMutableList() // 현재 상태를 가져옵니다.
 //        currentChatState.add(chat)
 //        _chatState.value = currentChatState // 수정된 목록을 다시 StateFlow에 할당합니다.
@@ -153,11 +139,22 @@ class ChatViewModel @Inject constructor(
 
                 if (res.isSuccessful) {
                     Log.d("friendlist", res.body().toString())
-                    res.body()?.body?.let { list ->
+                    res.body()?.body?.let { friendListResponse ->
+                        // friendListResponse는 서버에서 받아온 전체 리스트입니다.
+                        // 여기서 필요한 정보만을 추출하여 FriendState 타입의 리스트로 생성합니다.
+                        val friendStateList = friendListResponse.map { friendInfo ->
+                            FriendState(
+                                userNickname = friendInfo.userNickname,
+                                userPicture = friendInfo.userPicture,
+                                isSelected = false
+                            )
+                        }
+
+                        // 추출된 FriendState 타입의 리스트를 _friendList에 설정합니다.
                         _friendList.clear()
-                        _friendList.addAll(list)
+                        _friendList.addAll(friendStateList)
                         _loading.value = true
-                        Log.d("friendListRequest", list.toString())
+                        Log.d("friendListRequest", friendStateList.toString())
                     }
                 } else {
                     // 서버에서 올바르지 않은 응답을 반환한 경우
@@ -227,7 +224,7 @@ class ChatViewModel @Inject constructor(
                 // API 호출이 성공했을 때의 처리
                 val responseBody = res.body()
                 val chatHistory = res.body()?.body
-                Log.d("test", responseBody?.body.toString())
+                Log.d("chatHistoryRes", responseBody?.body.toString())
                 if (chatHistory != null) {
                     _chatState.clear()
                     _chatState.addAll(chatHistory)

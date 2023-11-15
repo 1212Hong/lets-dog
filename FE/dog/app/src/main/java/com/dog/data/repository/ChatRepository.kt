@@ -2,6 +2,7 @@ package com.dog.data.repository
 
 import com.dog.data.model.chat.ChatHistoryResponse
 import com.dog.data.model.chat.ChatListResponse
+import com.dog.data.model.chat.CreateChatroomRequest
 import com.dog.data.model.chat.CreateChatroomResponse
 import com.dog.data.model.chat.ExitChatroomResponse
 import retrofit2.Response
@@ -15,7 +16,7 @@ import retrofit2.http.Path
 interface ChatRepository {
 
     @POST("chatroom")
-    suspend fun createChatroom(@Body userNicks: List<String>): Response<CreateChatroomResponse>
+    suspend fun createChatroom(@Body request: CreateChatroomRequest): Response<CreateChatroomResponse>
 
     @GET("chatroom")
     suspend fun getChatroomList(): Response<ChatListResponse>

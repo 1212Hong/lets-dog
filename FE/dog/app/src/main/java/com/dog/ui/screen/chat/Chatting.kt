@@ -95,7 +95,6 @@ fun ChattingScreen(
         chatViewModel.getChatHistory(roomId)
     }
 
-
     // Use LaunchedEffect to initialize and connect StompManager
     DisposableEffect(Unit) {
         stompManager.connectStomp(roomId)
@@ -138,8 +137,6 @@ fun UserNameRow(
         rememberNavController().previousBackStackEntry?.savedStateHandle?.get<Person>("data")
             ?: Person()
     val clickGoBack = {
-        Log.d("clicked?", navController.currentBackStackEntry?.destination?.route ?: "null")
-//        navController.navigateUp()
         navController.navigate(Screens.ChatList.route)
     }
 
@@ -184,7 +181,8 @@ fun UserNameRow(
 @Composable
 fun ChatRow(
     chat: ChatState,
-    user: UserState
+    user: UserState,
+    totalCnt: Int
 ) {
     val name = user.name
     Column(
@@ -193,13 +191,16 @@ fun ChatRow(
     ) {
         Row {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                IconComponentDrawable(icon = R.drawable.person_icon, size = 30.dp)
-                Text(
-                    text = chat.senderName, style = TextStyle(
-                        color = Color.Black,
-                        fontSize = 14.sp
+                if (chat.senderName != name) {
+                    IconComponentDrawable(icon = R.drawable.person_icon, size = 30.dp)
+                    Text(
+                        text = chat.senderName, style = TextStyle(
+                            color = Color.Black,
+                            fontSize = 14.sp
+                        )
                     )
-                )
+                }
+
             }
             Box(
                 modifier = Modifier
@@ -230,7 +231,7 @@ fun ChatRow(
             modifier = Modifier.padding(vertical = 7.dp, horizontal = 14.dp),
         )
         Text(
-            text = chat.readList.size.toString(),
+            text = (totalCnt - chat.readList.size).toString(),
             style = TextStyle(
                 color = Color.Gray,
                 fontSize = 12.sp
@@ -252,6 +253,7 @@ fun ChatScreen(
 
 ) {
     val listState = rememberLazyListState()
+    val totalCnt = chatViewModel.curChatroomTotalCnt
 
     // 스크롤 위치를 최하단으로 이동
     DisposableEffect(listState, chatState) {
@@ -307,7 +309,7 @@ fun ChatScreen(
                             val key = UUID.randomUUID().toString()
                             key(key) {
                                 userState?.let { user ->
-                                    ChatRow(chat = chat, user = user)
+                                    ChatRow(chat = chat, user = user, totalCnt)
                                 }
                             }
                         }

@@ -11,6 +11,6 @@ interface FriendRepository {
     @POST("friend/request/{receiverNickname}")
     suspend fun sendFriendRequest(@Query("receiverNickname") receiverNickname: String): Response<FriendResponse>
 
-    @GET("friend/friendlist")
+    @GET("friend/friend-list")
     suspend fun getFriendListRequest(): Response<FriendListResponse>
 }

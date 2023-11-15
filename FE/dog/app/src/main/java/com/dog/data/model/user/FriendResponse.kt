@@ -27,6 +27,12 @@ data class FriendInfo(
     val userIsRemoved: Boolean
 )
 
+data class FriendState(
+    val userNickname: String,
+    val userPicture: String,
+    val isSelected: Boolean
+)
+
 data class FriendListResponse(
     val result: ResponseBodyResult,
     val body: List<FriendInfo>
