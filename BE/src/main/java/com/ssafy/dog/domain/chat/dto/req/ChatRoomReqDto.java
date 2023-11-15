@@ -6,5 +6,7 @@ import lombok.Getter;
 
 @Getter
 public class ChatRoomReqDto {
+
+	private String roomTitle;
 	private List<String> userNicks;
 }

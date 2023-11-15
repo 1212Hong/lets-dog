@@ -61,7 +61,7 @@ public class ChatService {
 			users.add(user);
 		}
 
-		ChatRoom chatRoom = ChatRoom.builder().build();
+		ChatRoom chatRoom = ChatRoom.builder().roomTitle(chatRoomReqDto.getRoomTitle()).build();
 		chatRoomRepository.save(chatRoom);
 
 		List<ChatMembers> chatMembersList = new ArrayList<>();
@@ -178,14 +178,6 @@ public class ChatService {
 
 		kafkaProducerService.sendNotice(KafkaConstants.KAFKA_NOTICE_TOPIC, curNotice);
 
-	}
-
-	public Api<List<ChatListResDto>> testSecurity(Long curUserId) {
-		log.info("userId : {}", curUserId);
-		List<ChatListResDto> roomLists = chatRoomRepository.getUserChatRoomsAndUserNicknames(curUserId);
-		log.info("RoomID :{}", (roomLists.size()));
-
-		return Api.ok(roomLists);
 	}
 
 }
