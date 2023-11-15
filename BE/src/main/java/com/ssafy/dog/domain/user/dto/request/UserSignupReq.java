@@ -13,10 +13,6 @@ public class UserSignupReq {
             regexp = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")
     private String userLoginId;
 
-    @NotNull
-    @Pattern(regexp = "^\\d{10,11}$", message = "10~11자 사이의 숫자")
-    private String userPhone;
-
     @NotBlank
     @Pattern(regexp = "^(?=.*[A-Z])(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,16}$",
             message = "대문자 하나 이상, 특수문자 하나 이상, 숫자 하나 이상을 포함한 최소 8자, 최대 16자")
