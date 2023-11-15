@@ -99,7 +99,7 @@ public class UserServiceImpl implements UserService {
                 .withUserIsRemoved(false)
                 .withUserRole(UserRole.USER)
                 .withUserPicture(
-                        "https://mblogthumb-phinf.pstatic.net/MjAyMDA2MTBfMTY1/MDAxNTkxNzQ2ODcyOTI2.Yw5WjjU3IuItPtqbegrIBJr3TSDMd_OPhQ2Nw-0-0ksg.8WgVjtB0fy0RCv0XhhUOOWt90Kz_394Zzb6xPjG6I8gg.PNG.lamute/user.png?type=w800")
+                        "http://k9c205.p.ssafy.io:9000/api/file/e19559b6-6372-4eee-aac8-40c04e3755fa.png_encoded.jpg")
                 .build();
 
         userRepository.save(user);

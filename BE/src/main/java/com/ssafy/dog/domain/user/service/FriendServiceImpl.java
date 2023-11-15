@@ -47,6 +47,8 @@ public class FriendServiceImpl implements FriendService { // 리팩토링 시 �
         User receiver = userRepository.findByUserNickname(receiverNickname)
                 .orElseThrow(() -> new ApiException(UserErrorCode.RECEIVER_NOT_FOUND));
 
+        log.info("senderId, receiverId = {}, {}", sender.getUserId(), receiver.getUserId());
+
         if (sender.equals(receiver)) { // 2. 발신자와 수신자가 동일한지 검사
             throw new ApiException(UserErrorCode.I_AM_MY_OWN_FRIEND);
         }
