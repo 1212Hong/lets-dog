@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class UploadResponse(
     @SerializedName("body") val body: Body,
-    @SerializedName("result") val result: Result
+    @SerializedName("result") val result: DeleteFeedResult
 )
 
 data class Body(

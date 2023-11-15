@@ -140,6 +140,11 @@ fun BottomNavigationBar(startRoute: String, userViewModel: UserViewModel) {
                     navController, myPageViewModel, userNickname = null
                 )
             }
+            composable(Screens.PostFeed.route){
+                PostFeedScreen(
+                    navController,
+                )
+            }
             composable(
                 route = "chatroom/{roomId}",
                 arguments = listOf(navArgument("roomId") { type = NavType.IntType })

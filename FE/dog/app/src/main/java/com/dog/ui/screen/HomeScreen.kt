@@ -24,12 +24,15 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -39,7 +42,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,27 +61,34 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestOptions
+import com.dog.data.Screens
 import com.dog.data.model.comment.AddCommentRequest
 import com.dog.data.model.comment.CommentItem
 import com.dog.data.model.feed.BoardItem
+import com.dog.data.viewmodel.feed.CommentViewModel
 import com.dog.data.viewmodel.feed.HomeViewModel
+import com.dog.data.viewmodel.feed.LikeViewModel
+import com.dog.data.viewmodel.user.UserViewModel
+import com.dog.ui.components.DropdownMenuContent
 import com.dog.ui.theme.DogTheme
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 
 @Composable
 fun HomeScreen(navController: NavController) {
     val homeViewModel: HomeViewModel = hiltViewModel()
-    var feedItems = homeViewModel.feedListState
-    Log.d("temp", feedItems.toList().toString())
+    val commentViewModel: CommentViewModel = hiltViewModel()
+    val likeViewModel: LikeViewModel = hiltViewModel()
+    val userViewModel: UserViewModel = hiltViewModel()
+
+    var feedItems = homeViewModel.feedList
+
+
     DogTheme {
-        // 가상의 피드 아이템 데이터를 생성하거나 가져온다고 가정합니다.
-//        val feedItems = generateFeedItems()
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
@@ -88,17 +100,45 @@ fun HomeScreen(navController: NavController) {
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 items(feedItems) { feedItem ->
-                    FeedItemCard(feedItem = feedItem, homeViewModel = homeViewModel)
+                    FeedItemCard(
+                        feedItem = feedItem,
+                        homeViewModel = homeViewModel,
+                        commentViewModel = commentViewModel,
+                        likeViewModel = likeViewModel,
+                        userViewModel = userViewModel
+
+                    )
                 }
+            }
+            FloatingActionButton(
+                onClick = {
+                    // Handle button click, e.g., navigate to a new screen
+                    navController.navigate(Screens.PostFeed.route)
+                },
+                modifier = Modifier
+                    .padding(16.dp) // Add padding for better visual appearance
+                    .size(10.dp)
+//                    .align(Alignment.BottomEnd) // Align the button to the bottom-right corner
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add, // You can use any icon you prefer
+                    contentDescription = null
+                )
             }
         }
     }
 }
 
 @Composable
-fun FeedItemCard(feedItem: BoardItem, homeViewModel: HomeViewModel) {
-    val context = LocalContext.current
-    val imageView = remember { ImageView(context) }
+fun FeedItemCard(
+    feedItem: BoardItem,
+    homeViewModel: HomeViewModel,
+    commentViewModel: CommentViewModel,
+    likeViewModel: LikeViewModel,
+    userViewModel: UserViewModel
+) {
+    var expanded by remember { mutableStateOf(false) }
+
     OutlinedCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
@@ -107,14 +147,12 @@ fun FeedItemCard(feedItem: BoardItem, homeViewModel: HomeViewModel) {
         modifier = Modifier
             .fillMaxSize()
             .height(600.dp) // 이미지의 높이를 제한
-//        backgroundColor = MaterialTheme.colorScheme.surface
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(16.dp),
-//        verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             // User Info Section
             Row(
@@ -124,34 +162,66 @@ fun FeedItemCard(feedItem: BoardItem, homeViewModel: HomeViewModel) {
             ) {
                 Box(
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(80.dp)
                         .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.primary)
                 ) {
-                    // Load user profile image using Glide
-//                loadImage(postImageView, feedItem.userProfileImageUrl) // user profile
+                    LoadImage(url = feedItem.profileUrl)
                 }
                 Text(text = feedItem.userNickname, fontWeight = FontWeight.Bold)
+                // DropdownMenuContent to the right of the username
+                Box(
+                    modifier = Modifier
+                        .weight(1f) // 여기에서 weight를 추가하여 남은 공간을 차지하도록 설정
+                )
+                Box(
+                    modifier = Modifier
+                        .clickable {
+                            expanded = !expanded
+                        }
+                        .background(MaterialTheme.colorScheme.background)
+                        .padding(8.dp)
+                ) {
+                    Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
+                    DropdownMenuContent(
+                        onDeleteClick = {
+                            // 삭제 로직 수행
+                            expanded = false
+                            runBlocking { homeViewModel.deleteFeed(feedItem.boardId) }
+                            // 예: commentViewModel.deleteComment(feedItem.commentId)
+                        },
+                        onReportClick = {
+                            // 신고 로직 수행
+                            expanded = false
+                            // 예시: 신고 버튼 클릭 시 특정 동작 수행
+                            // 예: report(feedItem)
+                        }
+                    )
+                }
+                // DropdownMenuContent is displayed only when expanded is true
+
             }
         }
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            // Image Section
-            // Load post image here
             HorizontalPager(feedItem = feedItem)
             ContentSection(feedItem = feedItem)
+            Row(
+                modifier = Modifier.padding(1.dp)
+            ) {
+                LikeSection(feedItem = feedItem, likeViewModel = likeViewModel)
+                CommentSection(
+                    feedItem = feedItem,
+                    commentViewModel = commentViewModel,
+                    userViewModel = userViewModel
+                )
+            }
         }
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            // 좋아요(like) 섹션
-            LikeSection(feedItem = feedItem, homeViewModel = homeViewModel)
-            CommentSection(feedItem = feedItem, homeViewModel = homeViewModel)
-        }
+
+
     }
 }
-
 
 @Composable
 fun loadImage(imageView: ImageView, url: String) {
@@ -162,18 +232,13 @@ fun loadImage(imageView: ImageView, url: String) {
 
 @Composable
 fun ContentSection(feedItem: BoardItem) {
-//    val isDataLoaded by homeViewModel.isDataLoaded
-//    var feedListState = homeViewModel.feedListState
-
-//    if (isDataLoaded) {
     Text(text = feedItem.boardContent)
-//    }
-
 }
 
 
 @Composable
-fun LikeSection(feedItem: BoardItem, homeViewModel: HomeViewModel) {
+fun LikeSection(feedItem: BoardItem, likeViewModel: LikeViewModel) {
+    val likes by likeViewModel.likes.collectAsState()
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -183,24 +248,27 @@ fun LikeSection(feedItem: BoardItem, homeViewModel: HomeViewModel) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             modifier = Modifier.clickable {
-                homeViewModel.toggleLikeStatus()
+                likeViewModel.toggleLikeStatus(feedItem)
             }
         ) {
             Icon(
                 imageVector = if (feedItem.likecheck) Icons.Outlined.ThumbUp else Icons.Filled.ThumbUp,
-                contentDescription = null
+                contentDescription = null,
             )
-            Text(text = "${feedItem.boardLikes} Likes")
+            Text(text = "${likes} Likes")
         }
     }
 }
 
 @Composable
-fun CommentSection(feedItem: BoardItem, homeViewModel: HomeViewModel) {
+fun CommentSection(
+    feedItem: BoardItem,
+    commentViewModel: CommentViewModel,
+    userViewModel: UserViewModel
+) {
     var isCommentExpanded by remember { mutableStateOf(false) }
-    var newCommentText by remember { mutableStateOf(TextFieldValue()) }
-    var commentsCount = remember { mutableStateOf(feedItem.boardComments) }
     var isSheetOpen by remember { mutableStateOf(false) }
+    val commentsCount by commentViewModel.commentsCount.collectAsState()
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -216,16 +284,16 @@ fun CommentSection(feedItem: BoardItem, homeViewModel: HomeViewModel) {
             }
         ) {
             Icon(imageVector = Icons.Default.Send, contentDescription = null)
-            Text(text = "${feedItem.boardComments} Comments")
+            Text(text = "${commentsCount} comments")
             if (isSheetOpen) {
                 CustomBottomSheet(
-                    feedItem = feedItem,
-                    isSheetOpen = isSheetOpen,
-                    onDismissSheet = {
+                    feedItem = feedItem, isSheetOpen = isSheetOpen, onDismissSheet = {
                         // CustomBottomSheet가 닫힐 때 호출됩니다.
                         isSheetOpen = false
+                        isCommentExpanded = false
                     },
-                    homeViewModel = homeViewModel
+                    commentViewModel = commentViewModel,
+                    userViewModel = userViewModel
                 )
             }
         }
@@ -233,18 +301,55 @@ fun CommentSection(feedItem: BoardItem, homeViewModel: HomeViewModel) {
 }
 
 @Composable
-fun CommentItem(comment: CommentItem) {
-    Row(
+fun CommentItem(comment: CommentItem, commentViewModel: CommentViewModel) {
+    var expanded by remember { mutableStateOf(false) }
+
+    DisposableEffect(expanded) {
+        onDispose {
+            expanded = false
+        }
+    }
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(8.dp)
     ) {
-        Text(
-            text = "${comment.userNickname}: ${comment.commentContent}"
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            LoadImage(url = comment.userProfileUrl)
+            Text(
+                text = "${comment.userNickname}: ${comment.commentContent}",
+                modifier = Modifier.weight(1f)
+            )
+            Box(
+                modifier = Modifier
+                    .clickable { expanded = !expanded }
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(8.dp)
+            ) {
+                Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
+                DropdownMenuContent(
+                    onDeleteClick = {
+                        // 삭제 로직 수행
+                        expanded = false
+                        runBlocking {
+                            commentViewModel.deleteComment(comment.commentId)
+                        }
+
+                    },
+                    onReportClick = {
+                        // 신고 로직 수행
+                        expanded = false
+                    }
+                )
+            }
+        }
     }
 }
+
 
 @Composable
 fun ImageSection(imageUrl: String) {
@@ -266,7 +371,6 @@ fun ImageSection(imageUrl: String) {
 @Composable
 fun HorizontalPager(feedItem: BoardItem) {
     val postImageUrls = feedItem.fileUrlLists
-    Log.d("postImage", postImageUrls.toString())
     val pagerState = rememberPagerState(pageCount = {
         postImageUrls.size
     })
@@ -276,14 +380,6 @@ fun HorizontalPager(feedItem: BoardItem) {
     }
 }
 
-@Composable
-fun CommentList(commentList: List<String>) {
-    LazyColumn {
-        items(commentList) { comment ->
-            Text(text = comment, modifier = Modifier.padding(8.dp))
-        }
-    }
-}
 
 @Composable
 fun CommentInput(
@@ -291,11 +387,11 @@ fun CommentInput(
     onCommentTextChange: (TextFieldValue) -> Unit,
     onCommentSubmit: () -> Unit,
 ) {
-
-    Column(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         TextField(
             value = commentText,
@@ -303,90 +399,33 @@ fun CommentInput(
                 onCommentTextChange(it)
             },
             singleLine = true,
-            placeholder = { Text(text = "Enter your comment") },
+            placeholder = { Text(text = "메시지를 입력하세요.") },
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Done
             ),
             keyboardActions = KeyboardActions(
                 onDone = {
-                    // 엔터 키를 눌렀을 때 메시지 전송
                     onCommentSubmit()
-                    // Clear the comment text field after submitting the comment
                     onCommentTextChange(TextFieldValue())
                 }
             ),
             modifier = Modifier
-                .fillMaxWidth()
+                .weight(1f)
                 .padding(8.dp)
         )
-
         Button(
             onClick = {
-                // 수동으로 버튼을 눌러도 댓글을 추가하고 텍스트 필드를 초기화합니다.
                 onCommentSubmit()
-                // Clear the comment text field after submitting the comment
                 onCommentTextChange(TextFieldValue())
             },
-            modifier = Modifier.align(Alignment.End)
+            modifier = Modifier
+                .height(56.dp)
+                .padding(start = 8.dp)
         ) {
-            Text(text = "Submit")
+            Text(text = "전송")
         }
     }
 }
-
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//fun CustomBottomSheet(
-//    feedItem: BoardItem,
-//    isSheetOpen: Boolean,
-//    onDismissSheet: () -> Unit,
-//    homeViewModel: HomeViewModel
-//) {
-//    var isCommentExpanded by remember { mutableStateOf(false) }
-//    var newCommentText by remember { mutableStateOf(TextFieldValue()) }
-//
-//    ModalBottomSheet(
-//        modifier = Modifier,
-//        sheetState = rememberModalBottomSheetState(
-//            confirmValueChange = { isSheetOpen }
-//        ),
-//        onDismissRequest = {
-//            onDismissSheet()
-//        },
-//    ) {
-//        Column(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(16.dp)
-//        ) {
-//            LazyColumn {
-//                items(homeViewModel.loadCommentListData(1L)) { comment ->
-//                    Log.d("comment", comment.toString())
-//                    CommentItem(comment = comment)
-//                }
-//                item {
-//                    CommentInput(
-//                        commentText = newCommentText,
-//                        onCommentTextChange = { newCommentText = it },
-//                        onCommentSubmit = {
-//                            // Submit 버튼이 클릭되었을 때의 동작 처리
-//                            if (newCommentText.text.isNotEmpty()) {
-//                                val newComment = Comment(
-//                                    id = homeViewModel.commentsList.size + 1,
-//                                    username = "Your Username",
-//                                    text = newCommentText.text
-//                                )
-//                                homeViewModel.addComment(newComment) // 댓글을 추가하고 즉시 새로고침
-//                                newCommentText = TextFieldValue() // 입력 필드 초기화
-//                            }
-//                        }
-//                    )
-//                }
-//            }
-//        }
-//    }
-//}
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -394,19 +433,17 @@ fun CustomBottomSheet(
     feedItem: BoardItem,
     isSheetOpen: Boolean,
     onDismissSheet: () -> Unit,
-    homeViewModel: HomeViewModel
+    commentViewModel: CommentViewModel,
+    userViewModel: UserViewModel
 ) {
-    var isCommentExpanded by remember { mutableStateOf(false) }
     var newCommentText by remember { mutableStateOf(TextFieldValue()) }
-
-
     // 비동기적으로 데이터를 로드하고 상태를 갱신하는 부분
     LaunchedEffect(feedItem.boardId) {
-        val commentList = homeViewModel.loadCommentListData(feedItem.boardId)
+        val commentList = commentViewModel.loadCommentListData(feedItem.boardId)
         commentList?.let { commentListApi ->
             Log.d("commentListAPi", commentListApi.comments.toString())
-            homeViewModel.commentListState.clear()
-            homeViewModel.commentListState.addAll(commentListApi.comments)
+            commentViewModel.commentListState.clear()
+            commentViewModel.commentListState.addAll(commentListApi.comments)
         }
     }
 
@@ -426,12 +463,10 @@ fun CustomBottomSheet(
         ) {
             // 비동기적으로 로드한 데이터를 보여주는 부분
             LazyColumn {
-                items(homeViewModel.commentListState) { commentItem ->
-                    CommentItem(comment = commentItem)
+                items(commentViewModel.commentListState) { commentItem ->
+                    CommentItem(comment = commentItem, commentViewModel = commentViewModel)
                 }
                 item {
-                    val userName = feedItem.userNickname
-                    val userProfileUrl = feedItem.profileUrl
                     CommentInput(
                         commentText = newCommentText,
                         onCommentTextChange = { newCommentText = it },
@@ -441,10 +476,12 @@ fun CustomBottomSheet(
                                 // Perform the asynchronous operation directly without coroutineScope
                                 val commentAddRequest = AddCommentRequest(
                                     boardId = feedItem.boardId,
-                                    commentContent = newCommentText.text,
-                                    userNickname = userName
+                                    commentContent = newCommentText.text
                                 )
-                                homeViewModel.addComment(commentAddRequest)
+                                commentViewModel.addComment(
+                                    commentAddRequest,
+                                    userViewModel = userViewModel
+                                )
                                 newCommentText = TextFieldValue() // 입력 필드 초기화
                             }
                         }
@@ -452,5 +489,31 @@ fun CustomBottomSheet(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun LoadImage(url: String) {
+    val context = LocalContext.current
+    Box(
+        modifier = Modifier
+            .size(80.dp)
+            .clip(CircleShape)
+            .background(Color.Gray)
+    ) {
+        AndroidView(
+            factory = { context ->
+                ImageView(context).apply {
+                    scaleType = ImageView.ScaleType.CENTER_CROP
+                }
+            },
+            update = { view ->
+                Glide.with(context)
+                    .load(url)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .apply(RequestOptions.circleCropTransform())
+                    .into(view)
+            }
+        )
     }
 }
