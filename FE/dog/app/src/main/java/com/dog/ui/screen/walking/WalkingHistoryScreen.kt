@@ -124,7 +124,9 @@ fun TrackingHistoryPage(
                 .padding(bottom = 86.dp)
                 .fillMaxWidth()
         ) {
-            (1..(trackingHistoryState.value?.totalPages ?: 1)).forEach { page ->
+            val pages = trackingHistoryState.value?.totalPages
+            val len = if (pages != null && pages > 0) pages else 1
+            (1..len).forEach { page ->
                 Text(
                     text = "$page",
                     modifier = Modifier

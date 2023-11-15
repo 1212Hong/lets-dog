@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -43,6 +44,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.Bottom
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -75,6 +77,10 @@ import com.dog.ui.theme.Yellow300
 import com.dog.util.common.StompManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 import java.util.UUID
 
 
@@ -186,14 +192,32 @@ fun ChatRow(
 ) {
     val name = user.name
     var checkMine: Boolean = chat.senderName == name
+
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd-hh-mm-a", Locale.getDefault())
+    val sendTimeDate: Date = dateFormat.parse(chat.sendTime) ?: Date()
+    val currentDate = Date()
+
+    val calendarSendTime = Calendar.getInstance().apply { time = sendTimeDate }
+    val calendarCurrentDate = Calendar.getInstance().apply { time = currentDate }
+    val isSameDate =
+        calendarSendTime.get(Calendar.YEAR) == calendarCurrentDate.get(Calendar.YEAR) &&
+                calendarSendTime.get(Calendar.MONTH) == calendarCurrentDate.get(Calendar.MONTH) &&
+                calendarSendTime.get(Calendar.DAY_OF_MONTH) == calendarCurrentDate.get(Calendar.DAY_OF_MONTH)
+
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = if (!checkMine) Alignment.Start else Alignment.End
     ) {
         Row {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(end = 6.dp)
+            ) {
                 if (!checkMine) {
-                    IconComponentDrawable(icon = R.drawable.person_icon, size = 30.dp)
+                    IconComponentDrawable(
+                        imageUrl = "https://mimg.segye.com/content/image/2022/05/23/20220523519355.jpg",
+                        size = 30.dp
+                    )
                     Text(
                         text = chat.senderName, style = TextStyle(
                             color = Color.Black,
@@ -201,74 +225,80 @@ fun ChatRow(
                         )
                     )
                 }
+
             }
             if (checkMine) {
                 Text(
+                    modifier = Modifier.align(Bottom),
                     text = (totalCnt - chat.readList.size).toString(),
                     style = TextStyle(
                         color = Color.Gray,
                         fontSize = 12.sp
-                    ),
-                    modifier = Modifier.padding(vertical = 7.dp, horizontal = 14.dp),
-                )
-                Box(
-                    modifier = Modifier
-                        .background(
-                            if (chat.senderName == name) Orange300 else Yellow300,
-                            RoundedCornerShape(100.dp)
-                        ),
-                    contentAlignment = Center
-                ) {
-
-                    Text(
-                        text = chat.content, style = TextStyle(
-                            color = Color.Black,
-                            fontSize = 15.sp
-                        ),
-                        modifier = Modifier.padding(vertical = 8.dp, horizontal = 15.dp),
-                        textAlign = TextAlign.End
                     )
-                }
-            } else {
-
-                Box(
-                    modifier = Modifier
-                        .background(
-                            if (chat.senderName == name) Orange300 else Yellow300,
-                            RoundedCornerShape(100.dp)
-                        ),
-                    contentAlignment = Center
-                ) {
-
-                    Text(
-                        text = chat.content, style = TextStyle(
-                            color = Color.Black,
-                            fontSize = 15.sp
-                        ),
-                        modifier = Modifier.padding(vertical = 8.dp, horizontal = 15.dp),
-                        textAlign = TextAlign.End
-                    )
-                }
-                Text(
-                    text = (totalCnt - chat.readList.size).toString(),
-                    style = TextStyle(
-                        color = Color.Gray,
-                        fontSize = 12.sp
-                    ),
-                    modifier = Modifier.padding(vertical = 7.dp, horizontal = 14.dp),
                 )
             }
+            Box(
+                modifier = Modifier
+                    .background(
+                        if (chat.senderName == name) Orange300 else Yellow300,
+                        RoundedCornerShape(100.dp)
+                    )
+                    .widthIn(max = 300.dp),
+                contentAlignment = Center
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp), // 가로 간격 조절
+                    modifier = Modifier.padding(6.dp) // 여백 추가
+                ) {
 
-            Text(
-                text = chat.sendTime,
-                style = TextStyle(
-                    color = Color.Gray,
-                    fontSize = 12.sp
-                ),
-                modifier = Modifier.padding(vertical = 7.dp, horizontal = 14.dp),
-            )
 
+                    Text(
+                        text = chat.content,
+                        style = TextStyle(
+                            color = Color.Black,
+                            fontSize = 15.sp
+                        ),
+                        modifier = Modifier
+                            .padding(vertical = 8.dp, horizontal = 15.dp),
+
+                        textAlign = if (checkMine) TextAlign.End else TextAlign.Start,
+                    )
+
+
+                }
+            }
+
+            if (!checkMine) {
+                Text(
+                    modifier = Modifier.align(Bottom),
+                    text = (totalCnt - chat.readList.size).toString(),
+                    style = TextStyle(
+                        color = Color.Gray,
+                        fontSize = 12.sp
+                    )
+                )
+            }
         }
+        // Display only the time if it's the same date as today
+        val displayTime = if (isSameDate) {
+            SimpleDateFormat("hh:mm a", Locale.getDefault()).format(sendTimeDate)
+        } else {
+            chat.sendTime // Display the full date-time if it's a different date
+        }
+        Text(
+            text = displayTime,
+            style = TextStyle(
+                color = Color.Gray,
+                fontSize = 12.sp
+            ),
+            modifier = Modifier
+                .padding(vertical = 7.dp, horizontal = 14.dp)
+                .align(
+                    if (checkMine) Alignment.End else Alignment.Start
+                ),
+        )
+
     }
 }
 

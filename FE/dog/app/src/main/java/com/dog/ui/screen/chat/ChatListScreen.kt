@@ -9,14 +9,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -25,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -42,6 +44,7 @@ fun ChatListScreen(navController: NavController, chatViewModel: ChatViewModel) {
     // Chat 목록 데이터를 가져오는 함수 또는 ViewModel을 사용하여 데이터를 로드합니다.
 //    var listState = rememberLazyListState()
     val chatList = chatViewModel.chatListState
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         chatViewModel.getChatList()
@@ -57,7 +60,7 @@ fun ChatListScreen(navController: NavController, chatViewModel: ChatViewModel) {
         ) {
             TopAppBar(
                 modifier = Modifier.background(Pink400),
-                title = { Text(text = "채팅 목록") },
+                title = { Text(text = "채팅") },
                 actions = {
                     // 여기에 새로운 채팅방을 만드는 버튼 추가
                     NewChatButton(navController)
@@ -73,6 +76,10 @@ fun ChatListScreen(navController: NavController, chatViewModel: ChatViewModel) {
                 }
             } else {
                 Text(text = "loading중...")
+                LinearProgressIndicator(
+                    modifier = Modifier.size(50.dp),
+                    color = MaterialTheme.colorScheme.primary
+                )
             }
         }
     }

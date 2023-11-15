@@ -7,13 +7,18 @@ import okhttp3.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
     private const val baseUrl = "http://k9c205.p.ssafy.io:8000/api/"
 
     fun getInstance(interceptor: RequestInterceptor): Retrofit {
         val interceptorClient = OkHttpClient().newBuilder().addInterceptor(interceptor)
-            .addInterceptor(ResponseInterceptor()).build()
+            .addInterceptor(ResponseInterceptor())
+            .connectTimeout(30, TimeUnit.SECONDS) // 연결 타임아웃 30초
+            .writeTimeout(30, TimeUnit.SECONDS)   // 쓰기 타임아웃 30초
+            .readTimeout(30, TimeUnit.SECONDS)    // 읽기 타임아웃 30초
+            .build()
 
         return Retrofit.Builder().baseUrl(baseUrl).client(interceptorClient)
             .addConverterFactory(GsonConverterFactory.create())
