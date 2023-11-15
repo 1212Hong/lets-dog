@@ -7,21 +7,27 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.Checkbox
 import androidx.compose.material.DropdownMenuItem
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -35,10 +41,11 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.dog.data.model.dog.DogInfo
 import com.dog.data.model.matching.DispositionMap
-import com.dog.data.model.user.UserUpdateRequest
 import com.dog.data.viewmodel.ImageUploadViewModel
 import com.dog.data.viewmodel.user.MyPageViewModel
+import com.dog.ui.theme.DogTheme
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditDogProfileScreen(
     navController: NavController,
@@ -48,12 +55,40 @@ fun EditDogProfileScreen(
     val dogs = myPageViewModel.dogs.collectAsState()
     var selectedDog by remember { mutableStateOf<DogInfo?>(null) }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        DropdownMenuForDogs(dogs = dogs.value, selectedDog = selectedDog, onSelected = { dog -> selectedDog = dog })
+    DogTheme {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text(text = "강아지 프로필 수정") },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(Icons.Filled.ArrowBack, "뒤로가기")
+                        }
+                    },
+                    modifier = Modifier
+                        .height(40.dp)
+                        .padding(top = 5.dp)
+                )
+            }
+        ) { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+            ) {
+                DropdownMenuForDogs(
+                    dogs = dogs.value,
+                    selectedDog = selectedDog,
+                    onSelected = { dog -> selectedDog = dog })
 
-        selectedDog?.let { dog ->
-            DogEditFields(dog = dog, imageUploadViewModel = imageUploadViewModel) { updatedDog ->
-                myPageViewModel.updateDogInfo(updatedDog)
+                selectedDog?.let { dog ->
+                    DogEditFields(
+                        dog = dog,
+                        imageUploadViewModel = imageUploadViewModel
+                    ) { updatedDog ->
+                        myPageViewModel.updateDogInfo(updatedDog)
+                    }
+                }
             }
         }
     }
@@ -72,7 +107,12 @@ fun DropdownMenuForDogs(
         .padding(16.dp)
         .clickable { expanded = !expanded }
     ) {
-        Text(text = selectedDog?.dogName ?: "강아지 선택", modifier = Modifier.padding(16.dp))
+        Text(
+            text = selectedDog?.dogName ?: "강아지 선택",
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth()
+        )
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false }
@@ -130,32 +170,45 @@ fun DogEditFields(
     TextField(
         value = dogName,
         onValueChange = { dogName = it },
-        label = { Text("강아지 이름") }
+        label = { Text("강아지 이름") },
+        modifier = Modifier.fillMaxWidth()
     )
 
     TextField(
         value = dogAboutMe,
-        onValueChange = { dogAboutMe = it },
-        label = { Text("강아지 자기소개") }
+        onValueChange = {
+            if (it.length <= 200) { // 최대 길이 제한
+                dogAboutMe = it
+            }
+        },
+        label = { Text("자기소개") },
+        placeholder = { Text(" 강아지 자기소개를 입력해주세요 (최대 200자)") },
+        singleLine = false,
+        maxLines = 4,
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 100.dp, max = 140.dp)
     )
 
     TextField(
         value = dogBirthdate,
         onValueChange = { dogBirthdate = it },
-        label = { Text("강아지 생일") }
+        label = { Text("강아지 생일") },
+        modifier = Modifier.fillMaxWidth()
     )
 
     TextField(
         value = dogBreed,
         onValueChange = { dogBreed = it },
-        label = { Text("강아지 견종") }
+        label = { Text("강아지 견종") },
+        modifier = Modifier.fillMaxWidth()
     )
 
     DogSizeDropdown(
         dogSize = dogSize,
         onSizeSelected = { newSize ->
             dogSize = newSize
-        }
+        },
     )
 
     DogDispositionSelection(
@@ -165,26 +218,29 @@ fun DogEditFields(
         }
     )
 
-    Button(onClick = { imagePickerLauncher.launch("image/*") }) {
-        Text("강아지 사진 수정")
-    }
+    Row {
+        Button(onClick = { imagePickerLauncher.launch("image/*") }) {
+            Text("강아지 사진 수정")
+        }
 
-    Button(onClick = {
-        onUpdate(
-            DogInfo(
-                dogId = dog.dogId,
-                dogName = dogName,
-                dogBirthdate = dogBirthdate,
-                dogBreed = dogBreed,
-                dogDispositionList = dogDispositionList,
-                dogAboutMe = dogAboutMe,
-                dogSize = dogSize,
-                dogPicture = uploadedImageUrls.firstOrNull() ?: dog.dogPicture,
-                userId = dog.userId
+        Button(onClick = {
+            onUpdate(
+                DogInfo(
+                    dogId = dog.dogId,
+                    dogName = dogName,
+                    dogBirthdate = dogBirthdate,
+                    dogBreed = dogBreed,
+                    dogDispositionList = dogDispositionList,
+                    dogAboutMe = dogAboutMe,
+                    dogSize = dogSize,
+                    dogPicture = uploadedImageUrls.firstOrNull() ?: dog.dogPicture,
+                    userId = dog.userId
+                )
             )
-        )
-    }) {
-        Text("강아지 정보 업데이트")
+        }) {
+            Text("강아지 정보 업데이트")
+        }
+
     }
 }
 
@@ -230,31 +286,37 @@ fun DogDispositionSelection(
     val dispositionOptions = DispositionMap.map.entries.toList()
 
     LazyVerticalGrid(
-        columns = GridCells.Fixed(3), // 한 줄에 3개씩 표시
+        columns = GridCells.Fixed(3),
         modifier = Modifier.padding(16.dp)
     ) {
         items(dispositionOptions) { (english, korean) ->
-            Box(modifier = Modifier.padding(4.dp)) { // 각 항목에 대한 패딩
-                Row {
-                    Checkbox(
-                        checked = selectedDispositionsSet.value.contains(english),
-                        onCheckedChange = { checked ->
-                            val newSet = selectedDispositionsSet.value.toMutableSet()
-                            if (checked) {
-                                newSet.add(english)
-                            } else {
-                                newSet.remove(english)
-                            }
+            Row(
+                modifier = Modifier
+                    .padding(4.dp)
+                    .clickable {
+                        val currentlyChecked = selectedDispositionsSet.value.contains(english)
+                        val newSet = selectedDispositionsSet.value.toMutableSet()
+                        if (currentlyChecked) {
+                            newSet.remove(english)
+                        } else if (newSet.size < 5) {
+                            newSet.add(english)
+                        }
+                        if (newSet.size in 3..5) {
                             selectedDispositionsSet.value = newSet
                             onDispositionsChanged(newSet.toList())
                         }
-                    )
-                    Text(
-                        text = korean,
-                        modifier = Modifier.padding(start = 8.dp)
-                    )
-                }
+                    }
+            ) {
+                Checkbox(
+                    checked = selectedDispositionsSet.value.contains(english),
+                    onCheckedChange = null
+                )
+                Text(
+                    text = korean,
+                    modifier = Modifier.padding(start = 8.dp)
+                )
             }
         }
     }
 }
+
