@@ -12,11 +12,9 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,7 +47,6 @@ import kotlinx.coroutines.coroutineScope
 import showCustomToast
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignupScreen(navController: NavController, userViewModel: UserViewModel) {
     val viewModel: MailViewModel = hiltViewModel()
@@ -112,7 +109,7 @@ fun SignupScreen(navController: NavController, userViewModel: UserViewModel) {
             }
         }
 
-        navController.navigate(Screens.Signin.route)
+        navController.navigate(Screens.RegisterDog.route)
     }
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
@@ -153,39 +150,43 @@ fun SignupScreen(navController: NavController, userViewModel: UserViewModel) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 // 이메일 입력 필드
                 OutlinedTextField(
                     modifier = Modifier
-                        .padding(16.dp)
-                        .width(240.dp),
+                        .weight(1f)
+                        .padding(end = 16.dp),
                     value = email,
                     onValueChange = { email = it },
                     label = { Text("이메일") },
                     singleLine = true
                 )
                 MainButton(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = "인증 요청", onClick = validateEmail
+                    modifier = Modifier,
+                    text = "인증 요청",
+                    onClick = validateEmail
                 )
             }
 
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
             ) {
                 // 이메일 인증번호 입력 필드
                 OutlinedTextField(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
+                        .weight(1f)
+                        .padding(end = 16.dp),
                     value = emailVerificationCode,
                     onValueChange = { emailVerificationCode = it },
                     label = { Text("이메일 인증번호") },
                     singleLine = true
                 )
                 MainButton(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier,
                     text = "인증", onClick = checkCode
                 )
             }

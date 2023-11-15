@@ -9,5 +9,6 @@ sealed class Screens(val route: String) {
     object Mypage : Screens("Mypage_screen")
     object Signin : Screens("Login_screen")
     object Signup : Screens("Signup_screen")
-    object PostFeed: Screens("PostFeed_screen")
+    object PostFeed : Screens("PostFeed_screen")
+    object RegisterDog : Screens("RegisterDog_screen")
 }

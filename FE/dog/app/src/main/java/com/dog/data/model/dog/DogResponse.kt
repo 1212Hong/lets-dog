@@ -1,7 +1,6 @@
 package com.dog.data.model.dog
 
 import com.dog.data.model.common.ResponseBodyResult
-import com.dog.data.model.gps.TrackingHistory
 
 data class DogResponse(
     val result: ResponseBodyResult,
@@ -9,7 +8,7 @@ data class DogResponse(
 )
 
 data class DogInfo(
-    val dogId: String,
+    val dogId: String? = null,
     val dogAboutMe: String,
     val dogBirthdate: String,
     val dogName: String,

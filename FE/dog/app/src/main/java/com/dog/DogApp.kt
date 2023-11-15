@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
+import android.util.Log
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text

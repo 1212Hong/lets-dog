@@ -44,12 +44,17 @@ class UserViewModel @Inject constructor(
     private val _userInfo = MutableStateFlow<UserBody?>(null)
     val userInfo = _userInfo.asStateFlow()
 
-    fun renderLogin() {
-        _isLogin.value = true
-    }
-
     fun clearMessage() {
         _message.value = null
+    }
+
+    init {
+        viewModelScope.launch {
+            _jwtToken.value = dataStoreManager.getToken()
+            _isLogin.value = !_jwtToken.value.isNullOrEmpty()
+            if (_isLogin.value)
+                _userState.value = UserState(dataStoreManager.getUserNickname(), "")
+        }
     }
 
     suspend fun login(id: String, pw: String) {

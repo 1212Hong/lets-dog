@@ -71,6 +71,7 @@ fun BottomNavigationBar(startRoute: String, userViewModel: UserViewModel) {
 
     shouldShowBottomBar.value = when (navBackStackEntry?.destination?.route) {
         "profile/{userNickname}" -> false
+        "chatroom/{roomId}" -> false
         "edit_profile", "edit_dog" -> false
         else -> true
     }

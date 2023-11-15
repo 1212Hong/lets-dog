@@ -33,6 +33,7 @@ class MailViewModel @Inject constructor(
                 if (response.isSuccessful) {
                     response.body()?.body?.let { body ->
                         if (body.email === email) _message.value = "메일 전송이 완료되었습니다."
+                        Log.d("mail", body.email.toString())
                     }
                 } else {
                     Log.e("MailViewModel", "Error: ${response.errorBody()?.string()}")
