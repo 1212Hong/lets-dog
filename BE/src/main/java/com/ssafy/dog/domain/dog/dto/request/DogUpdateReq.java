@@ -4,14 +4,12 @@ import com.ssafy.dog.domain.dog.model.DogDisposition;
 import com.ssafy.dog.domain.dog.model.DogDispositionListConverter;
 import com.ssafy.dog.domain.dog.model.DogSize;
 import lombok.Getter;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.Convert;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Lob;
 import javax.validation.constraints.Size;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -24,8 +22,7 @@ public class DogUpdateReq {
     @Lob
     private String dogPicture;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDateTime dogBirthdate;
+    private String dogBirthdate;
 
     private String dogBreed;
 

@@ -5,7 +5,6 @@ import com.ssafy.dog.domain.dog.model.DogDispositionListConverter;
 import com.ssafy.dog.domain.dog.model.DogSize;
 import lombok.Getter;
 import org.hibernate.validator.constraints.UniqueElements;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.Convert;
 import javax.persistence.EnumType;
@@ -13,7 +12,6 @@ import javax.persistence.Enumerated;
 import javax.persistence.Lob;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -25,8 +23,7 @@ public class DogCreateReq {
     @Lob
     private String dogPicture;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDateTime dogBirthdate;
+    private String dogBirthdate;
 
     @Size(max = 20, message = "문자 제한은 20개입니다.")
     private String dogBreed;
