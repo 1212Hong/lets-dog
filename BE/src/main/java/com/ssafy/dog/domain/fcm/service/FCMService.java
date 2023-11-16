@@ -33,6 +33,7 @@ public class FCMService {
 
 			Message message = Message.builder()
 				.setToken(token)
+				.putData("fcmType", "push")
 				.putData("title", fcmDto.getTitle())
 				.putData("content", fcmDto.getContent())
 				.build();
@@ -62,7 +63,25 @@ public class FCMService {
 
 	}
 
-	public void sendChatMessage() {
+	public void sendChatMessage(Long roomId, String content, String sendTime) {
+
+		try {
+			String topic = "ChatRoom" + roomId;
+
+			Message message = Message.builder()
+				.setTopic(topic)
+				.putData("fcmType", "chat")
+				.putData("content", content)
+				.putData("sendTime", sendTime)
+				.build();
+
+			log.info("채팅 FCM 전송 시도 : {}", message.toString());
+			FirebaseMessaging.getInstance().send(message);
+			log.info("채팅 FCM 성공 : {}", message.toString());
+
+		} catch (FirebaseMessagingException e) {
+			e.printStackTrace();
+		}
 
 	}
 
