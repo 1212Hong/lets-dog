@@ -28,7 +28,7 @@ public class SecurityConfig {
             "/api/user/signup",
             "/api/user/duplicate-email/**",
             "/api/user/duplicate-nickname/**",
-            "/jwt/valid",
+            "/api/jwt/valid",
 
             /* WebSocket */
             "/ws-stomp/**"

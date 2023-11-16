@@ -8,7 +8,6 @@ import com.ssafy.dog.domain.fcm.service.FirebaseService;
 import com.ssafy.dog.domain.user.dto.request.FriendRequestReqDto;
 import com.ssafy.dog.domain.user.dto.response.FriendReadRes;
 import com.ssafy.dog.domain.user.dto.response.FriendRequestResDto;
-import com.ssafy.dog.domain.user.dto.response.FriendUnfriendRes;
 import com.ssafy.dog.domain.user.dto.response.UserReadRes;
 import com.ssafy.dog.domain.user.entity.FriendRequest;
 import com.ssafy.dog.domain.user.entity.Friendship;
@@ -110,7 +109,7 @@ public class FriendServiceImpl implements FriendService { // 리팩토링 시 �
 
     @Transactional
     @Override
-    public Api<FriendUnfriendRes> declineFriendRequest(Long declinerId, String requesterNickname) {
+    public Api<FriendRequestResDto> declineFriendRequest(Long declinerId, String requesterNickname) {
         // 1. 입력값으로 거부자와 신청자 User 가져오기
         User decliner = userRepository.findByUserId(declinerId)
                 .orElseThrow(() -> new ApiException(UserErrorCode.USER_NOT_FOUND));
@@ -136,14 +135,14 @@ public class FriendServiceImpl implements FriendService { // 리팩토링 시 �
         }
 
         // 4. 결과 반환
-        FriendUnfriendRes friendUnfriendRes = new FriendUnfriendRes(friendRequest.getSender().getUserNickname(),
-                friendRequest.getReceiver().getUserNickname());
+        FriendRequestResDto friendRequestResDto = new FriendRequestResDto(friendRequest.getSender().getUserNickname(),
+                friendRequest.getReceiver().getUserNickname(), FriendRequestStatus.DECLINED);
 
         // 친구 거절 되었다는 알림 requester에게
         firebaseService.sendNotification(
                 FCMDto.rejectFriendRequest(requester.getUserId(), decliner.getUserNickname()));
 
-        return Api.ok(friendUnfriendRes);
+        return Api.ok(friendRequestResDto);
     }
 
     @Transactional

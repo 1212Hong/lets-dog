@@ -3,7 +3,6 @@ package com.ssafy.dog.domain.user.controller;
 import com.ssafy.dog.common.api.Api;
 import com.ssafy.dog.domain.user.dto.response.FriendReadRes;
 import com.ssafy.dog.domain.user.dto.response.FriendRequestResDto;
-import com.ssafy.dog.domain.user.dto.response.FriendUnfriendRes;
 import com.ssafy.dog.domain.user.dto.response.UserReadRes;
 import com.ssafy.dog.domain.user.service.FriendService;
 import com.ssafy.dog.domain.user.service.UserService;
@@ -33,7 +32,7 @@ public class FriendController {
 
     @PostMapping("/decline/{requesterNickname}")
     @Operation(summary = "친구 신청 거절")
-    public Api<FriendUnfriendRes> declineFriendRequest(@PathVariable String requesterNickname) {
+    public Api<FriendRequestResDto> declineFriendRequest(@PathVariable String requesterNickname) {
 
         return friendService.declineFriendRequest(SecurityUtils.getUserId(), requesterNickname);
     }
