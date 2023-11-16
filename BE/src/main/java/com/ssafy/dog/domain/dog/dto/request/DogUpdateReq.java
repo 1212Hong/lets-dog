@@ -11,7 +11,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Lob;
 import javax.validation.constraints.Size;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 @Getter
@@ -25,7 +25,7 @@ public class DogUpdateReq {
     private String dogPicture;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDateTime dogBirthdate;
+    private LocalDate dogBirthdate;
 
     private String dogBreed;
 

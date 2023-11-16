@@ -6,7 +6,7 @@ import com.ssafy.dog.domain.dog.model.DogSize;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Getter
@@ -14,7 +14,7 @@ import java.util.List;
 public class DogGetRes {
     private Long dogId;
     private String dogAboutMe;
-    private LocalDateTime dogBirthdate;
+    private String dogBirthdate;
     private String dogBreed;
     private List<DogDisposition> dogDispositionList;
     private String dogName;
@@ -22,10 +22,13 @@ public class DogGetRes {
     private DogSize dogSize;
 
     public static DogGetRes toDto(Dog entity) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String formattedDate = entity.getDogBirthdate().format(formatter);
+
         return DogGetRes.builder()
                 .dogId(entity.getDogId())
                 .dogAboutMe(entity.getDogAboutMe())
-                .dogBirthdate(entity.getDogBirthdate())
+                .dogBirthdate(formattedDate)
                 .dogBreed(entity.getDogBreed())
                 .dogDispositionList(entity.getDogDispositionList())
                 .dogName(entity.getDogName())

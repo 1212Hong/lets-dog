@@ -169,7 +169,7 @@ public class DogServiceImpl implements DogService {
         // Update dog fields
         dog.updateName(dogUpdateReq.getDogName());
         dog.updatePicture(dogUpdateReq.getDogPicture());
-        dog.updateBirthdate(dogUpdateReq.getDogBirthdate());
+        dog.updateBirthdate(dogUpdateReq.getDogBirthdate().atStartOfDay());
         dog.updateBreed(dogUpdateReq.getDogBreed());
         dog.updateDispositioinList(dogUpdateReq.getDogDispositionList());
         dog.updateAboutMe(dogUpdateReq.getDogAboutMe());

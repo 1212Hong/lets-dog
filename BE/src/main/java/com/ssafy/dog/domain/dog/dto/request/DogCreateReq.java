@@ -13,7 +13,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.Lob;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 @Getter
@@ -26,7 +26,7 @@ public class DogCreateReq {
     private String dogPicture;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDateTime dogBirthdate;
+    private LocalDate dogBirthdate;
 
     @Size(max = 20, message = "문자 제한은 20개입니다.")
     private String dogBreed;

@@ -26,7 +26,7 @@ public class DogMapper {
                         .orElseThrow(() -> new ApiException(UserErrorCode.USER_NOT_FOUND)))
                 .withDogName(dogCreateReq.getDogName())
                 .withDogPicture(dogPicture)
-                .withDogBirthdate(dogCreateReq.getDogBirthdate())
+                .withDogBirthdate(dogCreateReq.getDogBirthdate().atStartOfDay())
                 .withDogBreed(dogCreateReq.getDogBreed())
                 .withDogDispositionList(dogCreateReq.getDogDispositionList())
                 .withDogAboutMe(dogCreateReq.getDogAboutMe())
