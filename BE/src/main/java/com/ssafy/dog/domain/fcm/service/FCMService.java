@@ -66,6 +66,7 @@ public class FCMService {
 	public void sendChatMessage(Long roomId, String content, String sendTime) {
 
 		try {
+			log.info("채팅 FCM 전송 시도 roomId : {}, content: {}, sendTime: {}", roomId, content, sendTime);
 			String topic = "ChatRoom" + roomId;
 
 			Message message = Message.builder()
