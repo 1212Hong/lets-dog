@@ -89,7 +89,7 @@ class LocationTrackingViewModel @Inject constructor(
         }
     }
 
-    private fun getCurrentLocationAndUpdateUserInfo() {
+    fun getCurrentLocationAndUpdateUserInfo() {
         getCurrentLocation { location ->
             location?.let { latLng ->
                 viewModelScope.launch {

@@ -9,6 +9,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -24,6 +25,7 @@ import androidx.navigation.navArgument
 import com.dog.data.Screens
 import com.dog.data.viewmodel.ImageUploadViewModel
 import com.dog.data.viewmodel.chat.ChatViewModel
+import com.dog.data.viewmodel.feed.HomeViewModel
 import com.dog.data.viewmodel.map.LocationTrackingHistoryViewModel
 import com.dog.data.viewmodel.map.LocationTrackingViewModel
 import com.dog.data.viewmodel.user.MyPageViewModel
@@ -54,6 +56,7 @@ fun BottomNavigationBar(startRoute: String, userViewModel: UserViewModel) {
     val myPageViewModel: MyPageViewModel = hiltViewModel()
     val imageUploadViewModel: ImageUploadViewModel = hiltViewModel()
     val chatViewModel: ChatViewModel = hiltViewModel()
+    val homeViewModel: HomeViewModel = hiltViewModel()
 
     when (navBackStackEntry?.destination?.route) {
         // "roomId" 값이 1이 아닌 경우에 대한 조건을 추가합니다.
@@ -115,6 +118,9 @@ fun BottomNavigationBar(startRoute: String, userViewModel: UserViewModel) {
             startDestination = startRoute,
         ) {
             composable(Screens.Home.route) {
+                LaunchedEffect(Unit) {
+                    homeViewModel.loadBoarderNearData(null, null)
+                }
                 HomeScreen(
                     navController
                 )

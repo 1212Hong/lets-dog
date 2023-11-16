@@ -1,10 +1,14 @@
 package com.dog.data.viewmodel.feed
 
 import android.util.Log
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dog.data.model.feed.BoardItem
@@ -53,30 +57,39 @@ class HomeViewModel @Inject constructor(
     }
 
     suspend fun loadBoarderNearData(
-        userLatitude: Double,
-        userLongitude: Double,
-    ): Response<BoardResponse> {
-        val NearDateApi: FeedRepository =
-            RetrofitClient.getInstance(interceptor).create(FeedRepository::class.java)
-//     리포지토리를 통해 데이터를 불러옵니다.
-        val response = NearDateApi.getBoarderNearApiResponse(
-            userLatitude = userLatitude,
-            userLongitude = userLongitude,
-        )
-        if (response.isSuccessful) {
-            response.body()?.body?.let { boardNearApi ->
-                _feedList.clear()
-                _feedList.addAll(boardNearApi)
-                _isDataLoaded.value = true
-            }
-            Log.d("API_Response", "API Call Successful: ${response.body()}")
-        } else {
-            _isDataLoaded.value = false
-            Log.e("API_Response", "API Call Failed: ${response.code()}, ${response.message()}")
+        userLatitude: Double?,
+        userLongitude: Double?,
+    ){
+        var latitude = userLatitude;
+        var longitude = userLongitude;
+        if (latitude == null || longitude == null) {
+            latitude = dataStoreManager.getLocationLatitude()
+            longitude = dataStoreManager.getLocationLongitude()
         }
-        return response
-    }
+        Log.i("위치", "${latitude}, ${longitude}")
+        try {
+            val NearDateApi: FeedRepository =
+                RetrofitClient.getInstance(interceptor).create(FeedRepository::class.java)
 
+            val response = NearDateApi.getBoarderNearApiResponse(
+                userLatitude = latitude,
+                userLongitude = longitude,
+            )
+            if (response.isSuccessful) {
+                response.body()?.body?.let { boardNearApi ->
+                    _feedList.clear()
+                    _feedList.addAll(boardNearApi)
+                    _isDataLoaded.value = true
+                }
+                Log.d("API_Response", "API Call Successful: ${response.body()}")
+            } else {
+                _isDataLoaded.value = false
+                Log.e("API_Response", "API Call Failed: ${response.code()}, ${response.message()}")
+            }
+        } catch (e: Exception) {
+            Log.e("[HomeViewModel]", "loadBoarderNearData : ${e.message}")
+        }
+    }
     suspend fun deleteFeed(boardId: Long) {
         viewModelScope.launch {
             try {
@@ -100,6 +113,21 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun refreshFeedList() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val userLatitude = dataStoreManager.getLocationLatitude()
+                val userLongitude = dataStoreManager.getLocationLongitude()
+                loadBoarderNearData(userLatitude, userLongitude)
+                Log.i("갱신","갱신중")
+            } catch (e: Exception) {
+                Log.e("ViewModel", "Error refreshing data: ${e.message}")
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
 
 }
 

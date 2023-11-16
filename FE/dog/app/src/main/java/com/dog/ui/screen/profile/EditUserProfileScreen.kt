@@ -23,6 +23,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -42,6 +43,7 @@ import com.dog.data.model.user.UserBody
 import com.dog.data.model.user.UserUpdateRequest
 import com.dog.data.viewmodel.ImageUploadViewModel
 import com.dog.data.viewmodel.user.MyPageViewModel
+import com.dog.ui.components.MainButton
 import com.dog.ui.theme.DogTheme
 import com.dog.util.common.ImageLoader
 
@@ -108,17 +110,17 @@ fun EditUserProfileScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .padding(vertical = 16.dp),
+                    .padding(vertical = 16.dp, horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 item {
-                    TextField(
+                    OutlinedTextField(
                         value = userNickname,
                         onValueChange = { userNickname = it },
                         label = { Text("닉네임") },
                         modifier = Modifier.fillMaxWidth()
                     )
-                    TextField(
+                    OutlinedTextField(
                         value = userPhone,
                         onValueChange = { newValue ->
                             if (newValue.length <= 11 && newValue.all { it.isDigit() }) {
@@ -128,27 +130,27 @@ fun EditUserProfileScreen(
                         label = { Text("휴대폰번호") },
                         modifier = Modifier.fillMaxWidth()
                     )
-                    TextField(
+                    OutlinedTextField(
                         value = userAboutMe,
                         onValueChange = {
-                            if (it.length <= 200) { // 최대 길이 제한
+                            if (it.length <= 100) { // 최대 길이 제한
                                 userAboutMe = it
                             }
                         },
                         label = { Text("자기소개") },
-                        placeholder = { Text("자기소개를 입력해주세요 (최대 200자)") },
+                        placeholder = { Text("자기소개를 입력해주세요 (최대 100자)") },
                         singleLine = false,
                         maxLines = 4,
                         modifier = Modifier
                             .fillMaxWidth()
                             .heightIn(min = 100.dp, max = 140.dp)
                     )
-                    Button(
-                        onClick = { imagePickerLauncher.launch("image/*") },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("프로필 이미지 수정")
-                    }
+
+                    MainButton(
+                        text = "프로필 이미지 수정",
+                        modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                        onClick = { imagePickerLauncher.launch("image/*") })
+
                     Spacer(modifier = Modifier.size(4.dp))
 
                     ProfileImageSection(
@@ -231,7 +233,9 @@ fun ProfileUpdateButton(
     myPageViewModel: MyPageViewModel,
     navController: NavController
 ) {
-    Button(
+    MainButton(
+        text = "프로필 수정",
+        modifier = Modifier.fillMaxWidth(),
         onClick = {
             val updatedUser = UserUpdateRequest(
                 userNickname = userNickname,
@@ -246,9 +250,5 @@ fun ProfileUpdateButton(
             myPageViewModel.updateUserProfile(updatedUser)
             navController.popBackStack()
         },
-        enabled = uploadStatus != ImageUploadViewModel.UploadStatus.UPLOADING,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Text("프로필 수정")
-    }
+        enabled = uploadStatus != ImageUploadViewModel.UploadStatus.UPLOADING)
 }
