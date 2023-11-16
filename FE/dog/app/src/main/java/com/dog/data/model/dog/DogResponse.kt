@@ -18,3 +18,12 @@ data class DogInfo(
     val dogSize: String,
     val userId: Int
 )
+
+data class RegisterDogResponse(
+    val result: ResponseBodyResult,
+    val body: NewDog,
+)
+
+data class NewDog(
+    val dogId: Int
+)

@@ -1,4 +1,4 @@
-package com.dog.data.viewmodel.mail
+package com.dog.data.viewmodel.signup
 
 import android.util.Log
 import androidx.compose.runtime.State

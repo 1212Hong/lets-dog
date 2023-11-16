@@ -15,6 +15,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -36,6 +37,8 @@ fun HomeScreen(navController: NavController) {
     val likeViewModel: LikeViewModel = hiltViewModel()
     val userViewModel: UserViewModel = hiltViewModel()
     var feedItems = homeViewModel.feedList
+    // viewmodel하나 만ㄷ르어서 내 개 있는지 확인후 없다면 개등록페이지로,
+    // 마이페이지에 개 편집처럼 개 새로 등록하는거 이동하게 하기
 
     DogTheme {
         Surface(

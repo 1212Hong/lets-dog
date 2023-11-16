@@ -146,7 +146,7 @@ class UserViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 Log.e("signupRequest", "네트워크 요청 에러", e)
-                _message.value = "로그인 중 오류가 발생했습니다."
+                _message.value = "회원가입 중 오류가 발생했습니다."
             }
         }
     }

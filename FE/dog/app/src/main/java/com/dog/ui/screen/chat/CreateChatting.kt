@@ -1,5 +1,6 @@
 package com.dog.ui.screen.chat
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -15,12 +16,14 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,6 +35,7 @@ import androidx.navigation.NavController
 import com.dog.data.Screens
 import com.dog.data.model.user.FriendState
 import com.dog.data.viewmodel.chat.ChatViewModel
+import com.dog.data.viewmodel.user.UserViewModel
 import com.dog.ui.components.MainButton
 import com.dog.ui.theme.DogTheme
 import com.dog.ui.theme.Pink400
@@ -39,10 +43,13 @@ import com.dog.ui.theme.White
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateChatting(navController: NavController, chatViewModel: ChatViewModel) {
+fun CreateChatting(navController: NavController, chatViewModel: ChatViewModel, userViewModel: UserViewModel) {
     val friendList = chatViewModel.friendList
-    var selectedFriends by remember { mutableStateOf(emptyList<String>()) }
-    var chatroomName by remember { mutableStateOf("채팅방 이름") }
+    val myName: String? = userViewModel.userState.collectAsState().value?.name
+    var selectedFriends by remember { mutableStateOf(listOf(myName)) }
+    var chatroomName by remember { mutableStateOf("") }
+    val flag = chatViewModel.loading
+
 
     LaunchedEffect(Unit) {
         chatViewModel.getFriendList()
@@ -50,6 +57,7 @@ fun CreateChatting(navController: NavController, chatViewModel: ChatViewModel) {
 
     val clickNewChatroom = suspend {
         chatViewModel.newChatroom(chatroomName, selectedFriends)
+        if(flag.value) navController.navigate(Screens.ChatList.route)
     }
 
     val clickGoBack = {
@@ -82,23 +90,16 @@ fun CreateChatting(navController: NavController, chatViewModel: ChatViewModel) {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     // 채팅방 이름을 입력받는 텍스트 필드
-                    TextField(
-                        value = chatroomName,
-                        onValueChange = { chatroomName = it },
+                    OutlinedTextField(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(8.dp)
+                            .padding(vertical = 8.dp),
+                        value = chatroomName,
+                        onValueChange = { chatroomName = it },
+                        label = { Text("채팅방 이름") },
+                        maxLines = 3
                     )
 
-                    // 여기에 친구 목록을 표시하고 선택된 친구를 추가하는 부분을 구현합니다.
-                    FriendList(
-                        friendList = friendList,
-                        onFriendSelected = { selectedFriend ->
-                            // 선택된 친구를 처리하는 로직 추가
-                            // 예: 선택된 친구를 저장하는 등의 동작
-                            selectedFriends = selectedFriends + selectedFriend.userNickname
-                        }
-                    )
 
                     // 채팅방 생성 버튼
                     MainButton(
@@ -108,6 +109,20 @@ fun CreateChatting(navController: NavController, chatViewModel: ChatViewModel) {
                             .padding(8.dp),
                         text = "채팅방 생성"
                     )
+
+                    FriendList(
+                        friendList = friendList,
+                        selectedFriends = selectedFriends,
+                        onFriendSelected = { selectedFriend ->
+                            // 선택된 친구를 처리하는 로직 추가
+                            // 선택된 친구를 저장 동작
+                            if (selectedFriends.contains(selectedFriend.userNickname)) {
+                                selectedFriends = selectedFriends - selectedFriend.userNickname
+                            } else {
+                                selectedFriends = selectedFriends + selectedFriend.userNickname
+                            }
+                        }
+                    )
                 }
             }
         }
@@ -115,7 +130,11 @@ fun CreateChatting(navController: NavController, chatViewModel: ChatViewModel) {
 }
 
 @Composable
-fun FriendList(friendList: List<FriendState>, onFriendSelected: (FriendState) -> Unit) {
+fun FriendList(
+    friendList: List<FriendState>,
+    selectedFriends: List<String?>,
+    onFriendSelected: (FriendState) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -128,6 +147,7 @@ fun FriendList(friendList: List<FriendState>, onFriendSelected: (FriendState) ->
             items(friendList) { friend ->
                 FriendListItem(
                     friend = friend,
+                    isSelected = selectedFriends.contains(friend.userNickname),
                     onFriendSelected = { selectedFriend ->
                         onFriendSelected(selectedFriend)
                     }
@@ -138,14 +158,17 @@ fun FriendList(friendList: List<FriendState>, onFriendSelected: (FriendState) ->
 }
 
 @Composable
-fun FriendListItem(friend: FriendState, onFriendSelected: (FriendState) -> Unit) {
+fun FriendListItem(
+    friend: FriendState,
+    isSelected: Boolean,
+    onFriendSelected: (FriendState) -> Unit
+) {
     // 친구 목록에서 각 항목을 나타내는 UI 구성
-    val isSelected by remember { mutableStateOf(friend.isSelected) }
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .clickable { onFriendSelected(friend.copy(isSelected = !friend.isSelected)) } // 친구를 터치하면 선택 동작 수행
+            .clickable { onFriendSelected(friend) } // 친구를 터치하면 선택 동작 수행
     ) {
         // 선택된 경우 체크 아이콘 표시
         if (isSelected) {
@@ -157,3 +180,4 @@ fun FriendListItem(friend: FriendState, onFriendSelected: (FriendState) -> Unit)
         // 여기에 필요한 경우 친구 아이콘 등을 추가할 수 있습니다.
     }
 }
+

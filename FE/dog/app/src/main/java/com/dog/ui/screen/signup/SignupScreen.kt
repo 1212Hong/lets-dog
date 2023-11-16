@@ -40,7 +40,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.dog.R
 import com.dog.data.Screens
-import com.dog.data.viewmodel.mail.SignupViewModel
+import com.dog.data.viewmodel.signup.SignupViewModel
 import com.dog.data.viewmodel.user.UserViewModel
 import com.dog.ui.components.MainButton
 import com.dog.ui.theme.Gray300
@@ -71,10 +71,7 @@ fun SignupScreen(navController: NavController, userViewModel: UserViewModel) {
             Toast.makeText(context, "이메일이 비었습니다.", Toast.LENGTH_SHORT).show()
         else {
             coroutineScope {
-                try {
-                    viewModel.sendMailCode(email)
-                } catch (e: Exception) {
-                }
+                viewModel.sendMailCode(email)
             }
         }
 
@@ -82,10 +79,7 @@ fun SignupScreen(navController: NavController, userViewModel: UserViewModel) {
 
     val checkCode = suspend {
         coroutineScope {
-            try {
-                viewModel.checkCode(email, emailVerificationCode)
-            } catch (e: Exception) {
-            }
+            viewModel.checkCode(email, emailVerificationCode)
         }
     }
 

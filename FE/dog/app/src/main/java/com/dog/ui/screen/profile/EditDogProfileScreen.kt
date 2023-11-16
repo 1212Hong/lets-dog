@@ -43,10 +43,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.dog.data.Screens
 import com.dog.data.model.dog.DogInfo
 import com.dog.data.model.matching.DispositionMap
 import com.dog.data.viewmodel.ImageUploadViewModel
 import com.dog.data.viewmodel.user.MyPageViewModel
+import com.dog.ui.components.MainButton
 import com.dog.ui.theme.DogTheme
 
 
@@ -60,6 +62,10 @@ fun EditDogProfileScreen(
 ) {
     val dogs = myPageViewModel.dogs.collectAsState()
     var selectedDog by remember { mutableStateOf<DogInfo?>(null) }
+
+    val goRegisterDog = {
+        navController.navigate(Screens.RegisterDog.route)
+    }
 
     DogTheme {
         Scaffold(
@@ -82,7 +88,9 @@ fun EditDogProfileScreen(
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
+                if(dogs.value.isNullOrEmpty()) item { MainButton(text = "등록된 강아지가 없습니다!", onClick = goRegisterDog) }
                 item {
+                    MainButton(modifier = Modifier.fillMaxWidth(), text = "새 강아지 등록하기", onClick = goRegisterDog)
                     DropdownMenuForDogs(
                         dogs = dogs.value,
                         selectedDog = selectedDog,

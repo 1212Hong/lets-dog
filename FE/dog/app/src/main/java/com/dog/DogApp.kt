@@ -4,6 +4,9 @@ import android.Manifest
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.progressSemantics
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -14,7 +17,9 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
@@ -22,6 +27,7 @@ import com.dog.data.viewmodel.feed.HomeViewModel
 import com.dog.data.viewmodel.map.LocationTrackingViewModel
 import com.dog.data.viewmodel.user.UserViewModel
 import com.dog.ui.navigation.AppNavigation
+import com.dog.ui.theme.PurpleGray400
 import com.dog.util.common.DataStoreManager
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.MultiplePermissionsState
@@ -67,7 +73,9 @@ fun DogApp(dataStoreManager: DataStoreManager, onPermissionDenied: () -> Unit) {
             locationTrackingViewModel.updateUserLocationAndSave()
         }
         if (isLoading || gpsIsLoading || feedIsLoading) {
-            CircularProgressIndicator()
+            CircularProgressIndicator(
+                modifier = Modifier.fillMaxSize(),
+                color = PurpleGray400)
         } else {
             AppNavigation(navController, userViewModel, dataStoreManager, isUserLoggedIn)
         }
