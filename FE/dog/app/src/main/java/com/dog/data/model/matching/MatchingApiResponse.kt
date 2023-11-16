@@ -1,7 +1,6 @@
 package com.dog.data.model.matching
 
 import com.dog.data.model.common.ResponseBodyResult
-import com.google.gson.annotations.SerializedName
 
 data class MatchingApiResponse(
     val result: ResponseBodyResult,
@@ -24,5 +23,6 @@ data class Dog(
     val dogId: String,
     val dogName: String,
     val dogBreed: String,
-    val dogDispositionList: List<String>
+    val dogDispositionList: List<String>,
+    val dogPicture: String,
 )

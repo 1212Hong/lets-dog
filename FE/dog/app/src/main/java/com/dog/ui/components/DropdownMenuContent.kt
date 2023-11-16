@@ -13,13 +13,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.dog.data.model.comment.CommentItem
+import com.dog.data.model.feed.BoardItem
+import com.dog.data.viewmodel.user.MyPageViewModel
 
 @Composable
-fun DropdownMenuContent(
+fun <T>DropdownMenuContent(
     onDeleteClick: () -> Unit,
-    onReportClick: () -> Unit
+    onReportClick: () -> Unit,
+    item: T
 ) {
+    val myPageViewModel: MyPageViewModel = hiltViewModel()
     var expanded by remember { mutableStateOf(false) }
+    val nickname = when (item) {
+        is BoardItem -> item.userNickname
+        is CommentItem -> item.userNickname
+        else -> ""
+    }
     Box(
         modifier = Modifier.clickable {
             expanded = !expanded
@@ -33,14 +44,16 @@ fun DropdownMenuContent(
                 expanded = false
             }
         ) {
-            DropdownMenuItem(
-                onClick = {
-                    onDeleteClick()
-                    expanded = false
-                },
-                modifier = Modifier.background(color = Color.White),
-            ) {
-                Text(text = "삭제", color = Color.Black)
+            if (myPageViewModel.loginUserNickname.value == nickname){
+                DropdownMenuItem(
+                    onClick = {
+                        onDeleteClick()
+                        expanded = false
+                    },
+                    modifier = Modifier.background(color = Color.White),
+                ) {
+                    Text(text = "삭제", color = Color.Black)
+                }
             }
             DropdownMenuItem(
                 onClick = {

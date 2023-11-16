@@ -51,7 +51,7 @@ fun Like(feedItem: BoardItem, likeViewModel: LikeViewModel, navController: NavCo
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            Text(text = "좋아요 $likes 개")
+            Text(text = "좋아요 ${if (likes == 0L) feedItem.boardLikes else likes} 개")
         }
     }
 }

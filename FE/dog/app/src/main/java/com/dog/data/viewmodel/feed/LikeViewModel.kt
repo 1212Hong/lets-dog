@@ -31,7 +31,6 @@ class LikeViewModel @Inject constructor(
     fun toggleLikeStatus(feedItem: BoardItem) {
         viewModelScope.launch {
             val likeUpRequest = LikeUpRequest(feedItem.boardId)
-//             likecheck 상태에 따라 게시물 좋아요 또는 취소 호출
             if (!feedItem.likecheck) {
                 likePost(likeUpRequest, feedItem)
             } else {

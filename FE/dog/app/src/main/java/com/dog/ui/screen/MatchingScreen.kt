@@ -181,7 +181,7 @@ fun UserDetailsView(user: MatchingUserResponse, viewModel: MatchingViewModel) {
                     .fillMaxWidth()
                     .weight(5.5f)
             ) {
-                ImageLoader(imageUrl = user.userPicture)
+                ImageLoader(imageUrl = user.dogs?.getOrNull(0)?.dogPicture ?: "1")
             }
             Column(
                 modifier = Modifier
@@ -268,7 +268,7 @@ fun UserInformation(user: MatchingUserResponse, viewModel: MatchingViewModel) {
         }
         Text(
             text = user.userAboutMe ?: "자기소개가 없습니다.",
-            style = MaterialTheme.typography.bodyMedium
+            style = MaterialTheme.typography.bodyMedium,
         )
         Text(
             text = "Gender: ${user.userGender}",
@@ -384,7 +384,7 @@ fun DogItemView(dog: Dog) {
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .fillMaxWidth()
-            .height(60.dp),
+            .height(70.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
 
@@ -415,7 +415,7 @@ fun UserDetailsScreen(viewModel: MatchingViewModel, listState: LazyListState) {
             state = pagerState,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(600.dp),
+                .height(650.dp),
             userScrollEnabled = true
         ) { page ->
             UserDetailsView(user = viewModel.users[page], viewModel = viewModel)

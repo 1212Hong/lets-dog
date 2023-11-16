@@ -1,12 +1,9 @@
 package com.dog.di
 
 import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import com.dog.util.common.DataStoreManager
 import com.dog.util.common.RetrofitClient
 import com.dog.util.common.UploadRetrofitClient
-import com.dog.util.common.userStore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

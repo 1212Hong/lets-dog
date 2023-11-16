@@ -37,18 +37,24 @@ class ImageUploadViewModel @Inject constructor(
     private val uploadApi: UploadRepository = UploadRetrofitClient.getInstance(interceptor).create(
         UploadRepository::class.java
     )
+    val uploadedImageUrl = MutableStateFlow<List<String>>(emptyList())
     val uploadedImageUrls = MutableStateFlow<List<String>>(emptyList())
+    private val _uploadingImageCount = MutableStateFlow(0)
 
     fun uploadImage(uri: Uri) {
         viewModelScope.launch {
             try {
                 _uploadStatus.value = UploadStatus.UPLOADING
                 val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
-                val file = File(context.cacheDir, "upload_image.jpg").apply {
-                    outputStream().use { fileOut ->
-                        inputStream?.copyTo(fileOut)
+                val file =
+                    File(context.cacheDir, "upload_${System.currentTimeMillis()}.jpg").apply {
+                        inputStream?.use { input ->
+                            this.outputStream().use { fileOut ->
+                                input.copyTo(fileOut)
+                            }
+                        }
                     }
-                }
+
                 val requestFile = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
 
                 val body = MultipartBody.Part.createFormData("files", file.name, requestFile)
@@ -58,7 +64,7 @@ class ImageUploadViewModel @Inject constructor(
                 if (response.isSuccessful) {
                     val uploadResponse = response.body()
                     val urls = uploadResponse?.map { it.body.url } ?: emptyList()
-                    uploadedImageUrls.value = urls
+                    uploadedImageUrl.value = urls
                     _uploadStatus.value = UploadStatus.COMPLETED
                     Log.d("ImageUpload", "업로드된 이미지 URL: ${uploadResponse!!.get(0).body.url}")
                 } else {
@@ -71,13 +77,54 @@ class ImageUploadViewModel @Inject constructor(
         }
     }
 
+    fun multiUploadImage(uri: Uri) {
+        _uploadingImageCount.value += 1
+        viewModelScope.launch {
+            try {
+                _uploadStatus.value = UploadStatus.UPLOADING
+                val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
+                val file =
+                    File(context.cacheDir, "upload_${System.currentTimeMillis()}.jpg").apply {
+                        inputStream?.use { input ->
+                            this.outputStream().use { fileOut ->
+                                input.copyTo(fileOut)
+                            }
+                        }
+                    }
+
+                val requestFile = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
+
+                val body = MultipartBody.Part.createFormData("files", file.name, requestFile)
+
+                val response = uploadApi.uploadImage(body)
+
+                if (response.isSuccessful) {
+                    _uploadingImageCount.value -= 1
+                    val uploadResponse = response.body()
+                    val newUrls = uploadResponse?.map { it.body.url } ?: emptyList()
+                    uploadedImageUrls.value = uploadedImageUrls.value + newUrls
+                    _uploadStatus.value = UploadStatus.COMPLETED
+                    Log.d("ImageUpload", "업로드된 이미지 URL: ${uploadResponse!!.get(0).body.url}")
+                } else {
+                    _uploadingImageCount.value -= 1
+                    _uploadStatus.value = UploadStatus.FAILED
+                    Log.e("ImageUpload", "업로드 실패: ${response.errorBody()?.string()}")
+                }
+            } catch (e: Exception) {
+                Log.e("ImageUpload", "업로드 중 예외 발생", e)
+            }
+        }
+    }
+
+    fun uploadingImageCount(): StateFlow<Int> = _uploadingImageCount.asStateFlow()
+
     fun deleteImage(url: String) {
         viewModelScope.launch {
             try {
                 val response = uploadApi.deleteImage(url)
                 if (response.isSuccessful) {
                     // 성공적으로 삭제되면 상태를 업데이트
-                    uploadedImageUrls.value = uploadedImageUrls.value - url
+                    uploadedImageUrl.value = uploadedImageUrl.value - url
                 } else {
                     // 실패 로그 출력
                     Log.e("ImageDelete", "삭제 실패: ${response.errorBody()?.string()}")
