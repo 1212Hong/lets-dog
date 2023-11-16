@@ -24,10 +24,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -74,8 +72,8 @@ fun LoginScreen(
             Image(
                 painter = painterResource(id = R.drawable.ic_launcher_background),
                 contentDescription = "Login main image",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxWidth(0.8f)
+//                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxWidth(1f)
 
             )
         }
@@ -85,19 +83,12 @@ fun LoginScreen(
             verticalArrangement = Arrangement.Center,
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.60f)
+                .fillMaxHeight(0.45f)
                 .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
                 .background(White)
                 .padding(10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-
-
-            Text(
-                text = "같이가개",
-                style = TextStyle(fontWeight = FontWeight.Bold, letterSpacing = 2.sp),
-                fontSize = 30.sp
-            )
 
             Spacer(modifier = Modifier.padding(10.dp))
             Column(horizontalAlignment = Alignment.CenterHorizontally) {

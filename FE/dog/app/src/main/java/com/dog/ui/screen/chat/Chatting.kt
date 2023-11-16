@@ -92,6 +92,7 @@ fun ChattingScreen(
 ) {
     val chatState by chatViewModel.chatState.collectAsState()
     val userState by userViewModel.userState.collectAsState()
+    val readList by chatViewModel.readList.collectAsState()
     Log.d("chat", userState.toString())
     val coroutineScope = rememberCoroutineScope()
     val stompManager = remember { StompManager(chatViewModel, userViewModel) }
@@ -124,7 +125,8 @@ fun ChattingScreen(
                     navController,
                     stompManager,
                     roomId,
-                    it
+                    it,
+                    readList = readList
                 )
             }
         }
@@ -135,7 +137,6 @@ fun ChattingScreen(
 @Composable
 fun UserNameRow(
     modifier: Modifier = Modifier,
-    userState: UserState,
     navController: NavHostController
 ) {
     var person =
@@ -187,7 +188,8 @@ fun UserNameRow(
 fun ChatRow(
     chat: ChatState,
     user: UserState,
-    totalCnt: Int
+    totalCnt: Int,
+    readList: Set<String>
 ) {
     val name = user.name
     var checkMine: Boolean = chat.senderName == name
@@ -229,7 +231,7 @@ fun ChatRow(
             if (checkMine) {
                 Text(
                     modifier = Modifier.align(Bottom),
-                    text = (totalCnt - chat.readList.size).toString(),
+                    text = (totalCnt - readList.size).toString(),
                     style = TextStyle(
                         color = Color.Gray,
                         fontSize = 12.sp
@@ -251,7 +253,6 @@ fun ChatRow(
                     modifier = Modifier.padding(6.dp) // 여백 추가
                 ) {
 
-
                     Text(
                         text = chat.content,
                         style = TextStyle(
@@ -271,7 +272,7 @@ fun ChatRow(
             if (!checkMine) {
                 Text(
                     modifier = Modifier.align(Bottom),
-                    text = (totalCnt - chat.readList.size).toString(),
+                    text = (totalCnt - readList.size).toString(),
                     style = TextStyle(
                         color = Color.Gray,
                         fontSize = 12.sp
@@ -279,11 +280,12 @@ fun ChatRow(
                 )
             }
         }
-        // Display only the time if it's the same date as today
+        // 같은 날 메시지는 시간만 보이게
         val displayTime = if (isSameDate) {
+            Log.d("sameDate", isSameDate.toString())
             SimpleDateFormat("hh:mm a", Locale.getDefault()).format(sendTimeDate)
         } else {
-            chat.sendTime // Display the full date-time if it's a different date
+            chat.sendTime
         }
         Text(
             text = displayTime,
@@ -309,7 +311,8 @@ fun ChatScreen(
     navController: NavHostController,
     stompManager: StompManager,
     roomId: Long,
-    userState: UserState
+    userState: UserState,
+    readList: Set<String>
 
 ) {
     val listState = rememberLazyListState()
@@ -331,6 +334,12 @@ fun ChatScreen(
         }
         onDispose { /* 생명주기가 종료될 때 정리 작업을 수행하거나 해제할 수 있음 */ }
     }
+
+    DisposableEffect(readList) {
+        // readList 변경에 따른 작업 수행
+        onDispose { /* 생명주기가 종료될 때 정리 작업을 수행하거나 해제할 수 있음 */ }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -347,7 +356,6 @@ fun ChatScreen(
                     end = 20.dp,
                     bottom = 20.dp
                 ),
-                userState,
                 navController = navController
             )
             Divider(
@@ -377,7 +385,7 @@ fun ChatScreen(
                                 "${index}_${chat.roomId}_${chat.senderId}_${chat.content}"
                             key(key) {
                                 userState?.let { user ->
-                                    ChatRow(chat = chat, user = user, totalCnt)
+                                    ChatRow(chat = chat, user = user, totalCnt, readList)
                                 }
                             }
                         }
@@ -390,7 +398,6 @@ fun ChatScreen(
             modifier = Modifier
                 .padding(horizontal = 20.dp, vertical = 20.dp)
                 .align(Alignment.BottomCenter),
-            chatViewModel = chatViewModel,
             stompManager = stompManager,
             nickName = userState.name,
             roomId = roomId
@@ -415,13 +422,11 @@ fun CommonIconButton(
 fun CommonIconButtonDrawable(
     @DrawableRes icon: Int,
     message: String,
-    chatViewModel: ChatViewModel,
     stompManager: StompManager,
     roomId: Long,
     nickName: String
 ) {
     val combinedClickActions = {
-//        chatViewModel.sendTest(roomId, nickName)
         stompManager.sendStomp(roomId, nickName, message)
     }
     Box(
@@ -448,7 +453,6 @@ fun CustomTextField(
     text: String,
     modifier: Modifier = Modifier,
     onValueChange: (String) -> Unit,
-    chatViewModel: ChatViewModel,
     stompManager: StompManager,
     nickName: String,
     roomId: Long
@@ -476,7 +480,6 @@ fun CustomTextField(
             CommonIconButtonDrawable(
                 icon = R.drawable.ic_launcher,
                 message = text,
-                chatViewModel = chatViewModel,
                 stompManager = stompManager,
                 roomId = roomId,
                 nickName = nickName,

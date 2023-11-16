@@ -1,6 +1,9 @@
 package com.dog.ui.screen.profile
 
+import android.content.Context
 import android.net.Uri
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
@@ -42,6 +45,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.dog.data.Screens
@@ -187,10 +191,12 @@ fun DogEditFields(
     }
     var dogBreed by remember { mutableStateOf(dog.dogBreed) }
     var dogDispositionList by remember { mutableStateOf(dog.dogDispositionList) }
+    Log.i("checktest-origin", dogDispositionList.toString())
     var dogPicture by remember { mutableStateOf(dog.dogPicture ?: "1") }
     var dogAboutMe by remember { mutableStateOf(dog.dogAboutMe) }
     var dogSize by remember { mutableStateOf(dog.dogSize) }
     val selectedDispositionsSet = remember { mutableStateOf(dogDispositionList.toSet()) }
+    val context = LocalContext.current
     var isDatePickerVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = dog) {
@@ -259,7 +265,8 @@ fun DogEditFields(
             selectedDispositionsSet = selectedDispositionsSet,
             onDispositionsChanged = { newList ->
                 dogDispositionList = newList
-            }
+            },
+            context = context
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -286,7 +293,7 @@ fun DogEditFields(
                         dogAboutMe = dogAboutMe,
                         dogSize = dogSize,
                         dogPicture = uploadedImageUrls.firstOrNull() ?: dog.dogPicture,
-                        userId = dog.userId
+//                        userId = dog.userId
                     )
                 )
             })
@@ -334,7 +341,8 @@ fun DogSizeDropdown(
 @Composable
 fun DogDispositionSelection(
     selectedDispositionsSet: MutableState<Set<String>>,
-    onDispositionsChanged: (List<String>) -> Unit
+    onDispositionsChanged: (List<String>) -> Unit,
+    context: Context
 ) {
     val dispositionOptions = DispositionMap.map.entries.toList()
 
@@ -344,6 +352,7 @@ fun DogDispositionSelection(
             .padding(16.dp)
             .height(200.dp)
     ) {
+
         items(dispositionOptions) { (english, korean) ->
             Row(
                 modifier = Modifier
@@ -351,14 +360,27 @@ fun DogDispositionSelection(
                     .clickable {
                         val currentlyChecked = selectedDispositionsSet.value.contains(english)
                         val newSet = selectedDispositionsSet.value.toMutableSet()
+//                        Log.i("checktest_checked", currentlyChecked.toString())
+//                        Log.i("checktest_selectedSet", selectedDispositionsSet.toString())
+
                         if (currentlyChecked) {
                             newSet.remove(english)
                         } else if (newSet.size < 5) {
                             newSet.add(english)
                         }
-                        if (newSet.size in 3..5) {
+                        if (newSet.size in 1..5) { // 3이라 개 생성에서 0으로 시작해서 로직 안돔
                             selectedDispositionsSet.value = newSet
                             onDispositionsChanged(newSet.toList())
+                            if (newSet.size < 3) {
+                                // 3개 미만이라 동작 안하는 제약 or 알림 넣기
+                                Toast
+                                    .makeText(
+                                        context,
+                                        "옵션 개수가 부족합니다.(최소 3개 선택 필요)",
+                                        Toast.LENGTH_SHORT
+                                    )
+                                    .show()
+                            }
                         }
                     }
             ) {

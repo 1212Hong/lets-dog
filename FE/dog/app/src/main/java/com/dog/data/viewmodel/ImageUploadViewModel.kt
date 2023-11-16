@@ -65,6 +65,7 @@ class ImageUploadViewModel @Inject constructor(
                     val uploadResponse = response.body()
                     val urls = uploadResponse?.map { it.body.url } ?: emptyList()
                     uploadedImageUrl.value = urls
+                    uploadedImageUrls.value = urls
                     _uploadStatus.value = UploadStatus.COMPLETED
                     Log.d("ImageUpload", "업로드된 이미지 URL: ${uploadResponse!!.get(0).body.url}")
                 } else {

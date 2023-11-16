@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.dog.data.model.common.Response
 import com.dog.data.model.common.ResponseBodyResult
 import com.dog.data.model.dog.DogInfo
+import com.dog.data.model.dog.RegisterDogInfo
 import com.dog.data.model.feed.BoardItem
 import com.dog.data.model.user.UserBody
 import com.dog.data.model.user.UserUpdateRequest
@@ -60,6 +61,9 @@ class MyPageViewModel @Inject constructor(
 
     private val _dogs = MutableStateFlow<List<DogInfo>>(listOf())
     val dogs: StateFlow<List<DogInfo>> = _dogs.asStateFlow()
+
+    private val _newDog = MutableStateFlow<DogInfo?>(null)
+    val newDog: StateFlow<DogInfo?> = _newDog.asStateFlow()
 
     private val _articles = MutableStateFlow<List<BoardItem>>(listOf())
     val articles: StateFlow<List<BoardItem>> = _articles.asStateFlow()
@@ -299,6 +303,26 @@ class MyPageViewModel @Inject constructor(
             } catch (e: Exception) {
                 // 네트워크 오류 처리
                 Log.d("getDog", e.message.toString())
+            }
+        }
+    }
+
+    fun registerNewDog(dog: RegisterDogInfo) {
+        viewModelScope.launch {
+            try {
+                val res = dogApi.postDog(dog)
+                if (res.isSuccessful && res.body() != null) {
+                    Log.d("registerNewDog", res.body()?.body.toString()) // 성공시 dogId
+                    Log.i("registerNewDog", _newDog.value.toString())
+                    _toastMessage.value = res.body()?.body?.dogId.toString() + "번 개가 등록되었습니다."
+                } else {
+                    // 서버에서 올바르지 않은 응답을 반환한 경우
+                    Log.e("registerNewDog", res.body()?.result.toString())
+                    _toastMessage.value = res.body()?.result?.description
+                }
+            } catch (e: Exception) {
+                // 네트워크 오류 처리
+                Log.d("registerNewDog_apierr", e.message.toString())
             }
         }
     }

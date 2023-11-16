@@ -8,16 +8,26 @@ data class DogResponse(
 )
 
 data class DogInfo(
-    val dogId: String? = null,
+    val dogId: String? = "",
     val dogAboutMe: String,
     val dogBirthdate: String,
     val dogName: String,
     val dogBreed: String,
     val dogDispositionList: List<String>,
     val dogPicture: String,
-    val dogSize: String,
-    val userId: Int
+    val dogSize: String
 )
+
+data class RegisterDogInfo(
+    val dogAboutMe: String,
+    val dogBirthdate: String,
+    val dogName: String,
+    val dogBreed: String,
+    val dogDispositionList: List<String>,
+    val dogPicture: String,
+    val dogSize: String
+)
+
 
 data class RegisterDogResponse(
     val result: ResponseBodyResult,
