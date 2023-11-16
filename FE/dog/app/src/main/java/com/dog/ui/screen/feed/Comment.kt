@@ -45,7 +45,6 @@ fun Comment(
 ) {
     var isCommentExpanded by remember { mutableStateOf(false) }
     var isSheetOpen by remember { mutableStateOf(false) }
-    val commentsCount by commentViewModel.commentsCount.collectAsState()
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -60,7 +59,7 @@ fun Comment(
                 isSheetOpen = isCommentExpanded
             }
         ) {
-            Text(text = "댓글 $commentsCount 개 모두 보기")
+            Text(text = "댓글 ${feedItem.boardComments} 개 모두 보기")
             if (isSheetOpen) {
                 CustomBottomSheet(
                     feedItem = feedItem, isSheetOpen = isSheetOpen, onDismissSheet = {

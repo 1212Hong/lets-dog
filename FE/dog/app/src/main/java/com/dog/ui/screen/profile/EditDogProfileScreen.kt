@@ -30,6 +30,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -53,7 +54,10 @@ import com.dog.data.model.matching.DispositionMap
 import com.dog.data.viewmodel.ImageUploadViewModel
 import com.dog.data.viewmodel.user.MyPageViewModel
 import com.dog.ui.components.MainButton
+import com.dog.ui.components.calander.CustomDatePicker
 import com.dog.ui.theme.DogTheme
+import com.dog.util.common.formatDate
+import java.util.Date
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -177,7 +181,14 @@ fun DogEditFields(
     }
 
     var dogName by remember { mutableStateOf(dog.dogName) }
-    var dogBirthdate by remember { mutableStateOf(dog.dogBirthdate) }
+    var dogBirthdate by remember {
+        mutableStateOf(
+            formatDate(
+                Date().toString(),
+                "EEE MMM dd HH:mm:ss zzz yyyy"
+            )
+        )
+    }
     var dogBreed by remember { mutableStateOf(dog.dogBreed) }
     var dogDispositionList by remember { mutableStateOf(dog.dogDispositionList) }
     Log.i("checktest-origin", dogDispositionList.toString())
@@ -186,6 +197,7 @@ fun DogEditFields(
     var dogSize by remember { mutableStateOf(dog.dogSize) }
     val selectedDispositionsSet = remember { mutableStateOf(dogDispositionList.toSet()) }
     val context = LocalContext.current
+    var isDatePickerVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = dog) {
         dogName = dog.dogName
@@ -198,23 +210,27 @@ fun DogEditFields(
 
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        TextField(
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .padding(horizontal = 16.dp)) {
+        OutlinedTextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
             value = dogName,
             onValueChange = { dogName = it },
-            label = { Text("강아지 이름") },
-            modifier = Modifier.fillMaxWidth()
+            label = { Text("강아지 이름") }
         )
 
-        TextField(
+        OutlinedTextField(
             value = dogAboutMe,
             onValueChange = {
-                if (it.length <= 200) { // 최대 길이 제한
+                if (it.length <= 100) { // 최대 길이 제한
                     dogAboutMe = it
                 }
             },
             label = { Text("자기소개") },
-            placeholder = { Text(" 강아지 자기소개를 입력해주세요 (최대 200자)") },
+            placeholder = { Text("강아지 자기소개를 입력해주세요 (최대 100자)") },
             singleLine = false,
             maxLines = 4,
             modifier = Modifier
@@ -222,18 +238,20 @@ fun DogEditFields(
                 .heightIn(min = 100.dp, max = 140.dp)
         )
 
-        TextField(
-            value = dogBirthdate,
-            onValueChange = { dogBirthdate = it },
-            label = { Text("강아지 생일") },
-            modifier = Modifier.fillMaxWidth()
+
+        CustomDatePicker(
+            curDate = dogBirthdate,
+            curOpen = isDatePickerVisible
         )
 
-        TextField(
+
+        OutlinedTextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
             value = dogBreed,
             onValueChange = { dogBreed = it },
-            label = { Text("강아지 견종") },
-            modifier = Modifier.fillMaxWidth()
+            label = { Text("강아지 견종") }
         )
 
         DogSizeDropdown(
@@ -259,14 +277,12 @@ fun DogEditFields(
                 .padding(16.dp)
                 .align(Alignment.CenterHorizontally)
         ) {
-            Button(
-                onClick = { imagePickerLauncher.launch("image/*") },
-                modifier = Modifier.weight(1f)
-            ) {
-                Text("사진 수정")
-            }
+            MainButton(
+                text = "사진 수정",
+                modifier = Modifier.weight(1f),
+                onClick = { imagePickerLauncher.launch("image/*") })
 
-            Button(onClick = {
+            MainButton(text = "정보 수정", modifier = Modifier.weight(1f), onClick = {
                 onUpdate(
                     DogInfo(
                         dogId = dog.dogId,
@@ -280,9 +296,8 @@ fun DogEditFields(
 //                        userId = dog.userId
                     )
                 )
-            }, modifier = Modifier.weight(1f)) {
-                Text("정보 수정")
-            }
+            })
+
 
         }
     }
@@ -345,8 +360,8 @@ fun DogDispositionSelection(
                     .clickable {
                         val currentlyChecked = selectedDispositionsSet.value.contains(english)
                         val newSet = selectedDispositionsSet.value.toMutableSet()
-                        Log.i("checktest_checked", currentlyChecked.toString())
-                        Log.i("checktest_selectedSet", selectedDispositionsSet.toString())
+//                        Log.i("checktest_checked", currentlyChecked.toString())
+//                        Log.i("checktest_selectedSet", selectedDispositionsSet.toString())
 
                         if (currentlyChecked) {
                             newSet.remove(english)

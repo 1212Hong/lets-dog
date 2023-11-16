@@ -167,6 +167,12 @@ public class ChatService {
 
 		// kafka producer -> consumer -> stomp converAndSend 까지 된 후 DB 저장로직
 		saveChat(message, origTime);
+
+		// 해당 chat-room FCM 보내주기
+		log.info("fcmService sendChatMessage 시작");
+		fcmService.sendChatMessage(message.getRoomId(), message.getContent(), message.getSendTime());
+		log.info("fcmService sendChatMessage 종료");
+
 	}
 
 	// MongoDB ChatHistory 저장

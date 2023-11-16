@@ -60,13 +60,6 @@ fun WalkingHistoryScreen(
     val currentRoute = navBackStackEntry?.destination?.route
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    DisposableEffect(lifecycleOwner) {
-        lifecycleOwner.lifecycle.addObserver(locationTrackingHistoryViewModel)
-
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(locationTrackingHistoryViewModel)
-        }
-    }
 
     DogTheme {
         Column {

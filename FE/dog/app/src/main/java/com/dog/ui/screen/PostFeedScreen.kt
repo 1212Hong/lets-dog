@@ -5,8 +5,10 @@ import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,6 +18,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
@@ -45,6 +49,8 @@ import com.dog.data.Screens
 import com.dog.data.model.feed.BoardRequest
 import com.dog.data.viewmodel.ImageUploadViewModel
 import com.dog.data.viewmodel.feed.PostFeedViewModel
+import com.dog.util.common.ImageLoader
+import com.google.accompanist.pager.HorizontalPagerIndicator
 
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
@@ -129,6 +135,10 @@ fun PostFeedContent(
                     }
                 )
             }
+            if (isUploadComplete) {
+                pager(fileUrls)
+            }
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -230,10 +240,42 @@ fun ImageSelectionWithUrl(
         onUploadComplete(selectedImageUrls.size == fileUrls.size && selectedImageUrls.isNotEmpty())
     }
 
+
+
     Spacer(modifier = Modifier.height(16.dp))
     Button(onClick = { getContent.launch("image/*") }) {
         Text("이미지 선택")
     }
 
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun pager(fileUrls: List<String>) {
+    val pagerState = rememberPagerState(
+        initialPage = 0,
+        initialPageOffsetFraction = 0f
+    ) {
+        fileUrls.size
+    }
+    Box(modifier = Modifier.height(250.dp)) {
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxWidth(),
+            userScrollEnabled = true
+        ) { page ->
+            Column {
+                ImageLoader(fileUrls[0])
+            }
+        }
+        HorizontalPagerIndicator(
+            pagerState = pagerState,
+            pageCount = fileUrls.size,
+            activeColor = MaterialTheme.colorScheme.primary,
+            inactiveColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
+
+    }
 }
 

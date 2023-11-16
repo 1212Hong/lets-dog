@@ -13,7 +13,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -25,6 +26,7 @@ import com.dog.data.viewmodel.user.UserViewModel
 import com.dog.ui.screen.feed.CreateFeed
 import com.dog.ui.screen.feed.Feed
 import com.dog.ui.theme.DogTheme
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,7 +51,9 @@ fun HomeScreen(navController: NavController) {
                         actions = {
                             CreateFeed(navController = navController)
                         },
-                        modifier = Modifier.height(60.dp).padding(10.dp)
+                        modifier = Modifier
+                            .height(60.dp)
+                            .padding(10.dp)
                     )
                 }
             ) { innerPadding ->
