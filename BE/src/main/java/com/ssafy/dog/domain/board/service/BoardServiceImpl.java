@@ -123,16 +123,17 @@ public class BoardServiceImpl implements BoardService {
 				continue;
 			}
 			Scope scope = board.getBoardScope();
-			if (scope == Scope.MeOnly) {
-				if (!(board.getUser() == viewUser)) {
-					continue;
-				}
-			}
-			if (scope == Scope.Friends) {
-				if (!checkFriend(board.getUser(), viewUser) && !(board.getUser() == viewUser)) {
-					continue;
-				}
-			}
+			// 게시물 공개범위 추후 적용
+//			if (scope == Scope.MeOnly) {
+//				if (!(board.getUser() == viewUser)) {
+//					continue;
+//				}
+//			}
+//			if (scope == Scope.Friends) {
+//				if (!checkFriend(board.getUser(), viewUser) && !(board.getUser() == viewUser)) {
+//					continue;
+//				}
+//			}
 			BoardDto boardDto = BoardDto.builder()
 				.userNickname(board.getUser().getUserNickname())
 				.boardId(board.getBoardId())
@@ -206,17 +207,18 @@ public class BoardServiceImpl implements BoardService {
 				board.getUser().getUserLatitude(), board.getUser().getUserLongitude()) > 1.5) {
 				continue;
 			}
-			if (board.getUser() == viewUser) {
-				continue;
-			}
-			if (board.getBoardScope() == Scope.MeOnly) {
-				continue;
-			}
-			if (board.getBoardScope() == Scope.Friends) {
-				if (!checkFriend(board.getUser(), viewUser)) {
-					continue;
-				}
-			}
+			// 게시물 공개 범위 나중에 다시 협의
+//			if (board.getUser() == viewUser) {
+//				continue;
+//			}
+//			if (board.getBoardScope() == Scope.MeOnly) {
+//				continue;
+//			}
+//			if (board.getBoardScope() == Scope.Friends) {
+//				if (!checkFriend(board.getUser(), viewUser)) {
+//					continue;
+//				}
+//			}
 			BoardDto boardDto = BoardDto.builder()
 				.userNickname(board.getUser().getUserNickname())
 				.boardId(board.getBoardId())
