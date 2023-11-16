@@ -3,6 +3,7 @@ package com.dog.data.viewmodel
 import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.pager.PagerState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -22,6 +23,7 @@ import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -45,7 +47,6 @@ class MatchingViewModel@Inject constructor(
 
     private val _toastMessage = mutableStateOf<String?>(null)
     val toastMessage: State<String?> = _toastMessage
-
 
     init {
         loadUsersFromApi()
@@ -124,6 +125,9 @@ class MatchingViewModel@Inject constructor(
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         if (event == Lifecycle.Event.ON_RESUME) {
             loadUsersFromApi()
+            viewModelScope.launch {
+                Log.i("datastore 저장 좌표 : ", "${dataStoreManager.getLocationLatitude()}|${dataStoreManager.getLocationLongitude()}")
+            }
         }
     }
 

@@ -24,10 +24,11 @@ import kotlinx.coroutines.launch
 fun AppNavigation(
     navController: NavHostController,
     userViewModel: UserViewModel,
-    store: DataStoreManager
+    store: DataStoreManager,
+    isLoggedIn:Boolean
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val flag = userViewModel.isLogin
+
     LaunchedEffect(Unit) {
         // 앱이 생성될 때 즉시 Firebase messaging token을 생성
         FirebaseMessaging.getInstance().token
@@ -42,16 +43,9 @@ fun AppNavigation(
                 }
                 Log.d("FCM Log", "Current token: $token")
             }
-
-
     }
 
-//    val token = userViewModel.jwtToken
-    Log.i("로그인 토큰", "${flag.value}")
-    Log.i("로그인 토큰", "${userViewModel.jwtToken.value}")
-    if (!flag.value) {
-        // Token이 비어있는 경우(로그인 안된 경우) : 로그인 또는 회원 가입 화면을 표시
-        // 이후 Token을 저장하고 앱의 다음 단계로 이동합니다.
+    if (!isLoggedIn) {
         NavHost(
             navController = navController, startDestination = Screens.Signin.route
         ) {

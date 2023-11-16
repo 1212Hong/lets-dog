@@ -44,6 +44,9 @@ class UserViewModel @Inject constructor(
     private val _userInfo = MutableStateFlow<UserBody?>(null)
     val userInfo = _userInfo.asStateFlow()
 
+    private val _isLoading = MutableStateFlow<Boolean>(true)
+    val isLoading = _isLoading.asStateFlow()
+
     fun clearMessage() {
         _message.value = null
     }
@@ -54,6 +57,7 @@ class UserViewModel @Inject constructor(
             _isLogin.value = !_jwtToken.value.isNullOrEmpty()
             if (_isLogin.value)
                 _userState.value = UserState(dataStoreManager.getUserNickname(), "")
+            _isLoading.value = false
         }
     }
 

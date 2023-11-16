@@ -132,6 +132,7 @@ fun BottomNavigationBar(startRoute: String, userViewModel: UserViewModel) {
             }
 
             composable(Screens.Matching.route) {
+                locationTrackingViewModel.updateUserLocationAndSave()
                 MatchingScreen(
                     navController
                 )

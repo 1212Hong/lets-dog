@@ -8,12 +8,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.dog.ui.theme.DogTheme
+import com.dog.util.common.DataStoreManager
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
+    @Inject
+    lateinit var dataStoreManager: DataStoreManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,7 +26,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    DogApp { finish() }
+                    DogApp(dataStoreManager) { finish() }
                 }
 
 //                runBlocking {

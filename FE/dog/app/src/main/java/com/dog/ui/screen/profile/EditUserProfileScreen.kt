@@ -8,12 +8,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
@@ -51,7 +53,8 @@ import com.dog.util.common.ImageLoader
 fun EditUserProfileScreen(
     navController: NavController,
     myPageViewModel: MyPageViewModel,
-    imageUploadViewModel: ImageUploadViewModel
+    imageUploadViewModel: ImageUploadViewModel,
+    modifier: Modifier = Modifier.fillMaxHeight()
 ) {
     val uploadStatus by imageUploadViewModel.uploadStatus.collectAsState()
     val uploadedImageUrls by imageUploadViewModel.uploadedImageUrls.collectAsState()
@@ -97,74 +100,76 @@ fun EditUserProfileScreen(
                         }
                     },
                     modifier = Modifier
-                        .height(30.dp)
+                        .height(40.dp)
                         .padding(top = 5.dp)
                 )
             }
         ) { innerPadding ->
-            Column(
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
                     .padding(vertical = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                TextField(
-                    value = userNickname,
-                    onValueChange = { userNickname = it },
-                    label = { Text("닉네임") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                TextField(
-                    value = userPhone,
-                    onValueChange = { newValue ->
-                        if (newValue.length <= 11 && newValue.all { it.isDigit() }) {
-                            userPhone = newValue
-                        }
-                    },
-                    label = { Text("휴대폰번호") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                TextField(
-                    value = userAboutMe,
-                    onValueChange = {
-                        if (it.length <= 200) { // 최대 길이 제한
-                            userAboutMe = it
-                        }
-                    },
-                    label = { Text("자기소개") },
-                    placeholder = { Text("자기소개를 입력해주세요 (최대 200자)") },
-                    singleLine = false,
-                    maxLines = 4,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = 100.dp, max = 140.dp)
-                )
-                Button(
-                    onClick = { imagePickerLauncher.launch("image/*") },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("프로필 이미지 수정")
-                }
-                Spacer(modifier = Modifier.size(4.dp))
+                item {
+                    TextField(
+                        value = userNickname,
+                        onValueChange = { userNickname = it },
+                        label = { Text("닉네임") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    TextField(
+                        value = userPhone,
+                        onValueChange = { newValue ->
+                            if (newValue.length <= 11 && newValue.all { it.isDigit() }) {
+                                userPhone = newValue
+                            }
+                        },
+                        label = { Text("휴대폰번호") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    TextField(
+                        value = userAboutMe,
+                        onValueChange = {
+                            if (it.length <= 200) { // 최대 길이 제한
+                                userAboutMe = it
+                            }
+                        },
+                        label = { Text("자기소개") },
+                        placeholder = { Text("자기소개를 입력해주세요 (최대 200자)") },
+                        singleLine = false,
+                        maxLines = 4,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 100.dp, max = 140.dp)
+                    )
+                    Button(
+                        onClick = { imagePickerLauncher.launch("image/*") },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("프로필 이미지 수정")
+                    }
+                    Spacer(modifier = Modifier.size(4.dp))
 
-                ProfileImageSection(
-                    uploadStatus = uploadStatus,
-                    userPicture = userPicture,
-                    originalUserPicture = originalUserPicture,
-                    handleDeleteImage = ::handleDeleteImage
-                )
-                Spacer(modifier = Modifier.size(4.dp))
-                ProfileUpdateButton(
-                    uploadStatus = uploadStatus,
-                    userNickname = userNickname,
-                    userPhone = userPhone,
-                    userPicture = userPicture,
-                    userAboutMe = userAboutMe,
-                    userBody = userInfoState,
-                    myPageViewModel = myPageViewModel,
-                    navController = navController
-                )
+                    ProfileImageSection(
+                        uploadStatus = uploadStatus,
+                        userPicture = userPicture,
+                        originalUserPicture = originalUserPicture,
+                        handleDeleteImage = ::handleDeleteImage
+                    )
+                    Spacer(modifier = Modifier.size(4.dp))
+                    ProfileUpdateButton(
+                        uploadStatus = uploadStatus,
+                        userNickname = userNickname,
+                        userPhone = userPhone,
+                        userPicture = userPicture,
+                        userAboutMe = userAboutMe,
+                        userBody = userInfoState,
+                        myPageViewModel = myPageViewModel,
+                        navController = navController
+                    )
+                }
             }
         }
     }
