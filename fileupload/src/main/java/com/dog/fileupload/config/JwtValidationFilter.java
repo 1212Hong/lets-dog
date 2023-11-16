@@ -29,7 +29,7 @@ public class JwtValidationFilter implements WebFilter {
     private final WebClient webClient;
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
     public JwtValidationFilter(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl("http://k9c205.p.ssafy.io:8000/jwt").build();
+        this.webClient = webClientBuilder.baseUrl("http://k9c205.p.ssafy.io:8000/api/jwt").build();
     }
 
     @Override

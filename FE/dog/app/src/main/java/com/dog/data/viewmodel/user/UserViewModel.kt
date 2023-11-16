@@ -1,10 +1,13 @@
 package com.dog.data.viewmodel.user
 
+import android.content.Context
+import android.content.Intent
 import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dog.MainActivity
 import com.dog.data.model.common.Response
 import com.dog.data.model.common.ResponseBodyResult
 import com.dog.data.model.user.SignInRequest
@@ -17,6 +20,7 @@ import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -24,7 +28,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class UserViewModel @Inject constructor(
-    private val dataStoreManager: DataStoreManager
+    private val dataStoreManager: DataStoreManager,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
     private val interceptor = RetrofitClient.RequestInterceptor(dataStoreManager)
     private val userApi: UserRepository = RetrofitClient.getInstance(interceptor).create(
@@ -44,6 +49,9 @@ class UserViewModel @Inject constructor(
     private val _userInfo = MutableStateFlow<UserBody?>(null)
     val userInfo = _userInfo.asStateFlow()
 
+    private val _isLoading = MutableStateFlow<Boolean>(true)
+    val isLoading = _isLoading.asStateFlow()
+
     fun clearMessage() {
         _message.value = null
     }
@@ -54,6 +62,7 @@ class UserViewModel @Inject constructor(
             _isLogin.value = !_jwtToken.value.isNullOrEmpty()
             if (_isLogin.value)
                 _userState.value = UserState(dataStoreManager.getUserNickname(), "")
+            _isLoading.value = false
         }
     }
 
@@ -164,5 +173,16 @@ class UserViewModel @Inject constructor(
                 Log.d("api_err", e.message.toString())
             }
         }
+    }
+
+    fun logout() {
+        _isLogin.value = false
+        _isLoading.value = true
+        viewModelScope.launch {
+            dataStoreManager.onLogout()
+        }
+        val intent = Intent(context, MainActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        context.startActivity(intent)
     }
 }

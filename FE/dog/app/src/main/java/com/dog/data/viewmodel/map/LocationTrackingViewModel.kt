@@ -2,6 +2,8 @@ package com.dog.data.viewmodel.map
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.health.connect.datatypes.ExerciseRoute
+import android.location.LocationManager
 import android.os.Looper
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -51,6 +53,9 @@ class LocationTrackingViewModel @Inject constructor(
     private val _formattedTime = MutableStateFlow("00:00")
     val formattedTime: StateFlow<String> = _formattedTime.asStateFlow()
 
+    private val _isLoading = MutableStateFlow<Boolean>(true)
+    val isLoading = _isLoading.asStateFlow()
+
     private var startTime = 0L
     private var timerJob: Job? = null
 
@@ -64,15 +69,15 @@ class LocationTrackingViewModel @Inject constructor(
         getCurrentLocation()
     }
 
-
     @SuppressLint("MissingPermission")
     fun getCurrentLocation() {
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
             location?.let {
                 val currentLatLng = LatLng(it.latitude, it.longitude)
                 _userLocation.value = currentLatLng
-                addPathPoint(currentLatLng) // 상태 업데이트
+                addPathPoint(currentLatLng)
                 Log.i("LocationTracking", "현재 위치: ${_userLocation.value}")
+                _isLoading.value = false
             } ?: run {
                 startLocationUpdates()
             }
@@ -85,6 +90,7 @@ class LocationTrackingViewModel @Inject constructor(
                 val newLatLng = LatLng(location.latitude, location.longitude)
                 _userLocation.value = newLatLng
                 addPathPoint(newLatLng) // 상태 업데이트
+
                 Log.i("LocationTracking", "locationCallback 현재 위치: ${_userLocation.value}")
 
             }
@@ -107,7 +113,6 @@ class LocationTrackingViewModel @Inject constructor(
             locationResult.locations.forEach { location ->
                 val newLatLng = LatLng(location.latitude, location.longitude)
                 _userLocation.value = newLatLng
-                // 폴리라인을 그리지 않음
             }
         }
     }
@@ -205,4 +210,16 @@ class LocationTrackingViewModel @Inject constructor(
         return String.format("%02d:%02d", minutes, seconds)
     }
 
+    @SuppressLint("MissingPermission")
+    fun updateUserLocationAndSave() {
+        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            location?.let {
+                val currentLatLng = LatLng(it.latitude, it.longitude)
+                _userLocation.value = currentLatLng
+                viewModelScope.launch {
+                    dataStoreManager.saveLocation(it.latitude, it.longitude)
+                }
+            }
+        }
+    }
 }

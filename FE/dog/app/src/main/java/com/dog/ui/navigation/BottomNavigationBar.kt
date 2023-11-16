@@ -33,10 +33,10 @@ import com.dog.ui.screen.MatchingScreen
 import com.dog.ui.screen.PostFeedScreen
 import com.dog.ui.screen.chat.ChatListScreen
 import com.dog.ui.screen.chat.ChattingScreen
+import com.dog.ui.screen.chat.CreateChatting
 import com.dog.ui.screen.profile.EditDogProfileScreen
 import com.dog.ui.screen.profile.EditUserProfileScreen
 import com.dog.ui.screen.profile.MypageScreen
-import com.dog.ui.screen.chat.CreateChatting
 import com.dog.ui.screen.walking.WalkingHistoryScreen
 import com.dog.ui.screen.walking.WalkingScreen
 
@@ -132,6 +132,7 @@ fun BottomNavigationBar(startRoute: String, userViewModel: UserViewModel) {
             }
 
             composable(Screens.Matching.route) {
+                locationTrackingViewModel.updateUserLocationAndSave()
                 MatchingScreen(
                     navController
                 )
@@ -148,7 +149,7 @@ fun BottomNavigationBar(startRoute: String, userViewModel: UserViewModel) {
                     navController, myPageViewModel, userNickname = null
                 )
             }
-            composable(Screens.PostFeed.route){
+            composable(Screens.PostFeed.route) {
                 PostFeedScreen(
                     navController,
                 )
@@ -182,6 +183,8 @@ fun BottomNavigationBar(startRoute: String, userViewModel: UserViewModel) {
             composable("edit_dog") {
                 EditDogProfileScreen(navController, myPageViewModel, imageUploadViewModel)
             }
+
+
         }
     }
 }

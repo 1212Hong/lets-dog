@@ -4,6 +4,7 @@ import com.ssafy.dog.common.api.Api;
 import com.ssafy.dog.domain.user.dto.request.UserLoginReq;
 import com.ssafy.dog.domain.user.dto.request.UserSignupReq;
 import com.ssafy.dog.domain.user.dto.request.UserUpdateReq;
+import com.ssafy.dog.domain.user.dto.response.IsDuplicatedRes;
 import com.ssafy.dog.domain.user.dto.response.UserLoginRes;
 import com.ssafy.dog.domain.user.dto.response.UserReadRes;
 import com.ssafy.dog.domain.user.dto.response.UserUpdateRes;
@@ -23,6 +24,10 @@ public interface UserService {
     Api<UserReadRes> getByUserNickname(String userNickname);
 
     Map<String, String> validateHandling(Errors errors);
+
+    Api<IsDuplicatedRes> isDuplicatedEmail(String email);
+
+    Api<IsDuplicatedRes> isDuplicatedNickname(String nickname);
 
     boolean isValidEmail(String email);
 

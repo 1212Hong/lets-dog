@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Base64;
 
-@RequestMapping("/jwt")
+@RequestMapping("/api/jwt")
 @RestController
 @Slf4j
 public class JwtController {

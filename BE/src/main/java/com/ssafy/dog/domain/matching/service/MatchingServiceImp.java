@@ -38,7 +38,6 @@ public class MatchingServiceImp implements MatchingService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<User> matchingUser() {
-		// TODO : 추천 기준 변경 필요 현재는 시 기준으로 일단 필터링
 		Long userId = SecurityUtils.getUserId();
 		Optional<User> user = userRepository.findByUserId(userId);
 		if (user.isEmpty()) {
@@ -49,19 +48,19 @@ public class MatchingServiceImp implements MatchingService {
 			throw new ApiException(ErrorCode.BAD_REQUEST, "유저 주소 정보가 존재하지 않습니다.");
 		}
 
-		String[] address = userAddress.split(" ");
-		List<User> matchingCandidates = userRepository.findAllByUserAddressContainsAndUserIdIsNot(
-				address[0], userId).stream()
+		List<User> matchingCandidates = userRepository.findAllWithinDistance(user.get().getUserLatitude(),
+				user.get().getUserLongitude(), 4, user.get().getUserId()
+
+			).stream()
 			.filter(candidate -> {
 				List<Integer> myFriendsPk = friendshipRepository.findFriendIdsByUserId(userId);
 				return !myFriendsPk.contains(candidate.getUserId());
 			})
 			.collect(Collectors.toList());
-		log.info("[MatchingServiceImp] 지역 필터링: {}", address[0]);
+
 		if (matchingCandidates.isEmpty()) {
 			throw new ApiException(ErrorCode.BAD_REQUEST, "같은 지역에 매칭할 수 있는 유저가 없습니다.");
 		}
-		// List<User> filteredByDistance3kmUsers = filteredByDistance3km(user.get(), matchingCandidates);
 
 		return pickRandomUsers(sortByDogDisposition(user.get(), matchingCandidates));
 	}

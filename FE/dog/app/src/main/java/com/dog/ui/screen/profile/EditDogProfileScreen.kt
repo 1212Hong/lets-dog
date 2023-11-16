@@ -7,11 +7,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -36,6 +39,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -45,12 +49,14 @@ import com.dog.data.viewmodel.ImageUploadViewModel
 import com.dog.data.viewmodel.user.MyPageViewModel
 import com.dog.ui.theme.DogTheme
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditDogProfileScreen(
     navController: NavController,
     myPageViewModel: MyPageViewModel,
-    imageUploadViewModel: ImageUploadViewModel
+    imageUploadViewModel: ImageUploadViewModel,
+    modifier: Modifier = Modifier.fillMaxHeight()
 ) {
     val dogs = myPageViewModel.dogs.collectAsState()
     var selectedDog by remember { mutableStateOf<DogInfo?>(null) }
@@ -71,22 +77,24 @@ fun EditDogProfileScreen(
                 )
             }
         ) { innerPadding ->
-            Column(
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-                DropdownMenuForDogs(
-                    dogs = dogs.value,
-                    selectedDog = selectedDog,
-                    onSelected = { dog -> selectedDog = dog })
+                item {
+                    DropdownMenuForDogs(
+                        dogs = dogs.value,
+                        selectedDog = selectedDog,
+                        onSelected = { dog -> selectedDog = dog })
 
-                selectedDog?.let { dog ->
-                    DogEditFields(
-                        dog = dog,
-                        imageUploadViewModel = imageUploadViewModel
-                    ) { updatedDog ->
-                        myPageViewModel.updateDogInfo(updatedDog)
+                    selectedDog?.let { dog ->
+                        DogEditFields(
+                            dog = dog,
+                            imageUploadViewModel = imageUploadViewModel
+                        ) { updatedDog ->
+                            myPageViewModel.updateDogInfo(updatedDog)
+                        }
                     }
                 }
             }
@@ -167,81 +175,94 @@ fun DogEditFields(
 
     }
 
-    TextField(
-        value = dogName,
-        onValueChange = { dogName = it },
-        label = { Text("강아지 이름") },
-        modifier = Modifier.fillMaxWidth()
-    )
+    Column(modifier = Modifier.fillMaxSize()) {
+        TextField(
+            value = dogName,
+            onValueChange = { dogName = it },
+            label = { Text("강아지 이름") },
+            modifier = Modifier.fillMaxWidth()
+        )
 
-    TextField(
-        value = dogAboutMe,
-        onValueChange = {
-            if (it.length <= 200) { // 최대 길이 제한
-                dogAboutMe = it
+        TextField(
+            value = dogAboutMe,
+            onValueChange = {
+                if (it.length <= 200) { // 최대 길이 제한
+                    dogAboutMe = it
+                }
+            },
+            label = { Text("자기소개") },
+            placeholder = { Text(" 강아지 자기소개를 입력해주세요 (최대 200자)") },
+            singleLine = false,
+            maxLines = 4,
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 100.dp, max = 140.dp)
+        )
+
+        TextField(
+            value = dogBirthdate,
+            onValueChange = { dogBirthdate = it },
+            label = { Text("강아지 생일") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        TextField(
+            value = dogBreed,
+            onValueChange = { dogBreed = it },
+            label = { Text("강아지 견종") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        DogSizeDropdown(
+            dogSize = dogSize,
+            onSizeSelected = { newSize ->
+                dogSize = newSize
+            },
+        )
+
+        DogDispositionSelection(
+            selectedDispositionsSet = selectedDispositionsSet,
+            onDispositionsChanged = { newList ->
+                dogDispositionList = newList
             }
-        },
-        label = { Text("자기소개") },
-        placeholder = { Text(" 강아지 자기소개를 입력해주세요 (최대 200자)") },
-        singleLine = false,
-        maxLines = 4,
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 100.dp, max = 140.dp)
-    )
+        )
 
-    TextField(
-        value = dogBirthdate,
-        onValueChange = { dogBirthdate = it },
-        label = { Text("강아지 생일") },
-        modifier = Modifier.fillMaxWidth()
-    )
+        Spacer(modifier = Modifier.weight(1f))
 
-    TextField(
-        value = dogBreed,
-        onValueChange = { dogBreed = it },
-        label = { Text("강아지 견종") },
-        modifier = Modifier.fillMaxWidth()
-    )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .align(Alignment.CenterHorizontally)
+        ) {
+            Button(
+                onClick = { imagePickerLauncher.launch("image/*") },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("사진 수정")
+            }
 
-    DogSizeDropdown(
-        dogSize = dogSize,
-        onSizeSelected = { newSize ->
-            dogSize = newSize
-        },
-    )
-
-    DogDispositionSelection(
-        selectedDispositionsSet = selectedDispositionsSet,
-        onDispositionsChanged = { newList ->
-            dogDispositionList = newList
-        }
-    )
-
-    Row {
-        Button(onClick = { imagePickerLauncher.launch("image/*") }) {
-            Text("강아지 사진 수정")
-        }
-
-        Button(onClick = {
-            onUpdate(
-                DogInfo(
-                    dogId = dog.dogId,
-                    dogName = dogName,
-                    dogBirthdate = dogBirthdate,
-                    dogBreed = dogBreed,
-                    dogDispositionList = dogDispositionList,
-                    dogAboutMe = dogAboutMe,
-                    dogSize = dogSize,
-                    dogPicture = uploadedImageUrls.firstOrNull() ?: dog.dogPicture,
-                    userId = dog.userId
+            Button(onClick = {
+                onUpdate(
+                    DogInfo(
+                        dogId = dog.dogId,
+                        dogName = dogName,
+                        dogBirthdate = dogBirthdate,
+                        dogBreed = dogBreed,
+                        dogDispositionList = dogDispositionList,
+                        dogAboutMe = dogAboutMe,
+                        dogSize = dogSize,
+                        dogPicture = uploadedImageUrls.firstOrNull() ?: dog.dogPicture,
+                        userId = dog.userId
+                    )
                 )
-            )
-        }) {
-            Text("강아지 정보 업데이트")
-        }
+            }, modifier = Modifier.weight(1f)) {
+                Text("정보 수정")
+            }
 
+        }
     }
+
 }
 
 @Composable
@@ -287,7 +308,9 @@ fun DogDispositionSelection(
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier
+            .padding(16.dp)
+            .height(200.dp)
     ) {
         items(dispositionOptions) { (english, korean) ->
             Row(

@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.google.type.LatLng
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -26,6 +27,8 @@ class DataStoreManager @Inject constructor(@ApplicationContext private val conte
         private val FCM_TOKEN_KEY = stringPreferencesKey("fcm_token")
         private val USER_NICKNAME_KEY = stringPreferencesKey("user_nickname")
         private val USER_LOGIN_ID_KEY = stringPreferencesKey("user_login_id")
+        private val LOCATION_LAT_KEY = stringPreferencesKey("location_latitude")
+        private val LOCATION_LON_KEY = stringPreferencesKey("location_longitude")
     }
 
     val getAccessToken: Flow<String> = context.dataStore.data.map { preferences ->
@@ -87,6 +90,27 @@ class DataStoreManager @Inject constructor(@ApplicationContext private val conte
         context.dataStore.edit {
             it.remove(USER_TOKEN_KEY)
         }
+    }
+
+    suspend fun saveLocation(latitude: Double, longitude: Double) {
+        context.dataStore.edit { preferences ->
+            preferences[LOCATION_LAT_KEY] = latitude.toString()
+            preferences[LOCATION_LON_KEY] = longitude.toString()
+        }
+    }
+
+    suspend fun getLocationLatitude(): Double {
+        val latitudeString = context.dataStore.data.map { preferences ->
+            preferences[LOCATION_LAT_KEY] ?: "0.0"
+        }.first()
+        return latitudeString.toDoubleOrNull() ?: 0.0
+    }
+
+    suspend fun getLocationLongitude(): Double {
+        val longitudeString = context.dataStore.data.map { preferences ->
+            preferences[LOCATION_LON_KEY] ?: "0.0"
+        }.first()
+        return longitudeString.toDoubleOrNull() ?: 0.0
     }
 
 }

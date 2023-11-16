@@ -4,19 +4,22 @@ import android.Manifest
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
-import android.util.Log
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
+import com.dog.data.viewmodel.feed.HomeViewModel
+import com.dog.data.viewmodel.map.LocationTrackingViewModel
 import com.dog.data.viewmodel.user.UserViewModel
 import com.dog.ui.navigation.AppNavigation
 import com.dog.util.common.DataStoreManager
@@ -25,9 +28,11 @@ import com.google.accompanist.permissions.MultiplePermissionsState
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.shouldShowRationale
 
+
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun DogApp(onPermissionDenied: () -> Unit) {
+fun DogApp(dataStoreManager: DataStoreManager, onPermissionDenied: () -> Unit) {
+
 
     val permissionsState = rememberMultiplePermissionsState(
         permissions =
@@ -41,11 +46,9 @@ fun DogApp(onPermissionDenied: () -> Unit) {
     val openDialog = remember { mutableStateOf(true) }
 
     LaunchedEffect(permissionsState) {
-        // 권한 상태가 변화할 때마다 이 블록이 실행됩니다.
-        // 사용자가 "이번만 허용"을 선택한 경우, 권한이 임시적으로 부여된 것이므로
-        // 다이얼로그를 표시하지 않습니다.
         if (permissionsState.allPermissionsGranted) {
             openDialog.value = false
+
         } else {
             permissionsState.launchMultiplePermissionRequest()
         }
@@ -53,13 +56,22 @@ fun DogApp(onPermissionDenied: () -> Unit) {
 
     if (permissionsState.allPermissionsGranted) {
         val navController = rememberNavController()
-        val context = LocalContext.current
-        val store = DataStoreManager(context)
         val userViewModel: UserViewModel = hiltViewModel()
-
-        AppNavigation(navController, userViewModel, store)
+        val locationTrackingViewModel: LocationTrackingViewModel = hiltViewModel()
+        val homeViewModel: HomeViewModel = hiltViewModel()
+        val isUserLoggedIn = userViewModel.isLogin.collectAsState().value
+        val isLoading = userViewModel.isLoading.collectAsState().value
+        val gpsIsLoading = locationTrackingViewModel.isLoading.collectAsState().value
+        val feedIsLoading = homeViewModel.isLoading.collectAsState().value
+        LaunchedEffect(Unit) {
+            locationTrackingViewModel.updateUserLocationAndSave()
+        }
+        if (isLoading || gpsIsLoading || feedIsLoading) {
+            CircularProgressIndicator()
+        } else {
+            AppNavigation(navController, userViewModel, dataStoreManager, isUserLoggedIn)
+        }
     } else {
-
         PermissionRequestDialog(permissionsState, openDialog) {
             onPermissionDenied()
         }

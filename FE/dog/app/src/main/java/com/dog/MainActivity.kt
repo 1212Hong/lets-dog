@@ -1,28 +1,22 @@
 package com.dog;
 
-import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.dog.data.viewmodel.feed.PostFeedViewModel
-import com.dog.ui.screen.PostFeedScreen
 import com.dog.ui.theme.DogTheme
-import com.google.android.gms.tasks.Task
-import com.google.firebase.messaging.FirebaseMessaging
+import com.dog.util.common.DataStoreManager
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
+    @Inject
+    lateinit var dataStoreManager: DataStoreManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,7 +26,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    DogApp { finish() }
+                    DogApp(dataStoreManager) { finish() }
                 }
 
 //                runBlocking {

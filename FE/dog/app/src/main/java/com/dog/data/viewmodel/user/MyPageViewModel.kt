@@ -72,6 +72,7 @@ class MyPageViewModel @Inject constructor(
         getUser()
         getDog()
         getUserArticle()
+        getFriendRequests()
     }
 
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
@@ -199,7 +200,7 @@ class MyPageViewModel @Inject constructor(
                     Log.d("FriendRequest", "친구요청 승인 : $getUserBody")
                 } else {
                     // 서버에서 올바르지 않은 응답을 반환한 경우
-                    Log.e("FriendRequest", response.errorBody().toString())
+                    Log.e("FriendRequest", "친구요청 실패 : ${response.errorBody()}")
                 }
             } catch (e: Exception) {
                 // 네트워크 오류 처리

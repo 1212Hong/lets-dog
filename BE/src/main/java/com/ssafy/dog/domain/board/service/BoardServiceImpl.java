@@ -188,10 +188,10 @@ public class BoardServiceImpl implements BoardService {
 		// 동경 : 125.06666667 ~ 131.87222222
 
 		List<BoardDto> boardDtoList = new ArrayList<>();
-		if (!(33.10000000 < userLongitude && userLongitude < 38.45000000)) {
+		if (!(33.10000000 < userLatitude && userLatitude < 38.45000000)) {
 			throw new ApiException(GpsErrorCode.GPS_POINT_NOT_IN_KOREA);
 		}
-		if (!(125.06666667 < userLatitude && userLatitude < 131.87222222)) {
+		if (!(125.06666667 < userLongitude && userLongitude < 131.87222222)) {
 			throw new ApiException(GpsErrorCode.GPS_POINT_NOT_IN_KOREA);
 		}
 
