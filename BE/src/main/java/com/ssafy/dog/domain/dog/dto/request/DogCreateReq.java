@@ -22,9 +22,6 @@ public class DogCreateReq {
     @Size(max = 10)
     private String dogName;
 
-    @NotNull
-    private Long userId;
-
     @Lob
     private String dogPicture;
 

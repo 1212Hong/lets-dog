@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface DogService {
 
-    Dog create(DogCreateReq dogCreateReq);
+    Dog create(DogCreateReq dogCreateReq, Errors errors);
 
     Dog update(DogUpdateReq dogUpdateReq, Errors errors);
 

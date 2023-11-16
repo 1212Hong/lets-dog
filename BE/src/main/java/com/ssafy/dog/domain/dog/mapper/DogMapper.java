@@ -5,6 +5,7 @@ import com.ssafy.dog.common.exception.ApiException;
 import com.ssafy.dog.domain.dog.dto.request.DogCreateReq;
 import com.ssafy.dog.domain.dog.entity.Dog;
 import com.ssafy.dog.domain.user.repository.UserRepository;
+import com.ssafy.dog.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +22,7 @@ public class DogMapper {
         String dogPicture = dogCreateReq.getDogPicture().isEmpty() ? defaultImageUrl : dogCreateReq.getDogPicture();
 
         return Dog.DogBuilder.aDog()
-                .withUser(userRepository.findByUserId(dogCreateReq.getUserId())
+                .withUser(userRepository.findByUserId(SecurityUtils.getUserId())
                         .orElseThrow(() -> new ApiException(UserErrorCode.USER_NOT_FOUND)))
                 .withDogName(dogCreateReq.getDogName())
                 .withDogPicture(dogPicture)
