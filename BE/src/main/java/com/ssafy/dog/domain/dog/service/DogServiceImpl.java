@@ -22,6 +22,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -155,6 +159,14 @@ public class DogServiceImpl implements DogService {
             throw new ApiException(DogErrorCode.SIZE_VALUE_ERROR);
         }
 
+        LocalDateTime birthdate;
+        try {
+            LocalDate date = LocalDate.parse(dogUpdateReq.getDogBirthdate(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            birthdate = date.atStartOfDay();
+        } catch (DateTimeParseException e) {
+            throw new ApiException(DogErrorCode.INVALID_BIRTHDATE_FORMAT);
+        }
+
         if (errors.hasErrors()) {
             // 유효성 통과 못한 필드와 메시지를 핸들링
             Map<String, String> validatorResult = validateHandling(errors);
@@ -169,7 +181,7 @@ public class DogServiceImpl implements DogService {
         // Update dog fields
         dog.updateName(dogUpdateReq.getDogName());
         dog.updatePicture(dogUpdateReq.getDogPicture());
-        dog.updateBirthdate(dogUpdateReq.getDogBirthdate());
+        dog.updateBirthdate(birthdate);
         dog.updateBreed(dogUpdateReq.getDogBreed());
         dog.updateDispositioinList(dogUpdateReq.getDogDispositionList());
         dog.updateAboutMe(dogUpdateReq.getDogAboutMe());
