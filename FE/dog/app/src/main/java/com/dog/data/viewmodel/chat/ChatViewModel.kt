@@ -43,8 +43,8 @@ class ChatViewModel @Inject constructor(
     )
 
     // 채팅 정보 저장
-    private val _chatState = mutableStateListOf<ChatState>()
-    val chatState: List<ChatState> get() = _chatState
+    private val _chatState = MutableStateFlow<List<ChatState>>(emptyList())
+    val chatState: StateFlow<List<ChatState>> get() = _chatState
 
     // 채팅방 목록
     private val _chatListState = mutableStateListOf<ChatroomInfo>()
@@ -112,12 +112,10 @@ class ChatViewModel @Inject constructor(
     }
 
     private fun updateChatState(chat: ChatState) {
-//        val currentChatState = chatState.value.toMutableList() // 현재 상태를 가져옵니다.
-//        currentChatState.add(chat)
-//        _chatState.value = currentChatState // 수정된 목록을 다시 StateFlow에 할당합니다.
-        Log.d("chatState-before", chatState.toString())
-        _chatState.add(chat)
-        Log.d("chatState-after", chatState.toString())
+        val currentChatState = _chatState.value.toMutableList()
+        currentChatState.add(chat)
+        _chatState.value = currentChatState
+        Log.d("chatState-after", _chatState.value.toString())
     }
 
     fun updateReadList(userId: String) {
@@ -228,8 +226,9 @@ class ChatViewModel @Inject constructor(
                 val chatHistory = res.body()?.body
                 Log.d("chatHistoryRes", responseBody?.body.toString())
                 if (chatHistory != null) {
-                    _chatState.clear()
-                    _chatState.addAll(chatHistory)
+                    _chatState.value = chatHistory
+//                    _chatState.clear()
+//                    _chatState.addAll(chatHistory)
                 }
             } else {
                 // 서버에서 올바르지 않은 응답을 반환한 경우

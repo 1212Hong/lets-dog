@@ -15,7 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -81,7 +81,6 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-import java.util.UUID
 
 
 @Composable
@@ -91,7 +90,7 @@ fun ChattingScreen(
     userViewModel: UserViewModel,
     chatViewModel: ChatViewModel
 ) {
-    val chatState = chatViewModel.chatState
+    val chatState by chatViewModel.chatState.collectAsState()
     val userState by userViewModel.userState.collectAsState()
     Log.d("chat", userState.toString())
     val coroutineScope = rememberCoroutineScope()
@@ -373,8 +372,9 @@ fun ChatScreen(
                     state = listState, // LazyListState를 사용
                 ) {
                     if (chatState.isNotEmpty()) {
-                        items(chatState) { chat ->
-                            val key = UUID.randomUUID().toString()
+                        itemsIndexed(chatState) { index, chat ->
+                            val key =
+                                "${index}_${chat.roomId}_${chat.senderId}_${chat.content}"
                             key(key) {
                                 userState?.let { user ->
                                     ChatRow(chat = chat, user = user, totalCnt)
