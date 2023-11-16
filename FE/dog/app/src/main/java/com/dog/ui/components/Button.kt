@@ -23,7 +23,7 @@ fun MainButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     shape: Shape? = null,
-    onClick: suspend () -> Unit?
+    onClick: suspend () -> Any
 ) {
     DogTheme {
 

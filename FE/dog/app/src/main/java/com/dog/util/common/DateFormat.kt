@@ -15,3 +15,16 @@ fun formatTrackingDate(trackingDateString: String): String {
     }
 }
 
+fun formatDate(inputDate: String, inputPattern: String): String {
+    val inputFormat = SimpleDateFormat(inputPattern, Locale.getDefault())
+    val outputFormat = SimpleDateFormat("yyyy년 MM월 dd일", Locale.getDefault())
+
+    try {
+        val date = inputFormat.parse(inputDate)
+        return outputFormat.format(date)
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+
+    return inputDate // 변환이 실패-> 입력된 문자열을 그대로 반환
+}

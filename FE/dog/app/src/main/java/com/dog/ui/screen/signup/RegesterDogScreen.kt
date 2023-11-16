@@ -1,5 +1,8 @@
 package com.dog.ui.screen.signup
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,48 +25,47 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.dog.R
+import com.dog.data.model.dog.DogInfo
+import com.dog.data.viewmodel.ImageUploadViewModel
 import com.dog.ui.components.MainButton
+import com.dog.ui.components.calander.CustomDatePicker
+import com.dog.ui.screen.profile.DogDispositionSelection
+import com.dog.util.common.ImageLoader
+import com.dog.util.common.formatDate
 import java.text.SimpleDateFormat
 import java.util.*
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RegisterDogScreen(navController: NavController) {
+fun RegisterDogScreen(navController: NavController, imageUploadViewModel: ImageUploadViewModel) {
     var dogName by remember { mutableStateOf("") }
-    var dogBirthdate by remember { mutableStateOf(Date().toString()) }
+    var dogBirthdate by remember { mutableStateOf(formatDate(Date().toString(), "EEE MMM dd HH:mm:ss zzz yyyy")) }
     var dogBreed by remember { mutableStateOf("") }
-    var dogDispositionList by remember {
-        mutableStateOf(
-            listOf(
-                "FRIENDLY",
-                "FRIENDLY",
-                "FRIENDLY"
-            )
-        )
-    }
+    var dogDispositionList by remember { mutableStateOf(listOf<String>()) }
+    val selectedDispositionsSet = remember { mutableStateOf(dogDispositionList.toSet()) }
     var dogAboutMe by remember { mutableStateOf("") }
     var dogSize by remember { mutableStateOf("") }
-
-    // To show date picker
     var isDatePickerVisible by remember { mutableStateOf(false) }
-
-    // To show dropdown for dog size
     var isDogSizeDropdownVisible by remember { mutableStateOf(false) }
-
-    val context = LocalContext.current
-
-    // Format for displaying and parsing the date
-    val dateFormat = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
-
-    val calendar = Calendar.getInstance()
-
-    // Handle date picker dialog visibility
-    var pickerState = rememberDatePickerState()
-
-    // Handle dog size dropdown
     var dogSizeSelection by remember { mutableStateOf(dogSize) }
-
     val dogSizes = listOf("SMALL", "MEDIUM", "LARGE")
+    val uploadedImageUrls by imageUploadViewModel.uploadedImageUrls.collectAsState()
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            imageUploadViewModel.uploadImage(it)
+        }
+    }
+
+    val clickChangeImage = {
+        imagePickerLauncher.launch("image/*")
+    }
+
+    LaunchedEffect(selectedDispositionsSet.value) {
+        selectedDispositionsSet.value = dogDispositionList.toSet()
+
+    }
 
     Box(
         modifier = Modifier
@@ -74,7 +76,6 @@ fun RegisterDogScreen(navController: NavController) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
-                .verticalScroll(rememberScrollState())
         ) {
             item {
                 // Back button
@@ -84,102 +85,48 @@ fun RegisterDogScreen(navController: NavController) {
             }
 
             item {
-                // Dog picture (you can add image upload functionality here)
-                Image(
-                    painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                    contentDescription = "Dog Picture",
+                ImageLoader(
+                    imageUrl = uploadedImageUrls.firstOrNull() ?: "https://image.utoimage.com/preview/cp872722/2022/12/202212008462_500.jpg",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(200.dp)
+                        .height(100.dp)
                         .clip(MaterialTheme.shapes.medium)
                         .background(MaterialTheme.colorScheme.primary)
-                        .clickable {
-                            // Handle image upload or selection
-                            // Open an image picker, etc.
-                        }
                 )
+                MainButton(modifier = Modifier
+                    .fillMaxWidth(), text = "사진 등록", onClick = clickChangeImage)
             }
 
             item {
-                // Dog name input
                 OutlinedTextField(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp),
                     value = dogName,
                     onValueChange = { dogName = it },
-                    label = { Text("Dog Name") }
+                    label = { Text("강아지 이름") }
                 )
             }
 
             item {
-                // Dog birthdate input with date picker
-                OutlinedTextField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    value = dateFormat.format(dogBirthdate),
-                    onValueChange = { /* Do nothing, read-only */ },
-                    label = { Text("Dog Birthdate") },
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        keyboardType = KeyboardType.Number
-                    ),
-                    readOnly = true,
-                    trailingIcon = {
-                        IconButton(onClick = { isDatePickerVisible = true }) {
-                            Icon(
-                                imageVector = Icons.Default.Check,
-                                contentDescription = "Pick Date"
-                            )
-                        }
-                    }
+                CustomDatePicker(
+                    curDate = dogBirthdate,
+                    curOpen = isDatePickerVisible
                 )
-                // Show date picker dialog
-                if (isDatePickerVisible) {
-                    DatePicker(
-                        state = pickerState,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color.White)
-                    )
-                }
             }
 
             item {
-                // Dog breed input
                 OutlinedTextField(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp),
                     value = dogBreed,
                     onValueChange = { dogBreed = it },
-                    label = { Text("Dog Breed") }
+                    label = { Text("견종") }
                 )
             }
 
             item {
-                // Dog disposition list input
-                Column {
-                    Text("Dog Disposition List")
-                    dogDispositionList.forEachIndexed { index, disposition ->
-                        OutlinedTextField(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp),
-                            value = disposition,
-                            onValueChange = {
-                                val newList = dogDispositionList.toMutableList()
-                                newList[index] = it
-                                dogDispositionList = newList
-                            },
-                            label = { Text("Disposition ${index + 1}") }
-                        )
-                    }
-                }
-            }
-
-            item {
-                // Dog about me input
                 OutlinedTextField(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -192,14 +139,13 @@ fun RegisterDogScreen(navController: NavController) {
             }
 
             item {
-                // Dog size dropdown
                 OutlinedTextField(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp),
                     value = dogSizeSelection,
                     onValueChange = { /* Do nothing, read-only */ },
-                    label = { Text("Dog Size") },
+                    label = { Text("강아지 크기") },
                     readOnly = true,
                     trailingIcon = {
                         IconButton(onClick = { isDogSizeDropdownVisible = true }) {
@@ -210,7 +156,6 @@ fun RegisterDogScreen(navController: NavController) {
                         }
                     }
                 )
-                // Show dog size dropdown
                 if (isDogSizeDropdownVisible) {
                     DropdownMenu(
                         modifier = Modifier
@@ -236,17 +181,22 @@ fun RegisterDogScreen(navController: NavController) {
             }
 
             item {
-                // Signup button
+                DogDispositionSelection(selectedDispositionsSet = selectedDispositionsSet,
+                    onDispositionsChanged = { newList ->
+                        dogDispositionList = newList
+                    })
+            }
+
+            item {
                 MainButton(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 16.dp),
-                    text = "Register Dog",
-                    onClick = {
-                        // Handle dog registration logic here
+                    text = "강아지 등록하기"
+                ) {
+                    // 입력한 데이터 기반으로 개 등록 api 호출 필요
 //                        val dog = DogInfo(
 //                            dogName = dogName,
-//                            userId = 0,
 //                            dogPicture = "string", // Replace with actual picture URL or path
 //                            dogBirthdate = dogBirthdate,
 //                            dogBreed = dogBreed,
@@ -254,13 +204,7 @@ fun RegisterDogScreen(navController: NavController) {
 //                            dogAboutMe = dogAboutMe,
 //                            dogSize = dogSizeSelection
 //                        )
-                        // Call your registration API or perform necessary actions
-                        // ...
-
-                        // Navigate back or to the next screen
-//                        navController.popBackStack()
-                    }
-                )
+                }
             }
         }
     }

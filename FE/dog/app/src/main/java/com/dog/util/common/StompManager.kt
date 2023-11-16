@@ -138,15 +138,11 @@ class StompManager(chatViewModel: ChatViewModel, userViewModel: UserViewModel) {
     }
 
     fun sendStomp(roomId: Long, nickName: String, message: String) {
-        Log.d("compositeDisposable", compositeDisposable.toString())
-        Log.d("connected", mStompClient?.isConnected.toString())
-        Log.d("stompClient-send", mStompClient.toString())
         Log.d(
             TAG,
             "sendStomp - mStompClient: $mStompClient, isConnected: ${mStompClient?.isConnected}, compositeDisposable: $compositeDisposable"
         )
-//        if (mStompClient?.isConnected == true && compositeDisposable != null) {
-        if (mStompClient != null && compositeDisposable != null) {
+        if (mStompClient?.isConnected == true && compositeDisposable != null) {
             val jsonObject = JSONObject()
             jsonObject.put("roomId", roomId);
             jsonObject.put("senderName", nickName);

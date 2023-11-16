@@ -125,7 +125,10 @@ class UserViewModel @Inject constructor(
                 Log.d("api", response.toString())
                 if (response.isSuccessful) {
                     val signupBody = response.body()?.body
-                    _message.value = signupBody.toString()
+                    val signupResult = response.body()?.result
+
+                    if(_message.value == null) _message.value = signupResult?.message
+                    else _message.value = signupBody.toString() + " 계정으로 로그인에 성공햇습니다."
                     Log.d("signup", signupBody.toString())
                 } else {
                     // 서버에서 올바르지 않은 응답을 반환한 경우
@@ -143,7 +146,7 @@ class UserViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 Log.e("signupRequest", "네트워크 요청 에러", e)
-                _message.value = "로그인 중 오류가 발생했습니다."
+                _message.value = "회원가입 중 오류가 발생했습니다."
             }
         }
     }

@@ -24,6 +24,7 @@ import com.dog.data.viewmodel.feed.LikeViewModel
 import com.dog.data.viewmodel.map.LocationTrackingViewModel
 import com.dog.data.viewmodel.user.UserViewModel
 import com.dog.ui.navigation.AppNavigation
+import com.dog.ui.theme.PurpleGray400
 import com.dog.util.common.DataStoreManager
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.MultiplePermissionsState
@@ -61,15 +62,13 @@ fun DogApp(dataStoreManager: DataStoreManager, onPermissionDenied: () -> Unit) {
         val userViewModel: UserViewModel = hiltViewModel()
         val locationTrackingViewModel: LocationTrackingViewModel = hiltViewModel()
         val homeViewModel: HomeViewModel = hiltViewModel()
-        val likeViewModel: LikeViewModel = hiltViewModel()
-        val commentViewModel: CommentViewModel = hiltViewModel()
         val isUserLoggedIn = userViewModel.isLogin.collectAsState().value
         val isLoading = userViewModel.isLoading.collectAsState().value
         val gpsIsLoading = locationTrackingViewModel.isLoading.collectAsState().value
         val feedIsLoading = homeViewModel.isLoading.collectAsState().value
 
         if (isLoading || feedIsLoading || gpsIsLoading) {
-            CircularProgressIndicator()
+            CircularProgressIndicator(color = PurpleGray400)
         } else {
             AppNavigation(navController, userViewModel, dataStoreManager, isUserLoggedIn)
         }

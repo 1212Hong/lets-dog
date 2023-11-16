@@ -1,3 +1,5 @@
+package com.dog.ui.components
+
 import android.content.Context
 import android.widget.Toast
 

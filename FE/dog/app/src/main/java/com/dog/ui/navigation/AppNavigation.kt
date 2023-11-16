@@ -56,9 +56,6 @@ fun AppNavigation(
             composable(Screens.Signin.route) {
                 LoginScreen(navController, userViewModel)
             }
-            composable(Screens.RegisterDog.route) {
-                RegisterDogScreen(navController)
-            }
         }
     } else {
         // Token이 있는 경우: BottomNavigationBar를 표시

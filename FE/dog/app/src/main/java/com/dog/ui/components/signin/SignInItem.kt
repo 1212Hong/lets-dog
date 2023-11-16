@@ -27,7 +27,7 @@ import com.dog.R
 import com.dog.data.viewmodel.user.UserViewModel
 import com.dog.ui.components.MainButton
 import kotlinx.coroutines.coroutineScope
-import showCustomToast
+import com.dog.ui.components.showCustomToast
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
