@@ -20,7 +20,6 @@ public class DogGetRes {
     private String dogName;
     private String dogPicture;
     private DogSize dogSize;
-    private Long userId;
 
     public static DogGetRes toDto(Dog entity) {
         return DogGetRes.builder()
@@ -32,7 +31,6 @@ public class DogGetRes {
                 .dogName(entity.getDogName())
                 .dogPicture(entity.getDogPicture())
                 .dogSize(entity.getDogSize())
-                .userId(entity.getUser().getUserId())
                 .build();
     }
 }
