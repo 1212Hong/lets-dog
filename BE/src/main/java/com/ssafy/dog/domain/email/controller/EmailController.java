@@ -23,17 +23,7 @@ public class EmailController {
 
     @PostMapping("/verification-email")
     public Api<?> sendVerificationEmail(@RequestBody EmailAddressDto emailAddressDto) {
-        // 인증 코드 생성
-        String verificationCode = verificationTokenService.createVerificationToken(emailAddressDto.getEmail());
-        // 이메일 전송
-        emailService.sendVerificationMessage(
-                emailAddressDto.getEmail(),
-                "[같이가개] 이메일 인증코드",
-                verificationCode);
-
-        Map<String, String> ret = new HashMap<>();
-        ret.put("email", emailAddressDto.getEmail());
-        return Api.ok(ret);
+        return emailService.sendVerificationEmail(emailAddressDto);
     }
 
     @PutMapping("/verification-code")

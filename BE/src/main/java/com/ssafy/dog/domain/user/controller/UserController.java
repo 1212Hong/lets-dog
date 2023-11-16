@@ -53,12 +53,6 @@ public class UserController {
         return userService.getByUserNickname(userNickname);
     }
 
-    @GetMapping("/duplicate-email/{email}")
-    @Operation(summary = "이메일 중복 조회")
-    Api<IsDuplicatedRes> duplicateCheckEmail(@PathVariable("email") String email) {
-        return userService.isDuplicatedEmail(email);
-    }
-
     @GetMapping("/duplicate-nickname/{nickname}")
     @Operation(summary = "닉네임 중복 조회")
     Api<IsDuplicatedRes> duplicateCheckNickname(@PathVariable("nickname") String nickname) {
