@@ -29,6 +29,8 @@ public interface UserService {
 
     Api<IsDuplicatedRes> isDuplicatedNickname(String nickname);
 
+    Api<UserUpdateRes> updatePosition(Double latitude, Double longitude);
+
     boolean isValidEmail(String email);
 
     boolean isValidPassword(String password);
