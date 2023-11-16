@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ssafy.dog.common.api.Api;
 import com.ssafy.dog.domain.fcm.dto.FCMDto;
-import com.ssafy.dog.domain.fcm.service.FirebaseService;
+import com.ssafy.dog.domain.fcm.service.FCMService;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,12 +18,12 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class FcmTestController {
 
-	private final FirebaseService firebaseService;
+	private final FCMService FCMService;
 
 	@PostMapping
 	public Api<String> createNotification(@RequestBody FCMDto fcmTestDto) {
 		log.info("시작");
-		String response = firebaseService.sendNotification(fcmTestDto);
+		String response = FCMService.sendNotification(fcmTestDto);
 		log.info(response);
 		return Api.ok(response);
 	}
