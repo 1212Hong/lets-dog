@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
+import com.dog.data.viewmodel.feed.HomeViewModel
 import com.dog.data.viewmodel.map.LocationTrackingViewModel
 import com.dog.data.viewmodel.user.UserViewModel
 import com.dog.ui.navigation.AppNavigation
@@ -57,10 +58,15 @@ fun DogApp(dataStoreManager: DataStoreManager, onPermissionDenied: () -> Unit) {
         val navController = rememberNavController()
         val userViewModel: UserViewModel = hiltViewModel()
         val locationTrackingViewModel: LocationTrackingViewModel = hiltViewModel()
+        val homeViewModel: HomeViewModel = hiltViewModel()
         val isUserLoggedIn = userViewModel.isLogin.collectAsState().value
         val isLoading = userViewModel.isLoading.collectAsState().value
         val gpsIsLoading = locationTrackingViewModel.isLoading.collectAsState().value
-        if (isLoading || gpsIsLoading) {
+        val feedIsLoading = homeViewModel.isLoading.collectAsState().value
+        LaunchedEffect(Unit) {
+            locationTrackingViewModel.updateUserLocationAndSave()
+        }
+        if (isLoading || gpsIsLoading || feedIsLoading) {
             CircularProgressIndicator()
         } else {
             AppNavigation(navController, userViewModel, dataStoreManager, isUserLoggedIn)

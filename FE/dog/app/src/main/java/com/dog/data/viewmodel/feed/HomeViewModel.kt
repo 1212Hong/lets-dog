@@ -13,6 +13,8 @@ import com.dog.data.repository.FeedRepository
 import com.dog.util.common.DataStoreManager
 import com.dog.util.common.RetrofitClient
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import retrofit2.Response
 import javax.inject.Inject
@@ -28,16 +30,25 @@ class HomeViewModel @Inject constructor(
     private val _feedList = mutableStateListOf<BoardItem>()
     val feedList: SnapshotStateList<BoardItem> get() = _feedList
 
-
     private var _isDataLoaded = mutableStateOf(false)
     val isDataLoaded: State<Boolean> get() = _isDataLoaded
 
+    private val _isLoading = MutableStateFlow<Boolean>(true)
+    val isLoading = _isLoading.asStateFlow()
 
     init {
         viewModelScope.launch {
-            val userLatitude = 127.11
-            val userLongitude = 35.11
-            loadBoarderNearData(userLatitude, userLongitude)
+            _isLoading.value = true
+            try {
+                val userLatitude = dataStoreManager.getLocationLatitude()
+                val userLongitude = dataStoreManager.getLocationLongitude()
+                Log.i("위치", "${userLatitude}, ${userLongitude}")
+                loadBoarderNearData(userLatitude, userLongitude)
+            } catch (e: Exception) {
+                Log.e("ViewModel", "Error loading data: ${e.message}")
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
 
