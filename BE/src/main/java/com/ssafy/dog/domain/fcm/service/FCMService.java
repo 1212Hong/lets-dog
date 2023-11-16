@@ -32,11 +32,11 @@ public class FCMService {
 			}
 
 			Message message = Message.builder()
-				.setToken(token)
-				.putData("fcmType", "push")
-				.putData("title", fcmDto.getTitle())
-				.putData("content", fcmDto.getContent())
-				.build();
+					.setToken(token)
+					.putData("fcmType", "push")
+					.putData("title", fcmDto.getTitle())
+					.putData("content", fcmDto.getContent())
+					.build();
 
 			log.info("메시지 전송 시도 : {}", message.toString());
 			String response = FirebaseMessaging.getInstance().send(message);
@@ -70,11 +70,12 @@ public class FCMService {
 			String topic = "ChatRoom" + roomId;
 
 			Message message = Message.builder()
-				.setTopic(topic)
-				.putData("fcmType", "chat")
-				.putData("content", content)
-				.putData("sendTime", sendTime)
-				.build();
+					.setTopic(topic)
+					.putData("fcmType", "chat")
+					.putData("roomId", String.valueOf(roomId))
+					.putData("content", content)
+					.putData("sendTime", sendTime)
+					.build();
 
 			log.info("채팅 FCM 전송 시도 : {}", message.toString());
 			FirebaseMessaging.getInstance().send(message);
@@ -91,7 +92,7 @@ public class FCMService {
 		String topic = "ChatRoom" + roomId;
 		try {
 			FirebaseMessaging.getInstance().subscribeToTopic(
-				registrationTokens, topic);
+					registrationTokens, topic);
 		} catch (FirebaseMessagingException e) {
 			throw new RuntimeException(e);
 		}
@@ -102,7 +103,7 @@ public class FCMService {
 		String topic = "Chat" + roomId;
 		try {
 			FirebaseMessaging.getInstance().unsubscribeFromTopic(
-				registrationTokens, topic);
+					registrationTokens, topic);
 		} catch (FirebaseMessagingException e) {
 			throw new RuntimeException(e);
 		}
