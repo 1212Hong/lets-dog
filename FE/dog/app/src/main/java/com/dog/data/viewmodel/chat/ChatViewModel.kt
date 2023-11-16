@@ -63,8 +63,8 @@ class ChatViewModel @Inject constructor(
     val friendList: List<FriendState> get() = _friendList
 
     // 읽음 처리를 위한 현재 채팅 접속자 리스트
-    private val _readList = mutableStateListOf<String>()
-    val readList: List<String> get() = _readList
+    private val _readList = MutableStateFlow(emptySet<String>())
+    val readList: StateFlow<Set<String>> get() = _readList
 
     var curChatroomTotalCnt by mutableIntStateOf(0)
     var curMessage by mutableStateOf("")
@@ -81,6 +81,7 @@ class ChatViewModel @Inject constructor(
                     // Handle success, you might want to update UI or navigate to the created chatroom
                     Log.d("newChatroom", res.body().toString())
                     _loading.value = true
+
                 } else {
                     // 서버에서 올바르지 않은 응답을 반환한 경우
                     _loading.value = false
@@ -119,11 +120,10 @@ class ChatViewModel @Inject constructor(
     }
 
     fun updateReadList(userId: String) {
-        val currentReadList = _readList.toMutableList() // 현재 상태를 가져옵니다.
+        val currentReadList = _readList.value.toMutableSet() // 현재 상태를 가져옵니다.
         currentReadList.add(userId)
-        _readList.clear()
-        _readList.addAll(currentReadList)
-        Log.d("readList", _readList.toList().toString())
+        _readList.value = currentReadList
+        Log.d("readList", _readList.value.toString())
     }
 
     fun leaveChatroom(roomId: Long) {

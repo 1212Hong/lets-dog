@@ -17,7 +17,7 @@ fun formatTrackingDate(trackingDateString: String): String {
 
 fun formatDate(inputDate: String, inputPattern: String): String {
     val inputFormat = SimpleDateFormat(inputPattern, Locale.getDefault())
-    val outputFormat = SimpleDateFormat("yyyy년 MM월 dd일", Locale.getDefault())
+    val outputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
     try {
         val date = inputFormat.parse(inputDate)
