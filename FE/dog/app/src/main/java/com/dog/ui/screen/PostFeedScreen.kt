@@ -1,111 +1,206 @@
 package com.dog.ui.screen
 
-
+import android.annotation.SuppressLint
 import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.DropdownMenuItem
+import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ThumbUp
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.dog.data.viewmodel.feed.FeedViewModel
+import com.dog.data.model.feed.BoardRequest
+import com.dog.data.viewmodel.ImageUploadViewModel
 import com.dog.data.viewmodel.feed.PostFeedViewModel
 
-
+@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
-fun PostFeedScreen(navController: NavController, viewModel: FeedViewModel = hiltViewModel()) {
-    val localContext = LocalContext.current
-    val selectedImageUris = remember { mutableStateListOf<Uri>() }
-
-    // 갤러리에서 이미지를 가져오기 위한 런처 초기화
-    val launcher: ActivityResultLauncher<String> = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetMultipleContents()
-    ) { uris: List<Uri>? ->
-        // 선택한 여러 이미지에 대한 작업을 수행
-        uris?.let {
-            selectedImageUris.addAll(it)
-            Log.d("selectImage", selectedImageUris.toList().toString())
-        }
-    }
-
-    DisposableEffect(selectedImageUris) {
-        onDispose {
-            if (selectedImageUris.isNotEmpty()) {
-                viewModel.uploadImages(selectedImageUris, localContext)
-            }
-        }
-    }
+fun PostFeedContent(
+    postFeedViewModel: PostFeedViewModel,
+    imageUploadViewModel: ImageUploadViewModel,
+    onPostFeedClick: (BoardRequest) -> Unit,
+) {
+    var boardContent by remember { mutableStateOf("") }
+    val boardScope by postFeedViewModel.boardScope.collectAsState()
+    val fileUrls by imageUploadViewModel.uploadedImageUrls.collectAsState()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+            .padding(16.dp)
     ) {
-        // 갤러리로 이동하는 버튼
-        Button(
-            onClick = {
-                // 갤러리 열기
-                launcher.launch("image/*")
-            }
-        ) {
-            Icon(
-                imageVector = Icons.Default.ThumbUp,
-                contentDescription = null,
-                tint = Color.Gray,
+        Row() {
+            OutlinedTextField(
+                value = boardContent,
+                onValueChange = { boardContent = it },
+                label = { Text("게시글 내용") },
                 modifier = Modifier
-                    .padding(end = 8.dp)
-                    .size(24.dp)
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
             )
-            Text(text = "갤러리에서 이미지 선택")
         }
+        var expanded by remember { mutableStateOf(false) }
 
-        // 이미지 업로드 버튼
-        Button(
-            onClick = {
-                if (selectedImageUris.isNotEmpty()) {
-                    viewModel.uploadImages(selectedImageUris, localContext)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("공개 범위: ", modifier = Modifier.clickable { expanded = !expanded })
+            Spacer(modifier = Modifier.width(8.dp))
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier.background(MaterialTheme.colorScheme.surface)
+            ) {
+                DropdownMenuItem(onClick = {
+                    postFeedViewModel.setBoardScope("Everyone")
+                    expanded = false
+                }) {
+                    Text("전체 공개")
+                }
+                DropdownMenuItem(onClick = {
+                    postFeedViewModel.setBoardScope("Friends")
+                    expanded = false
+                }) {
+                    Text("친구만 공개")
+                }
+                DropdownMenuItem(onClick = {
+                    postFeedViewModel.setBoardScope("MeOnly")
+                    expanded = false
+                }) {
+                    Text("비공개")
                 }
             }
+            Text(postFeedViewModel.boardScope.value)
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = Icons.Default.ThumbUp,
-                contentDescription = null,
-                tint = Color.Gray,
-                modifier = Modifier
-                    .padding(end = 8.dp)
-                    .size(24.dp)
-            )
-            Text(text = "이미지 업로드")
+            ImageSelectionWithUrl(onImageUrlsSelected = { imageUrls ->
+                Log.d("image", imageUrls.toString())
+            }, imageUploadViewModel = imageUploadViewModel)
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                onClick = {
+                    val boardRequest = BoardRequest(
+                        boardContent = boardContent,
+                        boardScope = boardScope,
+                        boardLikes = 0,
+                        fileUrlLists = fileUrls,
+                        boardComments = 0
+                    )
+                    onPostFeedClick(boardRequest)
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(imageVector = Icons.Default.Send, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.height(20.dp))
+                Text("게시")
+            }
         }
     }
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@Composable
+fun PostFeedScreen(navController: NavController) {
+    val postFeedViewModel: PostFeedViewModel = hiltViewModel()
+    val imageUploadViewModel: ImageUploadViewModel = hiltViewModel()
 
-
-
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("게시글 작성") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
+                    }
+                }
+            )
+        },
+        content = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(50.dp)
+            ) {
+                PostFeedContent(
+                    postFeedViewModel = postFeedViewModel,
+                    imageUploadViewModel = imageUploadViewModel
+                ) { boardRequest ->
+                    postFeedViewModel.postFeed(
+                        userNickname = "",
+                        boardContent = boardRequest.boardContent,
+                        fileUrls = boardRequest.fileUrlLists,
+                        boardScope = boardRequest.boardScope
+                    )
+                }
+                Spacer(modifier = Modifier.weight(1f)) // Added Spacer to fill remaining space
+            }
+        }
+    )
+}
 
 @Composable
-fun PostFeedScreen2(postFeed: PostFeedViewModel = hiltViewModel()) {
-    Log.d("rest",postFeed.postFeedResult.toString())
+fun ImageSelectionWithUrl(
+    onImageUrlsSelected: (List<Uri>) -> Unit,
+    imageUploadViewModel: ImageUploadViewModel
+) {
+    var selectedImageUrls by remember { mutableStateOf<List<Uri>>(emptyList()) }
+    val getContent =
+        rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris: List<Uri>? ->
+            uris?.let {
+                selectedImageUrls = uris
+                onImageUrlsSelected(selectedImageUrls)
+            }
+        }
+    selectedImageUrls.forEach { imageUrl ->
+        imageUploadViewModel.uploadImage(imageUrl)
+    }
+    Spacer(modifier = Modifier.height(16.dp))
+    Button(onClick = { getContent.launch("image/*") }) {
+        Text("Select Images")
+    }
 }

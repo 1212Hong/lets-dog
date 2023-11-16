@@ -20,7 +20,6 @@ fun DropdownMenuContent(
     onReportClick: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-
     Box(
         modifier = Modifier.clickable {
             expanded = !expanded
@@ -31,24 +30,24 @@ fun DropdownMenuContent(
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = {
-                expanded = false // 닫기를 요청할 때 expanded 값을 false로 설정
+                expanded = false
             }
         ) {
             DropdownMenuItem(
                 onClick = {
                     onDeleteClick()
-                    expanded = false // 항목을 클릭하면 expanded 값을 false로 설정하여 닫힘
+                    expanded = false
                 },
-                modifier = Modifier.background(color = Color.Gray),
+                modifier = Modifier.background(color = Color.White),
             ) {
                 Text(text = "삭제", color = Color.Black)
             }
             DropdownMenuItem(
                 onClick = {
                     onReportClick()
-                    expanded = false // 항목을 클릭하면 expanded 값을 false로 설정하여 닫힘
+                    expanded = false
                 },
-                modifier = Modifier.background(color = Color.Gray),
+                modifier = Modifier.background(color = Color.White),
             ) {
                 Text(text = "신고", color = Color.Black)
             }

@@ -3,7 +3,7 @@ package com.dog.data.repository
 import com.dog.data.model.feed.BoardRequest
 import com.dog.data.model.feed.BoardResponse
 import com.dog.data.model.feed.DeleteFeedResponse
-import com.dog.data.model.feed.ResponseBody
+import com.dog.data.model.feed.PostFeedResponseBody
 import com.dog.data.model.feed.UploadResponse
 import okhttp3.MultipartBody
 import retrofit2.Response
@@ -23,7 +23,7 @@ interface FeedRepository {
     ): Response<BoardResponse>
 
     @POST("board")
-    suspend fun PostFeedApiResponse(@Body request: BoardRequest): Response<ResponseBody>
+    suspend fun postFeedApiResponse(@Body request: BoardRequest): Response<PostFeedResponseBody>
 
     @DELETE("board")
     suspend fun deleteFeedApiResponse(@Query("boardId") boardId: Long): Response<DeleteFeedResponse>

@@ -148,7 +148,7 @@ fun BottomNavigationBar(startRoute: String, userViewModel: UserViewModel) {
                     navController, myPageViewModel, userNickname = null
                 )
             }
-            composable(Screens.PostFeed.route){
+            composable(Screens.PostFeed.route) {
                 PostFeedScreen(
                     navController,
                 )
