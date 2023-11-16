@@ -2,8 +2,6 @@ package com.dog.data.viewmodel.map
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.health.connect.datatypes.ExerciseRoute
-import android.location.LocationManager
 import android.os.Looper
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -11,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.dog.data.model.gps.GpsPoint
 import com.dog.data.model.gps.GpsRequest
 import com.dog.data.repository.GpsRepository
+import com.dog.data.repository.UserRepository
 import com.dog.util.common.DataStoreManager
 import com.dog.util.common.RetrofitClient
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -39,6 +38,9 @@ class LocationTrackingViewModel @Inject constructor(
     private val interceptor = RetrofitClient.RequestInterceptor(dataStoreManager)
     private val apiService: GpsRepository =
         RetrofitClient.getInstance(interceptor).create(GpsRepository::class.java)
+    private val userApi: UserRepository = RetrofitClient.getInstance(interceptor).create(
+        UserRepository::class.java
+    )
 
 
     private val _userLocation = MutableStateFlow<LatLng?>(null)
@@ -56,6 +58,8 @@ class LocationTrackingViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow<Boolean>(true)
     val isLoading = _isLoading.asStateFlow()
 
+    private var locationUpdateStarted = false
+
     private var startTime = 0L
     private var timerJob: Job? = null
 
@@ -66,20 +70,34 @@ class LocationTrackingViewModel @Inject constructor(
     ).build()
 
     init {
-        getCurrentLocation()
+        getCurrentLocationAndUpdateUserInfo()
     }
 
     @SuppressLint("MissingPermission")
-    fun getCurrentLocation() {
+    private fun getCurrentLocation(callback: (LatLng?) -> Unit) {
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
             location?.let {
                 val currentLatLng = LatLng(it.latitude, it.longitude)
                 _userLocation.value = currentLatLng
                 addPathPoint(currentLatLng)
                 Log.i("LocationTracking", "현재 위치: ${_userLocation.value}")
-                _isLoading.value = false
+                callback(currentLatLng)
             } ?: run {
                 startLocationUpdates()
+                callback(null)
+            }
+        }
+    }
+
+    private fun getCurrentLocationAndUpdateUserInfo() {
+        getCurrentLocation { location ->
+            location?.let { latLng ->
+                viewModelScope.launch {
+                    _userLocation.value = latLng
+                    dataStoreManager.saveLocation(latLng.latitude, latLng.longitude)
+                    updateUserLatLangProfile(latLng.latitude, latLng.longitude)
+                    _isLoading.value = false
+                }
             }
         }
     }
@@ -117,6 +135,7 @@ class LocationTrackingViewModel @Inject constructor(
         }
     }
 
+
     @SuppressLint("MissingPermission")
     fun startLocationUpdates() {
         fusedLocationClient.requestLocationUpdates(
@@ -137,15 +156,20 @@ class LocationTrackingViewModel @Inject constructor(
     fun startTracking() {
         if (!_isRunning.value) {
             resetPathPoints()
-            _userLocation.value?.let {
-                startLocationUpdates()
-            } ?: run {
-                getCurrentLocation()
+            getCurrentLocation { location ->
+                location?.let { latLng ->
+                    _userLocation.value = latLng
+                    addPathPoint(latLng)
+                    startLocationUpdates()
+                } ?: run {
+                    Log.e("LocationTracking", "No initial location available.")
+                }
             }
             _isRunning.value = true
             startTimer()
         }
     }
+
 
     fun stopTracking() {
         if (_isRunning.value) {
@@ -210,16 +234,25 @@ class LocationTrackingViewModel @Inject constructor(
         return String.format("%02d:%02d", minutes, seconds)
     }
 
-    @SuppressLint("MissingPermission")
-    fun updateUserLocationAndSave() {
-        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-            location?.let {
-                val currentLatLng = LatLng(it.latitude, it.longitude)
-                _userLocation.value = currentLatLng
-                viewModelScope.launch {
-                    dataStoreManager.saveLocation(it.latitude, it.longitude)
-                }
+
+    suspend fun updateUserLatLangProfile(lat: Double, long: Double) {
+
+        try {
+            val response =
+                userApi.updateUserLatLong(lat, long)
+            if (response.isSuccessful && response.body() != null) {
+                val getUserBody = response.body()?.body
+                Log.d("초기화", "위도경도 갱신 유저 정보 : $getUserBody")
+            } else {
+                // 서버에서 올바르지 않은 응답을 반환한 경우
+                Log.e("getuser", response.errorBody().toString())
             }
+        } catch (e: Exception) {
+            // 네트워크 오류 처리
+            Log.d("api_err", e.message.toString())
         }
+
     }
+
+
 }

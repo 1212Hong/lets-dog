@@ -17,6 +17,7 @@ import com.ssafy.dog.domain.user.model.UserRole;
 import com.ssafy.dog.domain.user.repository.UserRepository;
 import com.ssafy.dog.security.JwtToken;
 import com.ssafy.dog.security.JwtTokenProvider;
+import com.ssafy.dog.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -159,8 +160,28 @@ public class UserServiceImpl implements UserService {
                 userUpdateReq.getUserAboutMe(),
                 userUpdateReq.getUserGender(),
                 userUpdateReq.getUserLatitude(),
-                userUpdateReq.getUserLatitude(),
+                userUpdateReq.getUserLongitude(),
                 userUpdateReq.getUserAddress()
+        );
+
+        return Api.ok(user.toUserUpdateRes());
+    }
+
+    @Transactional
+    @Override
+    public Api<UserUpdateRes> updatePosition(Double latitude, Double longitude) {
+        User user = userRepository.findByUserId(SecurityUtils.getUserId())
+                .orElseThrow(() -> new ApiException(UserErrorCode.USER_NOT_FOUND));
+
+        user.updateUser(
+                user.getUserNickname(),
+                user.getUserPhone(),
+                user.getUserPicture(),
+                user.getUserAboutMe(),
+                user.getUserGender(),
+                latitude,
+                longitude,
+                user.getUserAddress()
         );
 
         return Api.ok(user.toUserUpdateRes());

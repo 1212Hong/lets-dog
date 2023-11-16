@@ -2,6 +2,7 @@ package com.dog.ui.screen.feed
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,6 +49,7 @@ fun Feed(
     userViewModel: UserViewModel,
     navController: NavController
 ) {
+
     var expanded by remember { mutableStateOf(false) }
 
     OutlinedCard(
@@ -57,6 +59,7 @@ fun Feed(
         border = BorderStroke(1.dp, Color.Black),
         modifier = Modifier
             .fillMaxSize()
+
     ) {
         Column(
             modifier = Modifier
@@ -74,6 +77,7 @@ fun Feed(
                         .size(80.dp)
                         .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.primary)
+                        .clickable { navController.navigate("profile/${feedItem.userNickname}") }
                 ) {
                     LoadImage(url = feedItem.profileUrl)
                 }
@@ -98,7 +102,8 @@ fun Feed(
                         },
                         onReportClick = {
                             expanded = false
-                        }
+                        },
+                        item = feedItem
                     )
                 }
             }

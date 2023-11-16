@@ -250,6 +250,7 @@ class MyPageViewModel @Inject constructor(
         }
     }
 
+
     fun sendFriendRequest(receiverNickname: String) {
         viewModelScope.launch {
             try {

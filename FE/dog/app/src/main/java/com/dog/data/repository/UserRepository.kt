@@ -28,4 +28,9 @@ interface UserRepository {
     @PATCH("user/update")
     suspend fun updateUserProfile(@Body userUpdateRequest: UserUpdateRequest): Response<UserInfoResponse>
 
+    @PATCH("user/position/{latitude}/{longitude}")
+    suspend fun updateUserLatLong(
+        @Path("latitude") lat: Double,
+        @Path("longitude") long: Double
+    ): Response<UserInfoResponse>
 }

@@ -116,7 +116,8 @@ fun CommentItem(comment: CommentItem, commentViewModel: CommentViewModel) {
                     },
                     onReportClick = {
                         expanded = false
-                    }
+                    },
+                    item = comment
                 )
             }
         }

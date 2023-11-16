@@ -34,7 +34,50 @@ public class DogServiceImpl implements DogService {
     private final DogMapper dogMapper;
 
     @Override
-    public Dog create(DogCreateReq dogCreateReq) {
+    public Dog create(DogCreateReq dogCreateReq, Errors errors) {
+
+        if (dogCreateReq.getDogName().length() > 10) {
+            throw new ApiException(DogErrorCode.NAME_SIZE_ERROR);
+        }
+
+        if (dogCreateReq.getDogBreed().length() > 20) {
+            throw new ApiException(DogErrorCode.BREED_SIZE_ERROR);
+        }
+
+        if (dogCreateReq.getDogDispositionList().size() < 3 || dogCreateReq.getDogDispositionList().size() > 5) {
+            throw new ApiException(DogErrorCode.DISPOSITION_LIST_SIZE_ERROR);
+        }
+
+        if (!dogCreateReq.getDogDispositionList().stream()
+                .allMatch(this::isValidDisposition)) {
+            throw new ApiException(DogErrorCode.DISPOSITION_VALUE_ERROR);
+        }
+
+        List<DogDisposition> dispositions = dogCreateReq.getDogDispositionList();
+        Set<DogDisposition> uniqueDispositions = new HashSet<>(dispositions);
+        if (dispositions.size() != uniqueDispositions.size()) {
+            throw new ApiException(DogErrorCode.DISPOSITION_DUPLICATE_ERROR);
+        }
+
+        if (dogCreateReq.getDogAboutMe().length() > 200) {
+            throw new ApiException(DogErrorCode.ABOUTME_SIZE_ERROR);
+        }
+
+        if (!isValidDogSize(dogCreateReq.getDogSize())) {
+            throw new ApiException(DogErrorCode.SIZE_VALUE_ERROR);
+        }
+
+        if (errors.hasErrors()) {
+            // 유효성 통과 못한 필드와 메시지를 핸들링
+            Map<String, String> validatorResult = validateHandling(errors);
+
+            // 각 유효성 실패에 대한 로그 출력
+            validatorResult.forEach((field, message) -> log.error("INVALID_DOG_UPDATE_FIELD: {}{, {}", field, message));
+
+            // 유효성 검사 실패 응답 리턴
+            throw new ApiException(DogErrorCode.INVALID_DOG_UPDATE_FIELDS);
+        }
+
         Dog dog = dogMapper.toEntity(dogCreateReq);
         return dogRepository.save(dog);
     }

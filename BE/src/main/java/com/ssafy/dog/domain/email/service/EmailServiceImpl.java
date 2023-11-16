@@ -1,5 +1,10 @@
 package com.ssafy.dog.domain.email.service;
 
+import com.ssafy.dog.common.api.Api;
+import com.ssafy.dog.common.error.UserErrorCode;
+import com.ssafy.dog.common.exception.ApiException;
+import com.ssafy.dog.domain.email.dto.EmailAddressDto;
+import com.ssafy.dog.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
@@ -11,6 +16,8 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import javax.mail.internet.MimeMessage;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -19,6 +26,23 @@ public class EmailServiceImpl implements EmailService {
     private final JavaMailSender emailSender;
     private final Environment env;
     private final TemplateEngine templateEngine;
+    private final VerificationTokenService verificationTokenService;
+    private final UserService userService;
+
+    public Api<?> sendVerificationEmail(EmailAddressDto emailAddressDto) {
+        if (userService.isDuplicatedEmail(emailAddressDto.getEmail()).getBody().getIsDuplicated()) {
+            throw new ApiException(UserErrorCode.EMAIL_EXISTS);
+        }
+
+        // 인증 코드 생성
+        String verificationCode = verificationTokenService.createVerificationToken(emailAddressDto.getEmail());
+        // 이메일 전송
+        sendVerificationMessage(emailAddressDto.getEmail(), "[같이가개] 이메일 인증코드", verificationCode);
+
+        Map<String, String> ret = new HashMap<>();
+        ret.put("email", emailAddressDto.getEmail());
+        return Api.ok(ret);
+    }
 
     public void sendSimpleMessage(
             String to, String subject, String text) {

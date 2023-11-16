@@ -34,8 +34,8 @@ public class DogController {
 
     @PostMapping
     @Operation(summary = "개 생성")
-    public Api<Map<String, Long>> createNewDog(@Valid @RequestBody DogCreateReq dogCreateReq) {
-        Dog newDog = dogService.create(dogCreateReq);
+    public Api<Map<String, Long>> createNewDog(@Valid @RequestBody DogCreateReq dogCreateReq, Errors errors) {
+        Dog newDog = dogService.create(dogCreateReq, errors);
         Map<String, Long> ret = new HashMap<String, Long>();
         ret.put("dog_id", newDog.getDogId());
         return Api.ok(ret);
