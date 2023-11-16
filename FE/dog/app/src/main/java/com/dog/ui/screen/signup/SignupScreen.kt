@@ -1,5 +1,6 @@
 package com.dog.ui.screen.signup
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -24,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -38,18 +40,17 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.dog.R
 import com.dog.data.Screens
-import com.dog.data.viewmodel.mail.MailViewModel
+import com.dog.data.viewmodel.mail.SignupViewModel
 import com.dog.data.viewmodel.user.UserViewModel
 import com.dog.ui.components.MainButton
 import com.dog.ui.theme.Gray300
 import com.dog.ui.theme.White
 import kotlinx.coroutines.coroutineScope
-import showCustomToast
 
 
 @Composable
 fun SignupScreen(navController: NavController, userViewModel: UserViewModel) {
-    val viewModel: MailViewModel = hiltViewModel()
+    val viewModel: SignupViewModel = hiltViewModel()
     var email by remember { mutableStateOf("") }
     var emailVerificationCode by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -66,23 +67,24 @@ fun SignupScreen(navController: NavController, userViewModel: UserViewModel) {
     }
 
     val validateEmail = suspend {
-        coroutineScope {
-            try {
-                viewModel.sendMailCode(email)
-                showCustomToast(context, "인증요청을 발송했습니다. : ")
-            } catch (e: Exception) {
-                showCustomToast(context, "인증요청에 실패했습니다. : ${e.message}")
+        if(email.isNullOrEmpty())
+            Toast.makeText(context, "이메일이 비었습니다.", Toast.LENGTH_SHORT).show()
+        else {
+            coroutineScope {
+                try {
+                    viewModel.sendMailCode(email)
+                } catch (e: Exception) {
+                }
             }
         }
+
     }
 
     val checkCode = suspend {
         coroutineScope {
             try {
                 viewModel.checkCode(email, emailVerificationCode)
-                showCustomToast(context, toastMessage.toString())
             } catch (e: Exception) {
-                showCustomToast(context, toastMessage.toString() + "${e.message}")
             }
         }
     }
@@ -90,26 +92,39 @@ fun SignupScreen(navController: NavController, userViewModel: UserViewModel) {
 
     val signupAction = suspend {
         if (email.isNullOrEmpty()) {
-            showCustomToast(context, "이메일이 비었습니다.")
+            Toast.makeText(context, "이메일이 비었습니다.", Toast.LENGTH_SHORT).show()
         } else if (password.isNullOrEmpty()) {
-            showCustomToast(context, "비밀번호가 비었습니다.")
+            Toast.makeText(context, "비밀번호가 비었습니다.", Toast.LENGTH_SHORT).show()
         } else if (confirmPassword.isNullOrEmpty()) {
-            showCustomToast(context, "비밀번호 확인란이 비었습니다.")
+            Toast.makeText(context, "비밀번호 확인란이 비었습니다.", Toast.LENGTH_SHORT).show()
+        } else if (confirmPassword != password) {
+            Toast.makeText(context, "비밀번호가 일치하지 않습니다.", Toast.LENGTH_SHORT).show()
         } else if (nickName.isNullOrEmpty()) {
-            showCustomToast(context, "닉네임이 비었습니다.")
+            Toast.makeText(context, "닉네임이 비었습니다.", Toast.LENGTH_SHORT).show()
         }
-        if (confirmPassword != password) {
-            showCustomToast(context, "비밀번호가 일치하지 않습니다.")
+        else {
+            coroutineScope {
+                try {
+                    userViewModel.signup(email, password, confirmPassword, nickName, true)
+                    if(userViewModel.message.value == email)
+                        navController.navigate(Screens.Signin.route)
+                    else Toast.makeText(context, toastMessage, Toast.LENGTH_SHORT).show()
+                } catch (e: Exception) {
+                    Log.e("signup","회원가입에 실패했습니다: ${e.message}")
+                }
+            }
         }
+    }
+
+
+    val checkDupName = suspend {
         coroutineScope {
             try {
-                userViewModel.signup(email, password, confirmPassword, nickName, true)
+                viewModel.checkNickname(nickName)
             } catch (e: Exception) {
-                showCustomToast(context, "회원가입에 실패했습니다: ${e.message}")
             }
         }
 
-        navController.navigate(Screens.RegisterDog.route)
     }
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
@@ -150,7 +165,7 @@ fun SignupScreen(navController: NavController, userViewModel: UserViewModel) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 20.dp).align(CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // 이메일 입력 필드
@@ -173,7 +188,8 @@ fun SignupScreen(navController: NavController, userViewModel: UserViewModel) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 20.dp).align(CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 // 이메일 인증번호 입력 필드
                 OutlinedTextField(
@@ -214,21 +230,33 @@ fun SignupScreen(navController: NavController, userViewModel: UserViewModel) {
                 singleLine = true
             )
 
-            // 닉네임 입력 필드
-            OutlinedTextField(
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                value = nickName,
-                onValueChange = { nickName = it },
-                label = { Text("닉네임 입력") },
-                singleLine = true
-            )
+                    .padding(horizontal = 20.dp).align(CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // 닉네임 입력 필드
+                OutlinedTextField(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 16.dp),
+                    value = nickName,
+                    onValueChange = { nickName = it },
+                    label = { Text("닉네임 입력") },
+                    singleLine = true
+                )
+                MainButton(
+                    modifier = Modifier,
+                    text = "중복 확인", onClick = checkDupName
+                )
+            }
 
             Spacer(modifier = Modifier.padding(16.dp))
 
             // 회원 가입 버튼
             MainButton(
+                modifier = Modifier.align(CenterHorizontally),
                 onClick = signupAction,
                 text = "회원 가입"
             )
@@ -240,7 +268,7 @@ fun SignupScreen(navController: NavController, userViewModel: UserViewModel) {
                 text = "이미 계정이 있으신가요?",
                 fontWeight = FontWeight.Bold,
                 color = Gray300,
-                modifier = Modifier.clickable {
+                modifier = Modifier.align(CenterHorizontally).clickable {
                     navController.navigate(Screens.Signin.route)
                 }
             )

@@ -116,7 +116,10 @@ class UserViewModel @Inject constructor(
                 Log.d("api", response.toString())
                 if (response.isSuccessful) {
                     val signupBody = response.body()?.body
-                    _message.value = signupBody.toString()
+                    val signupResult = response.body()?.result
+
+                    if(_message.value == null) _message.value = signupResult?.message
+                    else _message.value = signupBody.toString() + " 계정으로 로그인에 성공햇습니다."
                     Log.d("signup", signupBody.toString())
                 } else {
                     // 서버에서 올바르지 않은 응답을 반환한 경우

@@ -241,9 +241,9 @@ fun RegisterDogScreen(navController: NavController) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 16.dp),
-                    text = "Register Dog",
-                    onClick = {
-                        // Handle dog registration logic here
+                    text = "Register Dog"
+                ) {
+                    // Handle dog registration logic here
 //                        val dog = DogInfo(
 //                            dogName = dogName,
 //                            userId = 0,
@@ -254,13 +254,12 @@ fun RegisterDogScreen(navController: NavController) {
 //                            dogAboutMe = dogAboutMe,
 //                            dogSize = dogSizeSelection
 //                        )
-                        // Call your registration API or perform necessary actions
-                        // ...
+                    // Call your registration API or perform necessary actions
+                    // ...
 
-                        // Navigate back or to the next screen
+                    // Navigate back or to the next screen
 //                        navController.popBackStack()
-                    }
-                )
+                }
             }
         }
     }
