@@ -10,7 +10,7 @@ import retrofit2.http.POST
 import retrofit2.http.PUT
 
 
-interface MailRepository {
+interface SignupRepository {
 
     @POST("email/verification-email")
     suspend fun sendEmailCode(@Body emailRequest: EmailRequest): Response<EmailCodeResponse>
@@ -18,5 +18,6 @@ interface MailRepository {
     @PUT("email/verification-code")
     suspend fun emailValidation(@Body request: EmailValidationRequest): Response<EmailValidationResponse>
 
+    @GET("user/duplicate-")
 
 }

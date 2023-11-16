@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dog.data.model.email.EmailRequest
 import com.dog.data.model.email.EmailValidationRequest
-import com.dog.data.repository.MailRepository
+import com.dog.data.repository.SignupRepository
 import com.dog.util.common.DataStoreManager
 import com.dog.util.common.RetrofitClient
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,8 +19,8 @@ class MailViewModel @Inject constructor(
     private val dataStoreManager: DataStoreManager
 ) : ViewModel() {
     private val interceptor = RetrofitClient.RequestInterceptor(dataStoreManager)
-    private val mailApi: MailRepository = RetrofitClient.getInstance(interceptor).create(
-        MailRepository::class.java
+    private val mailApi: SignupRepository = RetrofitClient.getInstance(interceptor).create(
+        SignupRepository::class.java
     )
     private val _message = mutableStateOf<String?>(null)
     val message: State<String?> = _message
@@ -32,12 +32,13 @@ class MailViewModel @Inject constructor(
 
                 if (response.isSuccessful) {
                     response.body()?.body?.let { body ->
-                        if (body.email === email) _message.value = "메일 전송이 완료되었습니다."
-                        Log.d("mail", body.email.toString())
+                        _message.value = "인증 메일 전송이 완료되었습니다."
+                        Log.d("mail", body.email)
+                        Log.d("mail_message", _message.value.toString())
                     }
                 } else {
                     Log.e("MailViewModel", "Error: ${response.errorBody()?.string()}")
-                    _message.value = "에러 뜸요"
+                    _message.value = "인증 메일 전송에 실패했습니다."
                 }
             } catch (e: Exception) {
                 Log.e("MailViewModel", "Exception", e)
