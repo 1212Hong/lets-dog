@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -26,7 +27,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -41,12 +41,10 @@ import com.dog.ui.theme.Pink400
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatListScreen(navController: NavController, chatViewModel: ChatViewModel) {
-    // Chat 목록 데이터를 가져오는 함수 또는 ViewModel을 사용하여 데이터를 로드합니다.
-//    var listState = rememberLazyListState()
+    val listState = rememberLazyListState()
     val chatList = chatViewModel.chatListState
-    val context = LocalContext.current
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(chatList) {
         chatViewModel.getChatList()
         Log.d("chatList", chatList.toString())
     }
@@ -68,7 +66,8 @@ fun ChatListScreen(navController: NavController, chatViewModel: ChatViewModel) {
             )
             if (chatViewModel.loading.value && chatViewModel.chatListState.isNotEmpty()) {
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    state = listState
                 ) {
                     items(chatList.size) { idx ->
                         ChatItem(chatList[idx], navController, chatViewModel)

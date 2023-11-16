@@ -37,7 +37,7 @@ import com.dog.ui.screen.chat.CreateChatting
 import com.dog.ui.screen.profile.EditDogProfileScreen
 import com.dog.ui.screen.profile.EditUserProfileScreen
 import com.dog.ui.screen.profile.MypageScreen
-import com.dog.ui.screen.signup.RegisterDogScreen
+import com.dog.ui.screen.profile.RegisterDogScreen
 import com.dog.ui.screen.walking.WalkingHistoryScreen
 import com.dog.ui.screen.walking.WalkingScreen
 
@@ -73,7 +73,7 @@ fun BottomNavigationBar(startRoute: String, userViewModel: UserViewModel) {
     shouldShowBottomBar.value = when (navBackStackEntry?.destination?.route) {
         "profile/{userNickname}" -> false
         "chatroom/{roomId}" -> false
-        "edit_profile", "edit_dog", "RegisterDog_screen"-> false
+        "edit_profile", "edit_dog", "RegisterDog_screen" -> false
         else -> true
     }
 
@@ -184,9 +184,9 @@ fun BottomNavigationBar(startRoute: String, userViewModel: UserViewModel) {
             composable("edit_dog") {
                 EditDogProfileScreen(navController, myPageViewModel, imageUploadViewModel)
             }
-            
+
             composable(Screens.RegisterDog.route) {
-                RegisterDogScreen(navController, imageUploadViewModel)
+                RegisterDogScreen(navController, imageUploadViewModel, myPageViewModel)
             }
 
         }

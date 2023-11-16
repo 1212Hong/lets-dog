@@ -11,7 +11,6 @@ import androidx.navigation.compose.composable
 import com.dog.data.Screens
 import com.dog.data.viewmodel.user.UserViewModel
 import com.dog.ui.screen.signin.LoginScreen
-import com.dog.ui.screen.signup.RegisterDogScreen
 import com.dog.ui.screen.signup.SignupScreen
 import com.dog.util.common.DataStoreManager
 import com.google.android.gms.tasks.Task
