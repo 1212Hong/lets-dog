@@ -51,13 +51,13 @@ class PostFeedViewModel @Inject constructor(
                         boardComments = 0 // 예시로 0으로 설정
                     )
                 )
-                Log.d("res", "API 호출 성공: ${response.body().toString()}")
+                Log.d("feedpost", "API 호출 성공: ${response.body().toString()}")
 //                 API 응답 결과를 LiveData에 전달
 //                 _postFeedResult.value = response.body()?.body.
 
             } catch (e: Exception) {
                 // 에러 처리
-                Log.e("res", "API 호출 실패: ${e.message}")
+                Log.e("feedpost", "API 호출 실패: ${e.message}")
                 // _postFeedResult.value = PostFeedResponseResult.("게시글 작성에 실패했습니다.")
             }
         }

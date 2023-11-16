@@ -63,10 +63,8 @@ fun DogApp(dataStoreManager: DataStoreManager, onPermissionDenied: () -> Unit) {
         val isLoading = userViewModel.isLoading.collectAsState().value
         val gpsIsLoading = locationTrackingViewModel.isLoading.collectAsState().value
         val feedIsLoading = homeViewModel.isLoading.collectAsState().value
-        LaunchedEffect(Unit) {
-            locationTrackingViewModel.updateUserLocationAndSave()
-        }
-        if (isLoading || gpsIsLoading || feedIsLoading) {
+
+        if (isLoading || feedIsLoading || gpsIsLoading) {
             CircularProgressIndicator()
         } else {
             AppNavigation(navController, userViewModel, dataStoreManager, isUserLoggedIn)
