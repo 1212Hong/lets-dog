@@ -65,15 +65,15 @@ public class ChatService {
 			throw new ApiException(ChatErrorCode.CHATROOM_USER_NOT_SELECT);
 		}
 
-		List<String> fcmTokens = new ArrayList<>();
+		// List<String> fcmTokens = new ArrayList<>();
 		for (String nickName : chatRoomReqDto.getUserNicks()) {
 			User user = userRepository.findByUserNickname(nickName)
 				.orElseThrow(() -> new ApiException(UserErrorCode.USER_NOT_FOUND));
 			users.add(user);
 
 			// FCM 토큰값 Redis에서 가져오기
-			String fcmtoken = fcmService.getFcmToken(user.getUserId());
-			fcmTokens.add(fcmtoken);
+			// String fcmtoken = fcmService.getFcmToken(user.getUserId());
+			// fcmTokens.add(fcmtoken);
 		}
 
 		ChatRoom chatRoom = ChatRoom.builder().roomTitle(chatRoomReqDto.getRoomTitle()).build();
@@ -90,7 +90,7 @@ public class ChatService {
 		chatMembersRepository.saveAll(chatMembersList);
 
 		// roomId로 FCM 구독
-		fcmService.subscribeFCM(fcmTokens, chatRoom.getRoomId());
+		// fcmService.subscribeFCM(fcmTokens, chatRoom.getRoomId());
 
 		return Api.ok(chatRoom.getRoomId() + "채팅방 생성 성공");
 	}

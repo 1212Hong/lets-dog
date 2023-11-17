@@ -9,7 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@RedisHash(value = "fmc_token")
+@RedisHash(value = "fcm_token")
 public class FcmToken implements Serializable {
 
 	@Id
