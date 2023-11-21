@@ -337,7 +337,7 @@ DataStore란 프로토콜 버퍼를 사용해 key-value 쌍이 지정된 객체�
 
 | 김대홍                                 | 권영재                         | 김기홍                        | 김현종                        | 소영섭                         | 이성연                        |
 | -------------------------------------- | ------------------------------ | ----------------------------- | ----------------------------- | ------------------------------ | ----------------------------- |
-| <img src="" width="100">               | <img src="" width="100">       | <img src="https://avatars.githubusercontent.com/u/93422139?v=4" width="100">      | <img src="" width="100">      | <img src="" width="100">       | <img src="" width="100">      |
+| <img src="" width="100">               | <img src="" width="100">       | <img src="https://avatars.githubusercontent.com/u/93422139?v=4" width="100" height="100">      | <img src="" width="100">      | <img src="" width="100">       | <img src="" width="100">      |
 | <p align="center">Leader & Backend</p> | <p align="center">Frontend</p> | <p align="center">Backend</p> | <p align="center">Backend</p> | <p align="center">Frontend</p> | <p align="center">Backend</p> |
 
 <br>
