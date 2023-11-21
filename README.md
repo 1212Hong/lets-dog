@@ -1,3 +1,14 @@
+<!-- README.md의 상단에 스타일을 정의합니다. -->
+<style>
+.profile-img {
+  width: 100px;
+  height: 100px;
+  display: block;
+  object-fit: cover; /* 이미지가 컨테이너를 꽉 채우도록 합니다. */
+  background-color: #000000; /* 배경을 검은색으로 설정합니다. */
+}
+</style>
+
 # 🐕같이가개(강아지 산책 커뮤니티)
 
 # 🎬UCC
@@ -337,7 +348,7 @@ DataStore란 프로토콜 버퍼를 사용해 key-value 쌍이 지정된 객체�
 
 | 김대홍                                 | 권영재                         | 김기홍                        | 김현종                        | 소영섭                         | 이성연                        |
 | -------------------------------------- | ------------------------------ | ----------------------------- | ----------------------------- | ------------------------------ | ----------------------------- |
-| <img src="" width="100">               | <img src="" width="100">       | <img src="https://avatars.githubusercontent.com/u/93422139?v=4" width="100">      | <a href="https://github.com/bellringstar"> <img src="https://avatars.githubusercontent.com/u/118344103?s=400&u=e3febea842cf5cb2cb396fd6d468cdbaa3a93898&v=4" alt="profile" width="100"></a>      | <img src="" width="100">       | <img src="" width="100">      |
+| <img src="" width="100">               | <img src="" width="100">       | <img src="https://avatars.githubusercontent.com/u/93422139?v=4" class="profile-img">      | <a href="https://github.com/bellringstar"> <img src="https://avatars.githubusercontent.com/u/118344103?s=400&u=e3febea842cf5cb2cb396fd6d468cdbaa3a93898&v=4" alt="profile" width="100" height="100"></a>      | <img src="" width="100">       | <img src="" width="100">      |
 | <p align="center">Leader & Backend</p> | <p align="center">Frontend</p> | <p align="center">Backend</p> | <p align="center">Backend</p> | <p align="center">Frontend</p> | <p align="center">Backend</p> |
 
 <br>
