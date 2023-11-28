@@ -1,0 +1,42 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  sql:
+    init:
+      schema-locations: classpath*:mysql/schema.sql
+
+  r2dbc:
+    url: r2dbc:pool:mysql://localhost:3306/${MYSQL_DATABASE}?serverTimezone=Asia/Seoul
+    username: ${MYSQL_USER}
+    password: ${MYSQL_PASSWORD}
+
+  webflux:
+    multipart:
+      max-in-memory-size: 512KB
+      max-parts: 8
+      max-disk-usage-per-part: 300MB
+      max-headers-size: 5KB
+
+
+logging:
+  level:
+    reactor: DEBUG
+    io.r2dbc: DEBUG
+    org.springframework.r2dbc: DEBUG
+    org.bytedeco.ffmpeg: DEBUG
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "prometheus"
+
+
+file:
+  uploadUrl: "http://localhost:9000/api/uploads/"
+  downloadApi: "http://localhost:9000/api/file/"
+
+

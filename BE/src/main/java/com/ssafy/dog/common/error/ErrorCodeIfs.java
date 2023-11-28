@@ -1,10 +1,10 @@
 package com.ssafy.dog.common.error;
 
 public interface ErrorCodeIfs {
-	Integer getHttpStatusCode();
+    Integer getHttpStatusCode();
 
-	Integer getErrorCode();
+    Integer getErrorCode();
 
-	String getDescription();
+    String getDescription();
 }
 

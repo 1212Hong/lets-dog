@@ -4,7 +4,7 @@ import com.ssafy.dog.common.error.ErrorCodeIfs;
 
 public interface ApiExceptionIfs {
 
-	ErrorCodeIfs getErrorCodeIfs();
+    ErrorCodeIfs getErrorCodeIfs();
 
-	String getErrorDescription();
+    String getErrorDescription();
 }

@@ -146,7 +146,6 @@ $RECYCLE.BIN/
 HELP.md
 .gradle
 build/
-!gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
 
@@ -187,3 +186,14 @@ out/
 .env.test.local
 .env.production.local
 .env.local
+
+# docker volume
+./database/mongodb/data/
+./database/mysql/data/
+./kafka/
+
+# querdls 생성되는폴더
+/src/main/generated/
+
+# Firebase 키값
+/src/main/resources/*.json

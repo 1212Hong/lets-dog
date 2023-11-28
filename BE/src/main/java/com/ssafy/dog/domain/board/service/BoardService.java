@@ -1,25 +1,18 @@
 package com.ssafy.dog.domain.board.service;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
 
-import com.ssafy.dog.domain.board.dto.request.BoardCreateRequest;
-import com.ssafy.dog.domain.board.dto.response.BoardCreateResponse;
-import com.ssafy.dog.domain.board.entity.Board;
-import com.ssafy.dog.domain.board.repository.BoardRepository;
+import com.ssafy.dog.common.api.Api;
+import com.ssafy.dog.domain.board.dto.BoardDto;
+import com.ssafy.dog.domain.board.dto.BoardReqDto;
 
-import lombok.RequiredArgsConstructor;
+public interface BoardService {
+	public Api<String> createBoard(BoardReqDto boardDto);
 
-@Service
-@RequiredArgsConstructor
-public class BoardService {
-	private final BoardRepository boardRepository;
+	public Api<List<BoardDto>> findBoardbyNickname(String userLoginId);
 
-	@Transactional
-	public BoardCreateResponse boardCreate(BoardCreateRequest boardCreateRequest) {
-		Board board = boardRepository.save(Board.from(boardCreateRequest));
-		boardRepository.flush();
-		return BoardCreateResponse.from(board);
-	}
+	public Api<List<BoardDto>> findBoardNeararea(double userLatitude, double userLongitude);
+
+	public Api<String> deleteBoard(Long boardId);
 
 }

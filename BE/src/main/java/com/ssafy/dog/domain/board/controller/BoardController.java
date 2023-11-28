@@ -1,44 +1,51 @@
 package com.ssafy.dog.domain.board.controller;
 
-import org.springframework.web.bind.annotation.ExceptionHandler;
+import java.util.List;
+
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ssafy.dog.common.api.Api;
-import com.ssafy.dog.common.error.ErrorCode;
-import com.ssafy.dog.common.error.UserErrorCode;
-import com.ssafy.dog.common.exception.ApiException;
-import com.ssafy.dog.domain.board.dto.request.BoardCreateRequest;
-import com.ssafy.dog.domain.board.dto.response.BoardCreateResponse;
+import com.ssafy.dog.domain.board.dto.BoardDto;
+import com.ssafy.dog.domain.board.dto.BoardReqDto;
 import com.ssafy.dog.domain.board.service.BoardService;
 
-import lombok.Getter;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/board")
+@RequiredArgsConstructor
+@RequestMapping("/api")
 public class BoardController {
 	private final BoardService boardService;
 
-	@PostMapping
-	public Api<BoardCreateResponse> boardCreate(@RequestBody BoardCreateRequest boardCreateRequest) {
-		return Api.ok(boardService.boardCreate(boardCreateRequest));
+	@PostMapping("/board")
+	@Operation(summary = "게시글 작성")
+	public Api<String> createBoard(@RequestBody BoardReqDto boardDto) {
+		return boardService.createBoard(boardDto);
 	}
 
-	@GetMapping
-	public Api<?> test() {
-		return Api.ok("test");
+	@GetMapping("/board")
+	@Operation(summary = "UserNickname이 작성한 게시글 목록 불러오기")
+	public Api<List<BoardDto>> getBoardList(@RequestParam String userNickname) {
+		return boardService.findBoardbyNickname(userNickname);
 	}
 
-	@GetMapping("/test")
-	public Api<?> test2() {
-		throw new ApiException(UserErrorCode.USER_NOT_FOUND, "에러 발생 테스트");
+	@DeleteMapping("/board")
+	@Operation(summary = "BoardId 로 게시글 삭제 하기")
+	public Api<String> deleteBoard(@RequestParam Long boardId) {
+		return boardService.deleteBoard(boardId);
 	}
 
-
-
+	@GetMapping("/boardnear")
+	@Operation(summary = "내 주변 사용자들 게시글 목록 가져오기")
+	public Api<List<BoardDto>> getBoardListNearby(@RequestParam double userLatitude,
+		@RequestParam double userLongitude) {
+		return boardService.findBoardNeararea(userLatitude, userLongitude);
+	}
 }
